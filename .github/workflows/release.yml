@@ -55,6 +55,7 @@ jobs:
           args: ${{ matrix.args }}
 
   windows:
+    needs: mac
     runs-on: windows-latest
 
     steps:
@@ -94,9 +95,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: |
-          gh release upload "${{ github.ref_name }}" `
-            src-tauri/target/release/bundle/msi/*.msi `
-            src-tauri/target/release/bundle/msi/*.sig `
-            src-tauri/target/release/bundle/nsis/*.exe `
-            src-tauri/target/release/bundle/nsis/*.sig `
-            --clobber
+          $files = @()
+          $files += Get-ChildItem "src-tauri/target/release/bundle/msi" -File | Where-Object { $_.Extension -in ".msi", ".sig" }
+          $files += Get-ChildItem "src-tauri/target/release/bundle/nsis" -File | Where-Object { $_.Extension -in ".exe", ".sig" }
+
+          Write-Host "Windows artifacts encontrados:"
+          $files | ForEach-Object { Write-Host $_.FullName }
+
+          foreach ($file in $files) {
+            gh release upload "${{ github.ref_name }}" "$($file.FullName)" --clobber
+          }
