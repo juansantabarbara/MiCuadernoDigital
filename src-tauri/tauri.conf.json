@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "MiCuadernoDigital",
+  "version": "0.2.0",
+  "identifier": "es.micuadernodigital.app",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "MiCuadernoDigital",
+        "width": 1440,
+        "height": 940,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app",
+      "dmg"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzQjc5NjI1QTI5QTY2QzAKUldUQVpwcWlKWmEzMDczb3VqZUU0Sm5sSXVWekxpWVhFcmViUnJVNEswN3pzRzBnakpTY1FudjMK",
+      "endpoints": [
+        "https://github.com/juansantabarbara/MiCuadernoDigital/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}
