@@ -13,6 +13,8 @@ use tauri_plugin_updater::UpdaterExt;
 
 const SCHEMA_VERSION: i64 = 4;
 const GOOGLE_SCOPE: &str = "https://www.googleapis.com/auth/calendar.app.created";
+const GOOGLE_CLIENT_ID: &str = env!("GOOGLE_CLIENT_ID");
+const GOOGLE_CLIENT_SECRET: &str = env!("GOOGLE_CLIENT_SECRET");
 const KEYCHAIN_SERVICE: &str = "MiCuadernoDigital Google Calendar";
 const KEYCHAIN_SECRET_SERVICE: &str = "MiCuadernoDigital Google OAuth Client";
 
@@ -140,52 +142,27 @@ struct TokenResponse {
     refresh_token: Option<String>,
 }
 
+fn token_entry(client_id: &str) -> Result<keyring::Entry, String> {
+    keyring::Entry::new(KEYCHAIN_SERVICE, client_id)
+        .map_err(|e| format!("No se pudo acceder al almacén seguro del sistema: {e}"))
+}
+
 fn keychain_store(client_id: &str, refresh_token: &str) -> Result<(), String> {
-    let status = Command::new("/usr/bin/security")
-        .args(["add-generic-password", "-a", client_id, "-s", KEYCHAIN_SERVICE, "-w", refresh_token, "-U"])
-        .status().map_err(|e| format!("No se pudo acceder al Llavero: {e}"))?;
-    if status.success() { Ok(()) } else { Err("macOS no pudo guardar la autorización de Google en el Llavero.".into()) }
+    token_entry(client_id)?
+        .set_password(refresh_token)
+        .map_err(|e| format!("No se pudo guardar la autorización de Google: {e}"))
 }
 
 fn keychain_get(client_id: &str) -> Result<String, String> {
-    let out = Command::new("/usr/bin/security")
-        .args(["find-generic-password", "-a", client_id, "-s", KEYCHAIN_SERVICE, "-w"])
-        .output().map_err(|e| format!("No se pudo leer el Llavero: {e}"))?;
-    if out.status.success() {
-        Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
-    } else {
-        Err("No hay una autorización de Google guardada en el Llavero.".into())
-    }
+    token_entry(client_id)?
+        .get_password()
+        .map_err(|_| "No hay una autorización de Google guardada.".to_string())
 }
 
 fn keychain_delete(client_id: &str) {
-    let _ = Command::new("/usr/bin/security")
-        .args(["delete-generic-password", "-a", client_id, "-s", KEYCHAIN_SERVICE])
-        .status();
-}
-
-fn client_secret_store(client_id: &str, client_secret: &str) -> Result<(), String> {
-    let status = Command::new("/usr/bin/security")
-        .args(["add-generic-password", "-a", client_id, "-s", KEYCHAIN_SECRET_SERVICE, "-w", client_secret, "-U"])
-        .status().map_err(|e| format!("No se pudo acceder al Llavero: {e}"))?;
-    if status.success() { Ok(()) } else { Err("macOS no pudo guardar el secreto OAuth en el Llavero.".into()) }
-}
-
-fn client_secret_get(client_id: &str) -> Result<String, String> {
-    let out = Command::new("/usr/bin/security")
-        .args(["find-generic-password", "-a", client_id, "-s", KEYCHAIN_SECRET_SERVICE, "-w"])
-        .output().map_err(|e| format!("No se pudo leer el Llavero: {e}"))?;
-    if out.status.success() {
-        Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
-    } else {
-        Err("No hay un client secret de Google guardado en el Llavero.".into())
+    if let Ok(entry) = token_entry(client_id) {
+        let _ = entry.delete_credential();
     }
-}
-
-fn client_secret_delete(client_id: &str) {
-    let _ = Command::new("/usr/bin/security")
-        .args(["delete-generic-password", "-a", client_id, "-s", KEYCHAIN_SECRET_SERVICE])
-        .status();
 }
 
 fn google_config(app: &AppHandle) -> Result<Option<(String,String,String,String)>, String> {
@@ -202,15 +179,31 @@ fn random_token(len: usize) -> String {
 }
 
 fn refresh_access_token(client_id:&str, client_secret:&str, refresh_token:&str) -> Result<String,String> {
-    let client=reqwest::blocking::Client::builder().timeout(Duration::from_secs(30)).build().map_err(|e|e.to_string())?;
+    let client=reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build().map_err(|e|e.to_string())?;
+
     let resp=client.post("https://oauth2.googleapis.com/token")
-        .form(&[("client_id",client_id),("client_secret",client_secret),("refresh_token",refresh_token),("grant_type","refresh_token")])
+        .form(&[
+            ("client_id",client_id),
+            ("client_secret",client_secret),
+            ("refresh_token",refresh_token),
+            ("grant_type","refresh_token")
+        ])
         .send().map_err(|e|format!("No se pudo renovar la sesión de Google: {e}"))?;
+
     let status=resp.status();
     let text=resp.text().map_err(|e|e.to_string())?;
-    if !status.is_success(){return Err(format!("Google rechazó la renovación ({status}): {text}"));}
+
+    if !status.is_success(){
+        return Err(format!("Google rechazó la renovación ({status}): {text}"));
+    }
+
     let v:Value=serde_json::from_str(&text).map_err(|e|e.to_string())?;
-    v.get("access_token").and_then(Value::as_str).map(|x|x.to_string()).ok_or_else(||"Google no devolvió un access_token.".into())
+    v.get("access_token")
+        .and_then(Value::as_str)
+        .map(|x|x.to_string())
+        .ok_or_else(||"Google no devolvió un access_token.".into())
 }
 
 fn create_google_calendar(access_token:&str)->Result<String,String>{
@@ -225,13 +218,8 @@ fn create_google_calendar(access_token:&str)->Result<String,String>{
     v.get("id").and_then(Value::as_str).map(|x|x.to_string()).ok_or_else(||"Google no devolvió el ID del calendario.".into())
 }
 
-fn oauth_connect_blocking(app:AppHandle, client_id:String, client_secret:String)->Result<GoogleCalendarStatus,String>{
-    if client_id.trim().is_empty(){return Err("Necesitas un Client ID de aplicación de escritorio de Google.".into());}
-    let client_secret = if client_secret.trim().is_empty() {
-        client_secret_get(client_id.trim())?
-    } else {
-        client_secret.trim().to_string()
-    };
+fn oauth_connect_blocking(app:AppHandle)->Result<GoogleCalendarStatus,String>{
+    let client_id = GOOGLE_CLIENT_ID.to_string();
     let listener=TcpListener::bind("127.0.0.1:0").map_err(|e|format!("No se pudo abrir el puerto local de autorización: {e}"))?;
     listener.set_nonblocking(true).map_err(|e|e.to_string())?;
     let port=listener.local_addr().map_err(|e|e.to_string())?.port();
@@ -250,8 +238,8 @@ fn oauth_connect_blocking(app:AppHandle, client_id:String, client_secret:String)
       .append_pair("code_challenge",&challenge)
       .append_pair("code_challenge_method","S256")
       .append_pair("state",&state);
-    let open_status=Command::new("/usr/bin/open").arg(auth.as_str()).status().map_err(|e|format!("No se pudo abrir el navegador: {e}"))?;
-    if !open_status.success(){return Err("No se pudo abrir el navegador para conectar Google.".into());}
+    open::that(auth.as_str())
+        .map_err(|e|format!("No se pudo abrir el navegador para conectar Google: {e}"))?;
     let started=Instant::now();
     let (mut stream,_)=loop {
       match listener.accept(){
@@ -274,7 +262,7 @@ fn oauth_connect_blocking(app:AppHandle, client_id:String, client_secret:String)
     let code=params.get("code").ok_or_else(||"Google no devolvió el código de autorización.".to_string())?;
     let client=reqwest::blocking::Client::builder().timeout(Duration::from_secs(30)).build().map_err(|e|e.to_string())?;
     let resp=client.post("https://oauth2.googleapis.com/token")
-      .form(&[("client_id",client_id.trim()),("client_secret",client_secret.as_str()),("code",code.as_str()),("code_verifier",verifier.as_str()),("grant_type","authorization_code"),("redirect_uri",redirect_uri.as_str())])
+      .form(&[("client_id",client_id.trim()),("client_secret",GOOGLE_CLIENT_SECRET),("code",code.as_str()),("code_verifier",verifier.as_str()),("grant_type","authorization_code"),("redirect_uri",redirect_uri.as_str())])
       .send().map_err(|e|format!("No se pudo completar la autorización: {e}"))?;
     let status=resp.status();let text=resp.text().map_err(|e|e.to_string())?;
     if !status.is_success(){return Err(format!("Google OAuth respondió {status}: {text}"));}
@@ -283,7 +271,6 @@ fn oauth_connect_blocking(app:AppHandle, client_id:String, client_secret:String)
     let previous=google_config(&app)?;
     if let Some((old_client,_,_,_))=&previous { if old_client!=client_id.trim(){keychain_delete(old_client);} }
     keychain_store(client_id.trim(),&refresh)?;
-    client_secret_store(client_id.trim(),&client_secret)?;
     let calendar_id=match previous.filter(|(old_client,cal,_,_)|old_client==client_id.trim()&&!cal.is_empty()).map(|(_,cal,_,_)|cal){Some(cal)=>cal,None=>create_google_calendar(&tok.access_token)?};
     let conn=open_db(&app)?;
     conn.execute("INSERT INTO google_calendar_config(id,client_id,calendar_id,calendar_name,last_sync_at) VALUES(1,?1,?2,'MiCuadernoDigital','') ON CONFLICT(id) DO UPDATE SET client_id=excluded.client_id,calendar_id=excluded.calendar_id,calendar_name=excluded.calendar_name,last_sync_at=''",params![client_id.trim(),calendar_id]).map_err(|e|e.to_string())?;
@@ -291,8 +278,8 @@ fn oauth_connect_blocking(app:AppHandle, client_id:String, client_secret:String)
 }
 
 #[tauri::command]
-async fn google_connect(app:AppHandle,client_id:String,client_secret:String)->Result<GoogleCalendarStatus,String>{
-    let result = tauri::async_runtime::spawn_blocking(move||oauth_connect_blocking(app,client_id,client_secret))
+async fn google_connect(app:AppHandle)->Result<GoogleCalendarStatus,String>{
+    let result = tauri::async_runtime::spawn_blocking(move||oauth_connect_blocking(app))
         .await
         .map_err(|e|e.to_string())?;
 
@@ -307,7 +294,7 @@ async fn google_connect(app:AppHandle,client_id:String,client_secret:String)->Re
 fn google_status(app:AppHandle)->Result<GoogleCalendarStatus,String>{
     if let Some((client_id,calendar_id,calendar_name,last_sync_at))=google_config(&app)?{
         let connected=keychain_get(&client_id).is_ok();
-        Ok(GoogleCalendarStatus{connected,client_id,calendar_id,calendar_name,last_sync_at,detail:if connected{"Google Calendar conectado.".into()}else{"Existe configuración, pero falta la autorización en el Llavero de macOS.".into()}})
+        Ok(GoogleCalendarStatus{connected,client_id,calendar_id,calendar_name,last_sync_at,detail:if connected{"Google Calendar conectado.".into()}else{"Existe configuración, pero falta la autorización segura de Google.".into()}})
     } else {Ok(GoogleCalendarStatus{connected:false,client_id:"".into(),calendar_id:"".into(),calendar_name:"MiCuadernoDigital".into(),last_sync_at:"".into(),detail:"No conectado.".into()})}
 }
 
@@ -315,7 +302,6 @@ fn google_status(app:AppHandle)->Result<GoogleCalendarStatus,String>{
 fn google_disconnect(app:AppHandle)->Result<(),String>{
     if let Some((client_id,_,_,_))=google_config(&app)?{
         keychain_delete(&client_id);
-        client_secret_delete(&client_id);
     }
     Ok(())
 }
@@ -343,8 +329,7 @@ fn agenda_event_body(item:&Value,color_map:&Value,default_duration:i64)->Result<
 fn google_sync_blocking(app:AppHandle,agenda_json:String,color_map_json:String,default_duration_minutes:i64)->Result<GoogleSyncReport,String>{
     let (client_id,calendar_id,_,_)=google_config(&app)?.ok_or_else(||"Google Calendar no está conectado.".to_string())?;
     let refresh=keychain_get(&client_id)?;
-    let client_secret=client_secret_get(&client_id)?;
-    let access=refresh_access_token(&client_id,&client_secret,&refresh)?;
+    let access=refresh_access_token(&client_id,GOOGLE_CLIENT_SECRET,&refresh)?;
     let agenda:Value=serde_json::from_str(&agenda_json).map_err(|e|format!("Agenda inválida: {e}"))?;
     let items=agenda.as_array().ok_or_else(||"La agenda no tiene el formato esperado.".to_string())?;
     let colors:Value=serde_json::from_str(&color_map_json).unwrap_or_else(|_|json_value!({}));

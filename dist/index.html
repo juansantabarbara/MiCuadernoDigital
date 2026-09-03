@@ -786,7 +786,7 @@
     @media(max-width:850px){.google-grid,.google-colors{grid-template-columns:1fr}}
 
 
-    /* v0.3.3 · Actuaciones + editor enriquecido + updater */
+    /* v0.3.4 · Actuaciones + editor enriquecido + updater */
     .rich-editor{border:1px solid var(--line);border-radius:13px;background:white;overflow:hidden}
     .rich-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--line);background:#f8fafc;position:sticky;top:0;z-index:1}
     .rich-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;font-weight:800;cursor:pointer;min-width:34px}
@@ -816,7 +816,7 @@
   <aside>
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.3.3 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.3.4 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -950,7 +950,7 @@
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="primary" id="nuevo-alumno">Añadir alumno/a</button>
           <button class="ghost" id="editar-alumno">Editar seleccionado</button>
-          <button class="ghost danger" id="eliminar-alumno">Eliminar seleccionado</button>
+          <button class="ghost danger" id="eliminar-alumno" onclick="alert('BOTON BORRAR FUNCIONA')">Eliminar seleccionado</button>
         </div>
       </div>
       <div class="student-panel">
@@ -1512,12 +1512,6 @@
         </div>
         <div class="google-grid">
           <div>
-            <label>Client ID de Google (Aplicación de escritorio)
-              <input id="google-client-id" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off">
-            </label>
-            <label style="margin-top:10px">Client secret de Google
-              <input id="google-client-secret" type="password" placeholder="Se guarda de forma segura en el Llavero de macOS" autocomplete="off">
-            </label>
             <div class="actions" style="justify-content:flex-start;margin-top:10px">
               <button class="primary" id="google-connect">Conectar con Google</button>
               <button class="secondary" id="google-sync-now">Sincronizar ahora</button>
@@ -1540,7 +1534,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.0</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.4</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -1588,7 +1582,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.3.0';
+  const VERSION='0.3.4';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -1827,9 +1821,7 @@
   }
   function formatGoogleSyncDate(v){if(!v)return 'Nunca sincronizado.';try{return 'Última sincronización: '+new Date(v).toLocaleString('es-ES')}catch(e){return 'Última sincronización: '+v}}
   function renderGoogleCalendarSettings(){
-    const gs=googleSettings(),client=document.querySelector('#google-client-id'),auto=document.querySelector('#google-auto-sync'),dur=document.querySelector('#google-duration'),map=document.querySelector('#google-color-map');
-    if(!client)return;
-    if(document.activeElement!==client)client.value=gs.clientId||googleStatusCache.client_id||'';
+    const gs=googleSettings(),auto=document.querySelector('#google-auto-sync'),dur=document.querySelector('#google-duration'),map=document.querySelector('#google-color-map');
     auto.checked=gs.autoSync!==false;dur.value=String(gs.defaultDuration||30);
     if(map)map.innerHTML=GOOGLE_AGENDA_TYPES.map(type=>`<div class="google-color-row"><strong>${esc(type)}</strong><select data-google-color="${esc(type)}">${GOOGLE_COLOR_OPTIONS.map(([id,name])=>`<option value="${id}" ${String(gs.colors[type])===id?'selected':''}>${name}</option>`).join('')}</select></div>`).join('');
     document.querySelectorAll('[data-google-color]').forEach(sel=>sel.onchange=()=>{gs.colors[sel.dataset.googleColor]=sel.value;persistState();scheduleGoogleAgendaSync()});
@@ -1846,11 +1838,44 @@
     renderGoogleCalendarSettings();
   }
   async function connectGoogle(){
-    if(!nativeMode)return toast('Google Calendar está disponible en la aplicación Mac.');
-    const gs=googleSettings(),input=document.querySelector('#google-client-id'),secretInput=document.querySelector('#google-client-secret'),clientId=input.value.trim(),clientSecret=secretInput.value.trim();if(!clientId)return toast('Pega primero el Client ID de Google.');
-    gs.clientId=clientId;persistState();const btn=document.querySelector('#google-connect'),old=btn.textContent;btn.disabled=true;btn.textContent='Esperando a Google…';
-    try{googleStatusCache=await nativeInvoke('google_connect',{clientId,clientSecret});googleStatusCache.error=false;if(secretInput)secretInput.value='';toast('Google Calendar conectado');await syncGoogleAgenda(true)}catch(err){googleStatusCache={connected:false,error:true,detail:String(err)};toast('No se pudo conectar: '+String(err).slice(0,120))}finally{btn.disabled=false;btn.textContent=old;renderGoogleCalendarSettings()}
+    if(!nativeMode)return toast('Google Calendar está disponible en la aplicación de escritorio.');
+
+    const btn=document.querySelector('#google-connect'),
+          old=btn.textContent;
+
+    btn.disabled=true;
+    btn.textContent='Esperando a Google…';
+
+    try{
+      googleStatusCache=await nativeInvoke('google_connect');
+      googleStatusCache.error=false;
+
+      toast('Google Calendar conectado');
+
+      try{
+        await syncGoogleAgenda(true);
+      }catch(syncErr){
+        console.error('Google Calendar initial sync failed',syncErr);
+        googleStatusCache.error=true;
+        googleStatusCache.detail='Google Calendar está conectado, pero la sincronización inicial ha fallado.';
+        toast('Google conectado, pero falló la sincronización inicial');
+      }
+
+    }catch(err){
+      googleStatusCache={
+        connected:false,
+        error:true,
+        detail:String(err)
+      };
+      toast('No se pudo conectar: '+String(err).slice(0,120));
+
+    }finally{
+      btn.disabled=false;
+      btn.textContent=old;
+      renderGoogleCalendarSettings();
+    }
   }
+
   async function disconnectGoogle(){
     if(!nativeMode)return;if(!confirm('¿Desconectar Google Calendar? El calendario ya creado en Google no se borrará.'))return;
     try{await nativeInvoke('google_disconnect');googleStatusCache={...googleStatusCache,connected:false,detail:'Desconectado. El calendario de Google se conserva.'};toast('Google Calendar desconectado')}catch(err){toast('No se pudo desconectar')};renderGoogleCalendarSettings();
@@ -2814,7 +2839,7 @@
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.0'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.4'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
@@ -2864,7 +2889,63 @@
   document.querySelector('#cancelar-edicion-sesion').onclick=()=>clearSessionForm(true);
   document.querySelector('#nuevo-alumno').onclick=()=>studentModal(false);
   document.querySelector('#editar-alumno').onclick=()=>studentModal(true);
-  document.querySelector('#eliminar-alumno').onclick=()=>{const st=student();if(!st)return;if(confirm(`¿Eliminar a ${st.name}?`)){data.students=data.students.filter(s=>s.id!==st.id);delete data.evidence[st.id];data.selectedStudentId=data.students[0]?.id||'';if(data.intelligenceStudentId===st.id)data.intelligenceStudentId=data.students[0]?.id||'';save('Alumno eliminado')}};
+  document.querySelector('#eliminar-alumno').onclick=()=>{
+  const st=student();
+  if(!st){toast('No hay ningún alumno seleccionado.');return}
+
+  const sid=st.id;
+  const nombre=st.name;
+
+  modal(
+    'Eliminar alumno/a',
+    `<p>¿Seguro que quieres eliminar a <strong>${esc(nombre)}</strong>?</p>
+     <div class="notice" style="margin-top:14px;background:#fef2f2;border-color:#fecaca;color:#991b1b">
+       Se eliminarán también sus evidencias, observaciones y registros asociados. Esta acción no se puede deshacer.
+     </div>`,
+    ()=>{
+      data.students=data.students.filter(s=>s.id!==sid);
+
+      if(data.evidence) delete data.evidence[sid];
+
+      if(Array.isArray(data.observations)){
+        data.observations=data.observations.filter(o=>o.studentId!==sid);
+      }
+
+      if(data.attendance && typeof data.attendance==='object'){
+        Object.values(data.attendance).forEach(rec=>{
+          if(rec && typeof rec==='object') delete rec[sid];
+        });
+      }
+
+      if(Array.isArray(data.feedback)){
+        data.feedback=data.feedback.filter(x=>x.studentId!==sid);
+      }
+
+      if(Array.isArray(data.feedbacks)){
+        data.feedbacks=data.feedbacks.filter(x=>x.studentId!==sid);
+      }
+
+      data.selectedStudentId=data.students[0]?.id||'';
+
+      if(data.intelligenceStudentId===sid){
+        data.intelligenceStudentId=data.students[0]?.id||'';
+      }
+
+      if(data.settings?.notebookStudentId===sid){
+        data.settings.notebookStudentId=data.students[0]?.id||'';
+      }
+
+      save('Alumno eliminado');
+      return true;
+    }
+  );
+
+  const btn=document.querySelector('#modal-save');
+  if(btn){
+    btn.textContent='Eliminar definitivamente';
+    btn.classList.add('danger');
+  }
+};
   document.querySelectorAll('[data-notebook-view]').forEach(b=>b.onclick=()=>{data.settings.notebookView=b.dataset.notebookView;persistState();renderNotebook()});
   document.querySelector('#notebook-search').oninput=e=>{data.settings.notebookSearch=e.target.value;persistState();renderNotebook();const x=document.querySelector('#notebook-search');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}};
   document.querySelector('#notebook-competency').onchange=e=>{data.settings.notebookCompetency=e.target.value;persistState();renderNotebook()};
@@ -2888,7 +2969,6 @@
   document.querySelector('#google-connect').onclick=connectGoogle;
   document.querySelector('#google-sync-now').onclick=()=>syncGoogleAgenda(false);
   document.querySelector('#google-disconnect').onclick=disconnectGoogle;
-  document.querySelector('#google-client-id').onchange=e=>{googleSettings().clientId=e.target.value.trim();persistState()};
   document.querySelector('#google-auto-sync').onchange=e=>{googleSettings().autoSync=e.target.checked;persistState();if(e.target.checked)scheduleGoogleAgendaSync()};
   document.querySelector('#google-duration').onchange=e=>{googleSettings().defaultDuration=Number(e.target.value)||30;persistState();scheduleGoogleAgendaSync()};
   document.querySelector('#update-check').onclick=checkAppUpdate;
