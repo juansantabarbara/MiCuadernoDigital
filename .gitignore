@@ -8,3 +8,4 @@ src-tauri/target/
 .env.*
 src-tauri/icons/*.png
 !src-tauri/icons/icon.png
+_backup_codigo_antes_v*/
