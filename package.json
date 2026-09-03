@@ -1,8 +1,8 @@
 {
   "name": "micuadernodigital",
   "private": true,
-  "version": "0.3.0",
-  "description": "MiCuadernoDigital \u00b7 escritorio macOS + SQLite",
+  "version": "0.3.1",
+  "description": "MiCuadernoDigital · escritorio macOS + SQLite",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
