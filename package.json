@@ -1,8 +1,8 @@
 {
   "name": "micuadernodigital",
   "private": true,
-  "version": "0.2.11",
-  "description": "MiCuadernoDigital · escritorio macOS + SQLite",
+  "version": "0.3.0",
+  "description": "MiCuadernoDigital \u00b7 escritorio macOS + SQLite",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
@@ -10,8 +10,5 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0"
-  },
-  "dependencies": {
-    "@tauri-apps/plugin-updater": "^2.11.0"
   }
 }

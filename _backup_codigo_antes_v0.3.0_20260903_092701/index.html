@@ -770,44 +770,6 @@
     .native-status.warn .native-dot{background:#ca8a04}
     @media(max-width:800px){.issue-grid{grid-template-columns:1fr}}
 
-
-    /* Google Calendar · sincronización de Mi agenda */
-    .google-card{border:1px solid #bfdbfe;background:linear-gradient(180deg,#fff,#f8fbff)}
-    .google-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
-    .google-status{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-weight:800;font-size:13px;background:#f1f5f9;color:#475569}
-    .google-status.connected{background:#dcfce7;color:#166534}.google-status.error{background:#fee2e2;color:#991b1b}
-    .google-dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
-    .google-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-top:14px}
-    .google-colors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
-    .google-color-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:8px;background:#fff}
-    .google-color-row strong{font-size:13px}
-    .privacy-note{border:1px solid #bbf7d0;background:#f0fdf4;border-radius:13px;padding:11px;font-size:13px;color:#166534;line-height:1.45}
-    .google-last-sync{font-size:12px;color:var(--muted);margin-top:8px}
-    @media(max-width:850px){.google-grid,.google-colors{grid-template-columns:1fr}}
-
-
-    /* v0.3.0 · Actuaciones + editor enriquecido + updater */
-    .rich-editor{border:1px solid var(--line);border-radius:13px;background:white;overflow:hidden}
-    .rich-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--line);background:#f8fafc;position:sticky;top:0;z-index:1}
-    .rich-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;font-weight:800;cursor:pointer;min-width:34px}
-    .rich-toolbar button:hover{background:#eef2ff}
-    .rich-area{min-height:130px;padding:12px;outline:none;line-height:1.5;white-space:normal}
-    .rich-area:empty:before{content:attr(data-placeholder);color:#94a3b8;pointer-events:none}
-    .rich-area ul,.rich-area ol,.rich-output ul,.rich-output ol{padding-left:24px;margin:8px 0}
-    .rich-area blockquote,.rich-output blockquote{border-left:3px solid #cbd5e1;margin:8px 0;padding:6px 10px;color:#475569}
-    .rich-output{line-height:1.55}.rich-output p{margin:6px 0}.rich-output h3{margin:8px 0 4px;font-size:16px}
-    .actuation-list{display:grid;gap:14px}.actuation-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px}
-    .actuation-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-    .actuation-meta{font-size:12px;color:var(--muted);margin-top:5px}.actuation-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-    .actuation-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-    .actuation-filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
-    .update-card{border:1px solid #c7d2fe;background:linear-gradient(180deg,#fff,#f7f8ff)}
-    .update-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-    .update-state{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:900;background:#eef2ff;color:#3730a3}
-    .update-state.ok{background:#dcfce7;color:#166534}.update-state.warn{background:#fef3c7;color:#92400e}.update-state.error{background:#fee2e2;color:#991b1b}
-    .update-notes{white-space:pre-wrap;font-size:13px;color:var(--muted);margin-top:10px}
-    @media(max-width:900px){.actuation-grid{grid-template-columns:1fr}}
-
 </style>
 </head>
 
@@ -816,7 +778,7 @@
   <aside>
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.3.0 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v34 · Planificación viva + Agenda + Reuniones + Inteligencia Pedagógica</p>
     </div>
 
     <div class="mode-switch">
@@ -829,7 +791,6 @@
       <button class="active" data-section="inicio">Inicio</button>
       <button data-section="agenda">Mi agenda</button>
       <button data-section="reuniones">Reuniones</button>
-      <button data-section="actuaciones">Actuaciones</button>
       <button data-section="cuaderno">Cuaderno de notas</button>
       <button data-section="alumnado">Alumnado</button>
       <button data-section="diario">Diario</button>
@@ -1065,9 +1026,9 @@
             <div class="participant-add"><input id="meeting-new-person" placeholder="Añadir persona"><button class="secondary" id="meeting-add-person" type="button">Añadir</button></div>
           </div>
 
-          <div style="margin-top:16px"><label>Desarrollo de la reunión</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="meeting-development" class="rich-area" contenteditable="true" data-placeholder="Temas tratados, intervenciones relevantes, información compartida, decisiones debatidas..."></div></div></div>
-          <div style="margin-top:12px"><label>Acuerdos adoptados</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="meeting-agreements" class="rich-area" contenteditable="true" data-placeholder="Ej.: Se acuerda... / Responsable... / Antes del..."></div></div></div>
-          <div style="margin-top:12px"><label>Seguimiento / asuntos pendientes</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="meeting-followup" class="rich-area" contenteditable="true" data-placeholder="Qué hay que revisar en la próxima reunión, tareas pendientes, responsables..."></div></div></div>
+          <label style="margin-top:16px">Desarrollo de la reunión<textarea id="meeting-development" placeholder="Temas tratados, intervenciones relevantes, información compartida, decisiones debatidas..."></textarea></label>
+          <label style="margin-top:12px">Acuerdos adoptados<textarea id="meeting-agreements" placeholder="Ej.: Se acuerda... / Responsable... / Antes del..."></textarea></label>
+          <label style="margin-top:12px">Seguimiento / asuntos pendientes<textarea id="meeting-followup" placeholder="Qué hay que revisar en la próxima reunión, tareas pendientes, responsables..."></textarea></label>
           <div class="actions" style="justify-content:flex-start;margin-top:14px">
             <button class="primary" id="meeting-save">Guardar reunión</button>
             <button class="ghost hidden" id="meeting-cancel-edit">Cancelar edición</button>
@@ -1077,37 +1038,6 @@
         <div class="card">
           <div class="meeting-head"><div><h3>Historial de reuniones</h3><p>Registro cronológico y acuerdos adoptados.</p></div><label>Filtrar<select id="meeting-filter"><option value="all">Todas</option><option>Equipo docente</option><option>Familia</option><option>Ciclo</option><option>CCP</option><option>Claustro</option><option>Coordinación</option><option>Orientación</option><option>Otra</option></select></label></div>
           <div id="meeting-list" class="meeting-list"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="actuaciones" class="section">
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>Registrar actuación</h3>
-          <p>Deja constancia de gestiones, encargos, coordinaciones e intervenciones del centro. Pensado especialmente para funciones como coordinación TIC.</p>
-          <div class="actuation-grid">
-            <label>Fecha<input type="date" id="act-date"></label>
-            <label>Hora<input type="time" id="act-time"></label>
-            <label>Ámbito<select id="act-scope"><option>TIC</option><option>Coordinación</option><option>Equipo directivo</option><option>Tutoría</option><option>Centro</option><option>Otro</option></select></label>
-            <label>Quién lo solicita<input id="act-requested-by" placeholder="Ej.: Dirección / María / Equipo docente"></label>
-            <label>Estado<select id="act-status"><option>Abierta</option><option>Finalizada</option></select></label>
-            <label>Título / asunto<input id="act-title" placeholder="Ej.: Configurar panel interactivo de 4.º"></label>
-          </div>
-          <div style="margin-top:14px"><label>Qué me piden</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="act-request" class="rich-area" contenteditable="true" data-placeholder="Petición, problema o encargo recibido..."></div></div></div>
-          <div style="margin-top:12px"><label>Qué hice</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="act-work" class="rich-area" contenteditable="true" data-placeholder="Desarrollo de la actuación, pasos realizados, decisiones..."></div></div></div>
-          <div style="margin-top:12px"><label>Resultado</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="act-result" class="rich-area" contenteditable="true" data-placeholder="Resultado final, solución adoptada, respuesta recibida..."></div></div></div>
-          <div style="margin-top:12px"><label>Seguimiento / pendiente</label><div class="rich-editor"><div class="rich-toolbar" data-rich-toolbar><button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button><button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button><button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button><button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button><button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button><button type="button" data-rich-cmd="outdent" title="Reducir sangría">← Sangría</button><button type="button" data-rich-cmd="indent" title="Aumentar sangría">Sangría →</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button><button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button><button type="button" data-rich-cmd="undo" title="Deshacer">↶</button><button type="button" data-rich-cmd="redo" title="Rehacer">↷</button></div><div id="act-followup" class="rich-area" contenteditable="true" data-placeholder="Qué queda por hacer, revisar o volver a comprobar..."></div></div></div>
-          <div class="actions" style="justify-content:flex-start;margin-top:14px"><button class="primary" id="act-save">Guardar actuación</button><button class="ghost hidden" id="act-cancel-edit">Cancelar edición</button></div>
-        </div>
-        <div class="card">
-          <div class="actuation-head"><div><h3>Historial de actuaciones</h3><p>Consulta, reutiliza y edita todo lo que has ido haciendo.</p></div></div>
-          <div class="actuation-filters">
-            <label>Ámbito<select id="act-filter-scope"><option value="all">Todos</option><option>TIC</option><option>Coordinación</option><option>Equipo directivo</option><option>Tutoría</option><option>Centro</option><option>Otro</option></select></label>
-            <label>Estado<select id="act-filter-status"><option value="all">Todos</option><option>Abierta</option><option>Finalizada</option></select></label>
-            <label style="flex:1;min-width:180px">Buscar<input id="act-search" type="search" placeholder="Título, solicitante, contenido..."></label>
-          </div>
-          <div id="act-list" class="actuation-list"></div>
         </div>
       </div>
     </section>
@@ -1488,7 +1418,7 @@
         <p>Apunta aquí cualquier error, comportamiento raro o idea mientras utilizas el cuaderno. Queda guardado con la versión de la app y puedes marcarlo como resuelto sin perder el histórico.</p>
         <div class="issue-grid">
           <label>Tipo<select id="issue-type"><option>Error</option><option>Mejora</option><option>Duda</option><option>Idea</option></select></label>
-          <label>Sección<select id="issue-section"><option>General</option><option>Inicio</option><option>Mi agenda</option><option>Reuniones</option><option>Actuaciones</option><option>Diario</option><option>Asistencia</option><option>UP / Situaciones</option><option>Cuaderno de notas</option><option>Alumnado</option><option>Perfil competencial</option><option>Mapa de aprendizaje</option><option>Inteligencia pedagógica</option><option>Configuración</option><option>PDF oficial</option></select></label>
+          <label>Sección<select id="issue-section"><option>General</option><option>Inicio</option><option>Mi agenda</option><option>Reuniones</option><option>Diario</option><option>Asistencia</option><option>UP / Situaciones</option><option>Cuaderno de notas</option><option>Alumnado</option><option>Perfil competencial</option><option>Mapa de aprendizaje</option><option>Inteligencia pedagógica</option><option>Configuración</option><option>PDF oficial</option></select></label>
           <label>Prioridad<select id="issue-priority"><option>Normal</option><option>Alta</option><option>Baja</option></select></label>
           <label>Título<input id="issue-title" placeholder="Ej.: El calendario no cambia de mes"></label>
           <label style="grid-column:1/-1">Qué ocurre<textarea id="issue-description" placeholder="Describe qué estabas haciendo y qué pasó..."></textarea></label>
@@ -1500,54 +1430,6 @@
           <span class="pill blue" id="issue-count">0 pendientes</span>
         </div>
         <div id="issue-list" class="issue-list"></div>
-      </div>
-
-      <div class="card google-card no-print" style="margin-top:18px" id="google-calendar-card">
-        <div class="google-head">
-          <div>
-            <h3 style="margin-bottom:6px">Google Calendar</h3>
-            <p style="margin:0">Sincroniza <strong>Mi agenda</strong> con un único calendario independiente llamado <strong>MiCuadernoDigital</strong>. Cada tipo conserva su identidad mediante etiqueta y color.</p>
-          </div>
-          <span class="google-status" id="google-status"><span class="google-dot"></span><span id="google-status-text">No conectado</span></span>
-        </div>
-        <div class="google-grid">
-          <div>
-            <label>Client ID de Google (Aplicación de escritorio)
-              <input id="google-client-id" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off">
-            </label>
-            <label style="margin-top:10px">Client secret de Google
-              <input id="google-client-secret" type="password" placeholder="Se guarda de forma segura en el Llavero de macOS" autocomplete="off">
-            </label>
-            <div class="actions" style="justify-content:flex-start;margin-top:10px">
-              <button class="primary" id="google-connect">Conectar con Google</button>
-              <button class="secondary" id="google-sync-now">Sincronizar ahora</button>
-              <button class="ghost danger" id="google-disconnect">Desconectar</button>
-            </div>
-            <div class="google-last-sync" id="google-last-sync">Nunca sincronizado.</div>
-            <div class="privacy-note" style="margin-top:12px"><strong>Privacidad:</strong> solo se envían a Google los elementos de <em>Mi agenda</em>. Alumnado, calificaciones, observaciones, reuniones pedagógicas e inteligencia pedagógica permanecen en tu Mac.</div>
-          </div>
-          <div>
-            <label style="flex-direction:row;align-items:center;gap:9px"><input type="checkbox" id="google-auto-sync" style="width:auto"> Sincronizar automáticamente al cambiar Mi agenda</label>
-            <label style="margin-top:10px">Duración por defecto de eventos con hora
-              <select id="google-duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 h 30 min</option><option value="120">2 horas</option></select>
-            </label>
-            <h4 style="margin:14px 0 4px">Color por tipo</h4>
-            <div id="google-color-map" class="google-colors"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card update-card no-print" style="margin-top:18px" id="update-card">
-        <div class="update-head">
-          <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.0</span></span>
-        </div>
-        <div class="actions" style="justify-content:flex-start;margin-top:12px">
-          <button class="secondary" id="update-check">Buscar actualizaciones</button>
-          <button class="primary hidden" id="update-install">Descargar e instalar</button>
-        </div>
-        <div id="update-message" class="small" style="margin-top:9px">No se ha comprobado todavía.</div>
-        <div id="update-notes" class="update-notes"></div>
       </div>
 
       <div class="card no-print" style="margin-top:18px">
@@ -1588,13 +1470,11 @@
 
 <script>
 (async () => {
-  const VERSION='0.3.0';
+  const VERSION='34-desktop';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
   let nativeSaveTimer=null;
-  let googleSyncTimer=null;
-  let googleStatusCache={connected:false,client_id:'',calendar_id:'',calendar_name:'MiCuadernoDigital',last_sync_at:'',detail:'No conectado.'};
   function persistState(){
     const payload=JSON.stringify(data);
     localStorage.setItem(STORAGE_KEY,payload);
@@ -1609,7 +1489,7 @@
       const raw=await nativeInvoke('load_state');
       if(raw){
         const stored=JSON.parse(raw),base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:{...base.settings,...(stored.settings||{}),timetable:Array.isArray(stored.settings?.timetable)?stored.settings.timetable:base.settings.timetable},agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         data=merged;
         localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
@@ -1627,21 +1507,10 @@
     title.textContent=nativeMode?(ok?'SQLite local activo':'SQLite no disponible; usando caché local'):'Modo HTML · caché del navegador';
     sub.textContent=detail|| (nativeMode?'Los datos se guardan en la base local de la aplicación.':'Al compilar la app para Mac se activará SQLite.');
   }
-
-  const GOOGLE_COLOR_OPTIONS=[
-    ['1','Lavanda'],['2','Salvia'],['3','Uva'],['4','Flamingo'],['5','Banana'],['6','Mandarina'],['7','Turquesa'],['8','Grafito'],['9','Arándano'],['10','Albahaca'],['11','Tomate']
-  ];
-  const GOOGLE_AGENDA_TYPES=['Recordatorio','Reunión','Familias','Tarea','Centro','Personal'];
-  function mergeSettings(baseSettings,storedSettings={}){
-    const bg=baseSettings.googleCalendar||{},sg=storedSettings.googleCalendar||{};
-    return {...baseSettings,...storedSettings,timetable:Array.isArray(storedSettings?.timetable)?storedSettings.timetable:baseSettings.timetable,googleCalendar:{...bg,...sg,colors:{...(bg.colors||{}),...(sg.colors||{})}}};
-  }
-
   const pageInfo={
     inicio:['Inicio','Vista diaria rápida para trabajar con el grupo sin burocracia.'],
     agenda:['Mi agenda','Agenda personal docente: reuniones, tareas y recordatorios.'],
     reuniones:['Reuniones','Registro completo de reuniones, participantes, desarrollo, acuerdos y seguimiento.'],
-    actuaciones:['Actuaciones','Registro editable de encargos, coordinaciones, gestiones y trabajo realizado.'],
     cuaderno:['Cuaderno de notas','Alumnado en filas y evidencias en columnas, conectadas a criterios y competencias.'],
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
@@ -1650,13 +1519,13 @@
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
     perfil:['Perfil competencial','Vista individual, grupal y por competencia con evolución.'],
     mapa:['Mapa de aprendizaje','Septiembre a junio: subidas, bajadas, fortalezas, dificultades y alertas.'],
-    desarrollo:['Inteligencia pedagógica','Ficha individual para preparar tutorías con familias a partir de los datos del cuaderno.'],
+    desarrollo:['Inteligencia pedagógica','Desarrollo del alumno, desarrollo del grupo y desarrollo curricular.'],
     riesgo:['Riesgo educativo','Alertas automáticas para tomar decisiones pedagógicas.'],
-    configuracion:['Configuración','Calendario escolar, Google Calendar, actualizaciones, incidencias y copias de seguridad.'],
+    configuracion:['Configuración','Calendario escolar, horario del grupo, horario personal y copias de seguridad.'],
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','diario','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','diario','asistencia','planificacion','configuracion'],
     evaluacion:['cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -1684,7 +1553,6 @@
     ],
     agenda:[],
     meetings:[],
-    actuaciones:[],
     meetingPeople:[],
     customDays:[],
     issues:[],
@@ -1695,7 +1563,7 @@
       {time:'11:45 - 12:30',days:['','','','','']},
       {time:'12:30 - 13:15',days:['','','','','']},
       {time:'13:15 - 14:00',days:['','','','','']}
-    ],googleCalendar:{autoSync:true,defaultDuration:30,clientId:'',colors:{Recordatorio:'8',Reunión:'9',Familias:'3',Tarea:'5',Centro:'10',Personal:'7'}}}
+    ]}
   };
   function normalizeUnit(u){
     const x={group:'',duration:'',context:'',specificCompetences:'',criteria:'',knowledge:'',keyCompetences:'',descriptors:'',objectives:'',ods:'',crosscurricular:'',methodology:'',dua:'',strategies:'',grouping:'',resources:'',spaces:'',diversity:'',transversal:'',evidences:'',instruments:'',assessmentMoments:'',feedback:'',selfAssessment:'',peerAssessment:'',metacognition:'',...u};
@@ -1716,7 +1584,7 @@
       const raw=localStorage.getItem(STORAGE_KEY);
       if(raw){
         const stored=JSON.parse(raw), base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:{...base.settings,...(stored.settings||{}),timetable:Array.isArray(stored.settings?.timetable)?stored.settings.timetable:base.settings.timetable},agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         if(!merged.selectedUnitId||!merged.units.some(u=>u.id===merged.selectedUnitId))merged.selectedUnitId=merged.units[0]?.id||'';
         return merged;
@@ -1727,22 +1595,6 @@
   function save(msg){persistState(); if(msg)toast(msg); renderAll();}
   function toast(msg){const t=document.querySelector('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
   function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function richPlainToHtml(v=''){
-    const str=String(v||'');
-    if(/<\/?(p|div|ul|ol|li|strong|b|em|i|u|h3|blockquote|br)\b/i.test(str)) return sanitizeRich(str);
-    return esc(str).replace(/\n/g,'<br>');
-  }
-  function sanitizeRich(html=''){
-    const tpl=document.createElement('template');tpl.innerHTML=String(html||'');
-    const allowed=new Set(['P','DIV','BR','UL','OL','LI','STRONG','B','EM','I','U','H3','BLOCKQUOTE']);
-    const walk=node=>{[...node.childNodes].forEach(ch=>{if(ch.nodeType===1){if(!allowed.has(ch.tagName)){const frag=document.createDocumentFragment();while(ch.firstChild)frag.appendChild(ch.firstChild);ch.replaceWith(frag);walk(node)}else{[...ch.attributes].forEach(a=>ch.removeAttribute(a.name));walk(ch)}}})};
-    walk(tpl.content);return tpl.innerHTML.trim();
-  }
-  function richText(html=''){const div=document.createElement('div');div.innerHTML=sanitizeRich(richPlainToHtml(html));return (div.textContent||'').replace(/\s+/g,' ').trim()}
-  function setRich(id,value=''){const el=document.querySelector('#'+id);if(el)el.innerHTML=richPlainToHtml(value)}
-  function getRich(id){const el=document.querySelector('#'+id);return el?sanitizeRich(el.innerHTML):''}
-  function renderRich(value=''){const h=richPlainToHtml(value);return h?`<div class="rich-output">${h}</div>`:''}
-  function bindRichEditors(root=document){root.querySelectorAll('[data-rich-toolbar]').forEach(tb=>{if(tb.dataset.bound)return;tb.dataset.bound='1';tb.querySelectorAll('[data-rich-cmd]').forEach(btn=>btn.onclick=()=>{const editor=tb.nextElementSibling;if(editor)editor.focus();document.execCommand(btn.dataset.richCmd,false,btn.dataset.richValue||null)})})}
   function uid(prefix='id'){return prefix+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
   function student(){return data.students.find(s=>s.id===data.selectedStudentId)||data.students[0]}
@@ -1819,56 +1671,8 @@
   };
   function renderBank(category){document.querySelectorAll('.bank-category').forEach(b=>b.classList.toggle('active',b.dataset.bank===category));const box=document.querySelector('#bank-suggestions');box.innerHTML=(observationBank[category]||[]).map((x,i)=>`<button class="suggestion-btn" data-suggestion="${i}">${esc(x)}</button>`).join('');box.querySelectorAll('[data-suggestion]').forEach(b=>b.onclick=()=>{document.querySelector('#diario-categoria').value=category;document.querySelector('#diario-text').value=observationBank[category][Number(b.dataset.suggestion)];document.querySelector('#diario-text').focus()})}
 
-
-  function googleSettings(){
-    data.settings.googleCalendar=data.settings.googleCalendar||{autoSync:true,defaultDuration:30,clientId:'',colors:{Recordatorio:'8',Reunión:'9',Familias:'3',Tarea:'5',Centro:'10',Personal:'7'}};
-    data.settings.googleCalendar.colors={Recordatorio:'8',Reunión:'9',Familias:'3',Tarea:'5',Centro:'10',Personal:'7',...(data.settings.googleCalendar.colors||{})};
-    return data.settings.googleCalendar;
-  }
-  function formatGoogleSyncDate(v){if(!v)return 'Nunca sincronizado.';try{return 'Última sincronización: '+new Date(v).toLocaleString('es-ES')}catch(e){return 'Última sincronización: '+v}}
-  function renderGoogleCalendarSettings(){
-    const gs=googleSettings(),client=document.querySelector('#google-client-id'),auto=document.querySelector('#google-auto-sync'),dur=document.querySelector('#google-duration'),map=document.querySelector('#google-color-map');
-    if(!client)return;
-    if(document.activeElement!==client)client.value=gs.clientId||googleStatusCache.client_id||'';
-    auto.checked=gs.autoSync!==false;dur.value=String(gs.defaultDuration||30);
-    if(map)map.innerHTML=GOOGLE_AGENDA_TYPES.map(type=>`<div class="google-color-row"><strong>${esc(type)}</strong><select data-google-color="${esc(type)}">${GOOGLE_COLOR_OPTIONS.map(([id,name])=>`<option value="${id}" ${String(gs.colors[type])===id?'selected':''}>${name}</option>`).join('')}</select></div>`).join('');
-    document.querySelectorAll('[data-google-color]').forEach(sel=>sel.onchange=()=>{gs.colors[sel.dataset.googleColor]=sel.value;persistState();scheduleGoogleAgendaSync()});
-    const badge=document.querySelector('#google-status'),txt=document.querySelector('#google-status-text'),last=document.querySelector('#google-last-sync');
-    badge.classList.toggle('connected',!!googleStatusCache.connected);badge.classList.toggle('error',!!googleStatusCache.error);
-    txt.textContent=googleStatusCache.connected?'Conectado':'No conectado';
-    last.textContent=formatGoogleSyncDate(googleStatusCache.last_sync_at);
-    const sync=document.querySelector('#google-sync-now'),disc=document.querySelector('#google-disconnect');if(sync)sync.disabled=!googleStatusCache.connected;if(disc)disc.disabled=!googleStatusCache.connected;
-  }
-  async function refreshGoogleStatus(){
-    if(!nativeMode){googleStatusCache={connected:false,detail:'Disponible en la app de escritorio.'};renderGoogleCalendarSettings();return}
-    try{googleStatusCache=await nativeInvoke('google_status');googleStatusCache.error=false;if(googleStatusCache.client_id&&!googleSettings().clientId){googleSettings().clientId=googleStatusCache.client_id;persistState()}}
-    catch(err){googleStatusCache={connected:false,error:true,detail:String(err)};}
-    renderGoogleCalendarSettings();
-  }
-  async function connectGoogle(){
-    if(!nativeMode)return toast('Google Calendar está disponible en la aplicación Mac.');
-    const gs=googleSettings(),input=document.querySelector('#google-client-id'),secretInput=document.querySelector('#google-client-secret'),clientId=input.value.trim(),clientSecret=secretInput.value.trim();if(!clientId)return toast('Pega primero el Client ID de Google.');
-    gs.clientId=clientId;persistState();const btn=document.querySelector('#google-connect'),old=btn.textContent;btn.disabled=true;btn.textContent='Esperando a Google…';
-    try{googleStatusCache=await nativeInvoke('google_connect',{clientId,clientSecret});googleStatusCache.error=false;if(secretInput)secretInput.value='';toast('Google Calendar conectado');await syncGoogleAgenda(true)}catch(err){googleStatusCache={connected:false,error:true,detail:String(err)};toast('No se pudo conectar: '+String(err).slice(0,120))}finally{btn.disabled=false;btn.textContent=old;renderGoogleCalendarSettings()}
-  }
-  async function disconnectGoogle(){
-    if(!nativeMode)return;if(!confirm('¿Desconectar Google Calendar? El calendario ya creado en Google no se borrará.'))return;
-    try{await nativeInvoke('google_disconnect');googleStatusCache={...googleStatusCache,connected:false,detail:'Desconectado. El calendario de Google se conserva.'};toast('Google Calendar desconectado')}catch(err){toast('No se pudo desconectar')};renderGoogleCalendarSettings();
-  }
-  async function syncGoogleAgenda(silent=false){
-    if(!nativeMode)return;
-    if(!googleStatusCache.connected){if(!silent)return toast('Conecta primero Google Calendar.');return}
-    try{
-      const gs=googleSettings();const report=await nativeInvoke('google_sync_agenda',{agendaJson:JSON.stringify(data.agenda||[]),colorMapJson:JSON.stringify(gs.colors||{}),defaultDurationMinutes:Number(gs.defaultDuration||30)});
-      googleStatusCache.last_sync_at=report.last_sync_at;googleStatusCache.error=false;renderGoogleCalendarSettings();if(!silent)toast(`Google Calendar: ${report.created} creados · ${report.updated} actualizados · ${report.deleted} eliminados`);
-    }catch(err){console.error('Google Calendar sync failed',err);googleStatusCache.error=true;googleStatusCache.detail=String(err);renderGoogleCalendarSettings();if(!silent)toast('Error al sincronizar con Google Calendar')}
-  }
-  function scheduleGoogleAgendaSync(){
-    if(!nativeMode||googleSettings().autoSync===false||!googleStatusCache.connected)return;clearTimeout(googleSyncTimer);googleSyncTimer=setTimeout(()=>syncGoogleAgenda(true),900);
-  }
-
-  function renderAgenda(){const box=document.querySelector('#agenda-list');if(!box)return;const filter=document.querySelector('#agenda-filter')?.value||'pending';let items=[...(data.agenda||[])].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));if(filter==='pending')items=items.filter(x=>!x.done);if(filter==='done')items=items.filter(x=>x.done);box.innerHTML=items.length?items.map(x=>`<div class="agenda-item ${x.done?'done':''}"><div class="agenda-date">${esc(x.date)}<br><span class="small">${esc(x.time||'Sin hora')}</span></div><div><strong>${esc(x.type)} · ${esc(x.priority)}</strong><div class="agenda-text">${esc(x.text)}</div></div><div class="agenda-actions"><button data-agenda-done="${esc(x.id)}" title="Completar">${x.done?'↩':'✓'}</button><button data-agenda-del="${esc(x.id)}" title="Eliminar">🗑</button></div></div>`).join(''):'<div class="empty">No hay asuntos en esta vista.</div>';box.querySelectorAll('[data-agenda-done]').forEach(b=>b.onclick=()=>{const x=data.agenda.find(a=>a.id===b.dataset.agendaDone);if(x){x.done=!x.done;save('Agenda actualizada');scheduleGoogleAgendaSync()}});box.querySelectorAll('[data-agenda-del]').forEach(b=>b.onclick=()=>{data.agenda=data.agenda.filter(a=>a.id!==b.dataset.agendaDel);save('Asunto eliminado');scheduleGoogleAgendaSync()})}
-  function addAgenda(){const date=document.querySelector('#agenda-date').value,text=document.querySelector('#agenda-text').value.trim();if(!date||!text)return toast('Añade fecha y contenido.');data.agenda.push({id:uid('ag'),date,time:document.querySelector('#agenda-time').value,type:document.querySelector('#agenda-type').value,priority:document.querySelector('#agenda-priority').value,text,done:false});document.querySelector('#agenda-text').value='';save('Añadido a tu agenda');scheduleGoogleAgendaSync()}
+  function renderAgenda(){const box=document.querySelector('#agenda-list');if(!box)return;const filter=document.querySelector('#agenda-filter')?.value||'pending';let items=[...(data.agenda||[])].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));if(filter==='pending')items=items.filter(x=>!x.done);if(filter==='done')items=items.filter(x=>x.done);box.innerHTML=items.length?items.map(x=>`<div class="agenda-item ${x.done?'done':''}"><div class="agenda-date">${esc(x.date)}<br><span class="small">${esc(x.time||'Sin hora')}</span></div><div><strong>${esc(x.type)} · ${esc(x.priority)}</strong><div class="agenda-text">${esc(x.text)}</div></div><div class="agenda-actions"><button data-agenda-done="${esc(x.id)}" title="Completar">${x.done?'↩':'✓'}</button><button data-agenda-del="${esc(x.id)}" title="Eliminar">🗑</button></div></div>`).join(''):'<div class="empty">No hay asuntos en esta vista.</div>';box.querySelectorAll('[data-agenda-done]').forEach(b=>b.onclick=()=>{const x=data.agenda.find(a=>a.id===b.dataset.agendaDone);if(x){x.done=!x.done;save('Agenda actualizada')}});box.querySelectorAll('[data-agenda-del]').forEach(b=>b.onclick=()=>{data.agenda=data.agenda.filter(a=>a.id!==b.dataset.agendaDel);save('Asunto eliminado')})}
+  function addAgenda(){const date=document.querySelector('#agenda-date').value,text=document.querySelector('#agenda-text').value.trim();if(!date||!text)return toast('Añade fecha y contenido.');data.agenda.push({id:uid('ag'),date,time:document.querySelector('#agenda-time').value,type:document.querySelector('#agenda-type').value,priority:document.querySelector('#agenda-priority').value,text,done:false});document.querySelector('#agenda-text').value='';save('Añadido a tu agenda')}
 
   function openSection(id){
     if(!document.querySelector('#'+id)) return;
@@ -2603,7 +2407,7 @@
     const name=String(st.name||'').toLowerCase();
     return (data.meetings||[]).filter(m=>{
       if(m.studentId===st.id)return true;
-      const hay=[m.title,richText(m.development),richText(m.agreements),richText(m.followup),(m.participants||[]).map(p=>p.name).join(' ')].join(' ').toLowerCase();
+      const hay=[m.title,m.development,m.agreements,m.followup,(m.participants||[]).map(p=>p.name).join(' ')].join(' ').toLowerCase();
       return name && hay.includes(name);
     }).sort((a,b)=>(b.date+(b.start||'')).localeCompare(a.date+(a.start||'')));
   }
@@ -2692,7 +2496,7 @@
         <div class="tutor-section">
           <h4>🤝 Reuniones y acuerdos previos</h4>
           <div class="tutor-list">
-            ${recentMeetings.length?recentMeetings.map(m=>`<div class="tutor-item"><span class="tutor-date">${esc(m.date)} · ${esc(m.type||'Reunión')}</span><strong>${esc(m.title)}</strong>${m.agreements?`<div><b>Acuerdos:</b> ${renderRich(m.agreements)}</div>`:''}${m.followup?`<div class="small"><b>Pendiente:</b> ${renderRich(m.followup)}</div>`:''}</div>`).join(''):'<div class="empty">No se han encontrado reuniones relacionadas con este alumno.</div>'}
+            ${recentMeetings.length?recentMeetings.map(m=>`<div class="tutor-item"><span class="tutor-date">${esc(m.date)} · ${esc(m.type||'Reunión')}</span><strong>${esc(m.title)}</strong>${m.agreements?`<div><b>Acuerdos:</b> ${esc(m.agreements)}</div>`:''}${m.followup?`<div class="small"><b>Pendiente:</b> ${esc(m.followup)}</div>`:''}</div>`).join(''):'<div class="empty">No se han encontrado reuniones relacionadas con este alumno.</div>'}
           </div>
         </div>
         <div class="tutor-section">
@@ -2743,7 +2547,7 @@
     if(ms)ms.value='';
     document.querySelector('#meeting-type').value='Equipo docente';
     document.querySelector('#meeting-start').value='';document.querySelector('#meeting-end').value='';
-    document.querySelector('#meeting-title').value='';setRich('meeting-development','');setRich('meeting-agreements','');setRich('meeting-followup','');
+    document.querySelector('#meeting-title').value='';document.querySelector('#meeting-development').value='';document.querySelector('#meeting-agreements').value='';document.querySelector('#meeting-followup').value='';
     meetingDraftPeople=meetingDefaultPeople();renderMeetingParticipants();
     document.querySelector('#meeting-save').textContent='Guardar reunión';document.querySelector('#meeting-cancel-edit').classList.add('hidden');
   }
@@ -2756,35 +2560,18 @@
   function addMeetingPerson(){const input=document.querySelector('#meeting-new-person'),name=input.value.trim();if(!name)return;if(!meetingDraftPeople.some(p=>p.name.toLowerCase()===name.toLowerCase()))meetingDraftPeople.push({name,present:true});input.value='';renderMeetingParticipants()}
   function saveMeeting(){
     const date=document.querySelector('#meeting-date').value,title=document.querySelector('#meeting-title').value.trim();if(!date||!title)return toast('Añade fecha y asunto de la reunión.');
-    const obj={id:editingMeetingId||uid('meet'),date,studentId:document.querySelector('#meeting-student')?.value||'',type:document.querySelector('#meeting-type').value,start:document.querySelector('#meeting-start').value,end:document.querySelector('#meeting-end').value,title,participants:meetingDraftPeople.map(p=>({...p})),development:getRich('meeting-development'),agreements:getRich('meeting-agreements'),followup:getRich('meeting-followup')};
+    const obj={id:editingMeetingId||uid('meet'),date,studentId:document.querySelector('#meeting-student')?.value||'',type:document.querySelector('#meeting-type').value,start:document.querySelector('#meeting-start').value,end:document.querySelector('#meeting-end').value,title,participants:meetingDraftPeople.map(p=>({...p})),development:document.querySelector('#meeting-development').value.trim(),agreements:document.querySelector('#meeting-agreements').value.trim(),followup:document.querySelector('#meeting-followup').value.trim()};
     if(editingMeetingId){const idx=data.meetings.findIndex(m=>m.id===editingMeetingId);if(idx>=0)data.meetings[idx]=obj}else data.meetings.push(obj);
     data.meetingPeople=[...new Set(meetingDraftPeople.map(p=>p.name).filter(Boolean))];
     editingMeetingId='';save('Reunión guardada');resetMeetingForm();
   }
-  function editMeeting(id){const m=data.meetings.find(x=>x.id===id);if(!m)return;editingMeetingId=id;document.querySelector('#meeting-date').value=m.date;const ms=document.querySelector('#meeting-student');if(ms){ms.innerHTML='<option value="">Sin alumno concreto</option>'+data.students.map(st=>`<option value="${esc(st.id)}">${esc(st.name)}</option>`).join('');ms.value=m.studentId||''}document.querySelector('#meeting-type').value=m.type||'Otra';document.querySelector('#meeting-start').value=m.start||'';document.querySelector('#meeting-end').value=m.end||'';document.querySelector('#meeting-title').value=m.title||'';setRich('meeting-development',m.development||'');setRich('meeting-agreements',m.agreements||'');setRich('meeting-followup',m.followup||'');meetingDraftPeople=(m.participants||[]).map(p=>({...p}));renderMeetingParticipants();document.querySelector('#meeting-save').textContent='Actualizar reunión';document.querySelector('#meeting-cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}
+  function editMeeting(id){const m=data.meetings.find(x=>x.id===id);if(!m)return;editingMeetingId=id;document.querySelector('#meeting-date').value=m.date;const ms=document.querySelector('#meeting-student');if(ms){ms.innerHTML='<option value="">Sin alumno concreto</option>'+data.students.map(st=>`<option value="${esc(st.id)}">${esc(st.name)}</option>`).join('');ms.value=m.studentId||''}document.querySelector('#meeting-type').value=m.type||'Otra';document.querySelector('#meeting-start').value=m.start||'';document.querySelector('#meeting-end').value=m.end||'';document.querySelector('#meeting-title').value=m.title||'';document.querySelector('#meeting-development').value=m.development||'';document.querySelector('#meeting-agreements').value=m.agreements||'';document.querySelector('#meeting-followup').value=m.followup||'';meetingDraftPeople=(m.participants||[]).map(p=>({...p}));renderMeetingParticipants();document.querySelector('#meeting-save').textContent='Actualizar reunión';document.querySelector('#meeting-cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}
   function renderMeetings(){
     const box=document.querySelector('#meeting-list');if(!box)return;const filter=document.querySelector('#meeting-filter')?.value||'all';let arr=[...(data.meetings||[])].sort((a,b)=>(b.date+(b.start||'')).localeCompare(a.date+(a.start||'')));if(filter!=='all')arr=arr.filter(m=>m.type===filter);
-    box.innerHTML=arr.length?arr.map(m=>{const pres=(m.participants||[]).filter(p=>p.present).map(p=>p.name),abs=(m.participants||[]).filter(p=>!p.present).map(p=>p.name);return `<div class="meeting-card"><div class="meeting-head"><div><strong>${esc(m.title)}</strong><div class="meeting-meta">${esc(m.date)}${m.start?' · '+esc(m.start):''}${m.end?'–'+esc(m.end):''} · ${esc(m.type||'Reunión')}</div></div><div class="agenda-actions"><button data-meeting-edit="${m.id}">Editar</button><button data-meeting-dup="${m.id}">Duplicar</button><button data-meeting-del="${m.id}">🗑</button></div></div><div class="meeting-section"><strong>Presentes</strong><div class="small">${pres.length?pres.map(esc).join(', '):'—'}</div>${abs.length?`<div style="margin-top:6px"><strong>Ausentes</strong><div class="small">${abs.map(esc).join(', ')}</div></div>`:''}</div>${m.development?`<div class="meeting-section"><strong>Desarrollo</strong>${renderRich(m.development)}</div>`:''}${m.agreements?`<div class="meeting-section"><strong>Acuerdos adoptados</strong>${renderRich(m.agreements)}</div>`:''}${m.followup?`<div class="meeting-section"><strong>Seguimiento / pendientes</strong>${renderRich(m.followup)}</div>`:''}</div>`}).join(''):'<div class="empty">Todavía no has registrado reuniones.</div>';
-    box.querySelectorAll('[data-meeting-edit]').forEach(b=>b.onclick=()=>editMeeting(b.dataset.meetingEdit));
-    box.querySelectorAll('[data-meeting-dup]').forEach(b=>b.onclick=()=>{const m=data.meetings.find(x=>x.id===b.dataset.meetingDup);if(!m)return;const copy={...clone(m),id:uid('meet'),date:today(),title:`${m.title} · copia`};data.meetings.push(copy);save('Reunión duplicada')});
-    box.querySelectorAll('[data-meeting-del]').forEach(b=>b.onclick=()=>{if(confirm('¿Eliminar esta reunión?')){data.meetings=data.meetings.filter(m=>m.id!==b.dataset.meetingDel);save('Reunión eliminada')}});
+    box.innerHTML=arr.length?arr.map(m=>{const pres=(m.participants||[]).filter(p=>p.present).map(p=>p.name),abs=(m.participants||[]).filter(p=>!p.present).map(p=>p.name);return `<div class="meeting-card"><div class="meeting-head"><div><strong>${esc(m.title)}</strong><div class="meeting-meta">${esc(m.date)}${m.start?' · '+esc(m.start):''}${m.end?'–'+esc(m.end):''} · ${esc(m.type||'Reunión')}</div></div><div class="agenda-actions"><button data-meeting-edit="${m.id}">Editar</button><button data-meeting-del="${m.id}">🗑</button></div></div><div class="meeting-section"><strong>Presentes</strong><div class="small">${pres.length?pres.map(esc).join(', '):'—'}</div>${abs.length?`<div style="margin-top:6px"><strong>Ausentes</strong><div class="small">${abs.map(esc).join(', ')}</div></div>`:''}</div>${m.development?`<div class="meeting-section"><strong>Desarrollo</strong><div class="small" style="white-space:pre-wrap">${esc(m.development)}</div></div>`:''}${m.agreements?`<div class="meeting-section"><strong>Acuerdos adoptados</strong><div style="white-space:pre-wrap">${esc(m.agreements)}</div></div>`:''}${m.followup?`<div class="meeting-section"><strong>Seguimiento / pendientes</strong><div class="small" style="white-space:pre-wrap">${esc(m.followup)}</div></div>`:''}</div>`}).join(''):'<div class="empty">Todavía no has registrado reuniones.</div>';
+    box.querySelectorAll('[data-meeting-edit]').forEach(b=>b.onclick=()=>editMeeting(b.dataset.meetingEdit));box.querySelectorAll('[data-meeting-del]').forEach(b=>b.onclick=()=>{if(confirm('¿Eliminar esta reunión?')){data.meetings=data.meetings.filter(m=>m.id!==b.dataset.meetingDel);save('Reunión eliminada')}});
   }
 
-  let editingActuationId='';
-  function resetActuationForm(){
-    editingActuationId='';document.querySelector('#act-date').value=today();document.querySelector('#act-time').value='';document.querySelector('#act-scope').value='TIC';document.querySelector('#act-requested-by').value='';document.querySelector('#act-status').value='Abierta';document.querySelector('#act-title').value='';setRich('act-request','');setRich('act-work','');setRich('act-result','');setRich('act-followup','');document.querySelector('#act-save').textContent='Guardar actuación';document.querySelector('#act-cancel-edit').classList.add('hidden');
-  }
-  function saveActuation(){
-    const date=document.querySelector('#act-date').value,title=document.querySelector('#act-title').value.trim();if(!date||!title)return toast('Añade fecha y título de la actuación.');
-    const obj={id:editingActuationId||uid('act'),date,time:document.querySelector('#act-time').value,scope:document.querySelector('#act-scope').value,requestedBy:document.querySelector('#act-requested-by').value.trim(),status:document.querySelector('#act-status').value,title,request:getRich('act-request'),work:getRich('act-work'),result:getRich('act-result'),followup:getRich('act-followup'),updatedAt:new Date().toISOString()};
-    data.actuaciones=data.actuaciones||[];if(editingActuationId){const i=data.actuaciones.findIndex(x=>x.id===editingActuationId);if(i>=0)data.actuaciones[i]=obj}else data.actuaciones.push(obj);save('Actuación guardada');resetActuationForm();
-  }
-  function editActuation(id){const a=(data.actuaciones||[]).find(x=>x.id===id);if(!a)return;editingActuationId=id;document.querySelector('#act-date').value=a.date||today();document.querySelector('#act-time').value=a.time||'';document.querySelector('#act-scope').value=a.scope||'Otro';document.querySelector('#act-requested-by').value=a.requestedBy||'';document.querySelector('#act-status').value=a.status||'Abierta';document.querySelector('#act-title').value=a.title||'';setRich('act-request',a.request||'');setRich('act-work',a.work||'');setRich('act-result',a.result||'');setRich('act-followup',a.followup||'');document.querySelector('#act-save').textContent='Actualizar actuación';document.querySelector('#act-cancel-edit').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}
-  function renderActuations(){
-    const box=document.querySelector('#act-list');if(!box)return;const scope=document.querySelector('#act-filter-scope')?.value||'all',status=document.querySelector('#act-filter-status')?.value||'all',q=(document.querySelector('#act-search')?.value||'').trim().toLowerCase();let arr=[...(data.actuaciones||[])].sort((a,b)=>(b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));if(scope!=='all')arr=arr.filter(a=>a.scope===scope);if(status!=='all')arr=arr.filter(a=>a.status===status);if(q)arr=arr.filter(a=>[a.title,a.requestedBy,a.scope,richText(a.request),richText(a.work),richText(a.result),richText(a.followup)].join(' ').toLowerCase().includes(q));
-    box.innerHTML=arr.length?arr.map(a=>`<div class="actuation-card"><div class="actuation-head"><div><strong>${esc(a.title)}</strong><div class="actuation-meta">${esc(a.date)}${a.time?' · '+esc(a.time):''} · ${esc(a.scope||'Actuación')}${a.requestedBy?' · Solicita: '+esc(a.requestedBy):''}</div></div><div class="agenda-actions"><span class="pill ${a.status==='Finalizada'?'green':'yellow'}">${esc(a.status||'Abierta')}</span><button data-act-edit="${a.id}">Editar</button><button data-act-dup="${a.id}">Duplicar</button><button data-act-del="${a.id}">🗑</button></div></div>${a.request?`<div class="actuation-section"><strong>Petición</strong>${renderRich(a.request)}</div>`:''}${a.work?`<div class="actuation-section"><strong>Actuación realizada</strong>${renderRich(a.work)}</div>`:''}${a.result?`<div class="actuation-section"><strong>Resultado</strong>${renderRich(a.result)}</div>`:''}${a.followup?`<div class="actuation-section"><strong>Seguimiento / pendiente</strong>${renderRich(a.followup)}</div>`:''}</div>`).join(''):'<div class="empty">Todavía no has registrado actuaciones.</div>';
-    box.querySelectorAll('[data-act-edit]').forEach(b=>b.onclick=()=>editActuation(b.dataset.actEdit));box.querySelectorAll('[data-act-dup]').forEach(b=>b.onclick=()=>{const a=data.actuaciones.find(x=>x.id===b.dataset.actDup);if(!a)return;data.actuaciones.push({...clone(a),id:uid('act'),date:today(),title:`${a.title} · copia`,updatedAt:new Date().toISOString()});save('Actuación duplicada')});box.querySelectorAll('[data-act-del]').forEach(b=>b.onclick=()=>{if(confirm('¿Eliminar esta actuación?')){data.actuaciones=data.actuaciones.filter(a=>a.id!==b.dataset.actDel);save('Actuación eliminada')}});
-  }
 
   function renderIssues(){
     const box=document.querySelector('#issue-list');if(!box)return;
@@ -2806,21 +2593,9 @@
     document.querySelector('#issue-title').value='';document.querySelector('#issue-description').value='';document.querySelector('#issue-expected').value='';
     save('Incidencia registrada');
   }
-  function renderAll(){renderStudents();renderNotebook();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();}
+  function renderAll(){renderStudents();renderNotebook();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();}
 
 
-  let pendingUpdateVersion='';
-  async function checkAppUpdate(){
-    const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
-    if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
-    state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.0'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
-    catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
-  }
-  async function installAppUpdate(){
-    const msg=document.querySelector('#update-message'),btn=document.querySelector('#update-install');btn.disabled=true;msg.textContent='Descargando e instalando la actualización… La app se reiniciará al terminar.';
-    try{await nativeInvoke('install_update');}catch(err){btn.disabled=false;msg.textContent='No se pudo instalar: '+String(err)}
-  }
   function modal(title,html,onSave){const bg=document.querySelector('#modal-backdrop'),saveBtn=document.querySelector('#modal-save');document.querySelector('#modal-title').textContent=title;document.querySelector('#modal-content').innerHTML=html;saveBtn.classList.remove('hidden');saveBtn.textContent='Guardar';bg.classList.add('show');saveBtn.onclick=()=>{if(onSave()!==false)bg.classList.remove('show')}}
   document.querySelector('#modal-cancel').onclick=()=>document.querySelector('#modal-backdrop').classList.remove('show');
   document.querySelector('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')e.currentTarget.classList.remove('show')};
@@ -2842,11 +2617,6 @@
   document.querySelector('#meeting-new-person').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addMeetingPerson()}};
   document.querySelector('#meeting-filter').onchange=renderMeetings;
   document.querySelector('#meeting-cancel-edit').onclick=resetMeetingForm;
-  document.querySelector('#act-save').onclick=saveActuation;
-  document.querySelector('#act-cancel-edit').onclick=resetActuationForm;
-  document.querySelector('#act-filter-scope').onchange=renderActuations;
-  document.querySelector('#act-filter-status').onchange=renderActuations;
-  document.querySelector('#act-search').oninput=renderActuations;
   resetMeetingForm();
   document.querySelector('#custom-day-add').onclick=addCustomDay;
   document.querySelector('#custom-day-start').value=today();
@@ -2876,30 +2646,21 @@
   topButtons.find(b=>b.textContent.includes('Crear situación')).onclick=()=>{applyMode('diario',false);openSection('planificacion');document.querySelector('#unidad-titulo').focus()};
   document.querySelector('#generar-pdf').onclick=()=>window.print();
   document.querySelector('#backup-interno').onclick=async()=>{if(!nativeMode)return toast('Disponible en la aplicación Mac.');try{const id=await nativeInvoke('create_backup');toast('Copia interna creada · #'+id)}catch(err){toast('No se pudo crear la copia interna')}};
-  document.querySelector('#exportar-datos').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MiCuadernoDigital_v0.3_backup_'+today()+'.json';a.click();URL.revokeObjectURL(a.href);toast('Copia exportada')};
+  document.querySelector('#exportar-datos').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MiCuadernoDigital_v34_backup_'+today()+'.json';a.click();URL.revokeObjectURL(a.href);toast('Copia exportada')};
   document.querySelector('#importar-datos').onclick=()=>document.querySelector('#archivo-importar').click();
   document.querySelector('#archivo-importar').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const imported=JSON.parse(r.result);if(!Array.isArray(imported.students))throw new Error();data=imported;save('Copia importada correctamente')}catch(err){toast('El archivo no es una copia válida')}};r.readAsText(f)};
-  document.querySelector('#restablecer-datos').onclick=()=>{if(confirm('¿Restablecer la demo? Se borrarán los datos guardados de esta instalación.')){data=clone(demo);save('Datos demo restablecidos');applyMode('diario',true)}};
+  document.querySelector('#restablecer-datos').onclick=()=>{if(confirm('¿Restablecer la demo? Se borrarán los datos guardados de esta v34.')){data=clone(demo);save('Datos demo restablecidos');applyMode('diario',true)}};
   document.querySelectorAll('[data-dashboard]').forEach(card=>{card.onclick=()=>dashboardDetails(card.dataset.dashboard);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();dashboardDetails(card.dataset.dashboard)}}});
   document.querySelector('#timetable-add-row').onclick=addTimetableRow;
   document.querySelector('#timetable-reset').onclick=resetTimetable;
   document.querySelector('#issue-add').onclick=addIssue;
   document.querySelector('#issue-filter').onchange=renderIssues;
-  document.querySelector('#google-connect').onclick=connectGoogle;
-  document.querySelector('#google-sync-now').onclick=()=>syncGoogleAgenda(false);
-  document.querySelector('#google-disconnect').onclick=disconnectGoogle;
-  document.querySelector('#google-client-id').onchange=e=>{googleSettings().clientId=e.target.value.trim();persistState()};
-  document.querySelector('#google-auto-sync').onchange=e=>{googleSettings().autoSync=e.target.checked;persistState();if(e.target.checked)scheduleGoogleAgendaSync()};
-  document.querySelector('#google-duration').onchange=e=>{googleSettings().defaultDuration=Number(e.target.value)||30;persistState();scheduleGoogleAgendaSync()};
-  document.querySelector('#update-check').onclick=checkAppUpdate;
-  document.querySelector('#update-install').onclick=installAppUpdate;
 
   await hydrateFromDatabase();
-  await refreshGoogleStatus();
   migrateAllGrades();
   syncCurricularEvidenceColumns();
   persistState();
-  resetMeetingForm();resetActuationForm();bindRichEditors();renderAll(); applyMode('diario',false); openSection('inicio');
+  renderAll(); applyMode('diario',false); openSection('inicio');
   updateDbStatus(nativeMode,nativeMode?'Base de datos local preparada.':'La app empaquetada usará SQLite local.');
   setInterval(()=>{renderLiveClass();renderDashboard();const u=selectedUnit();if(u)renderSessions(u)},30000);
 })();
