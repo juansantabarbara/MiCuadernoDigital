@@ -786,7 +786,7 @@
     @media(max-width:850px){.google-grid,.google-colors{grid-template-columns:1fr}}
 
 
-    /* v0.3.4 · Actuaciones + editor enriquecido + updater */
+    /* v0.3.5 · Actuaciones + editor enriquecido + updater */
     .rich-editor{border:1px solid var(--line);border-radius:13px;background:white;overflow:hidden}
     .rich-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--line);background:#f8fafc;position:sticky;top:0;z-index:1}
     .rich-toolbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;font-weight:800;cursor:pointer;min-width:34px}
@@ -816,7 +816,7 @@
   <aside>
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.3.4 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.3.5 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -830,6 +830,7 @@
       <button data-section="agenda">Mi agenda</button>
       <button data-section="reuniones">Reuniones</button>
       <button data-section="actuaciones">Actuaciones</button>
+      <button data-section="aportaciones">💶 Aportaciones</button>
       <button data-section="cuaderno">Cuaderno de notas</button>
       <button data-section="alumnado">Alumnado</button>
       <button data-section="diario">Diario</button>
@@ -1110,6 +1111,30 @@
           <div id="act-list" class="actuation-list"></div>
         </div>
       </div>
+    </section>
+
+    <section id="aportaciones" class="section">
+      <div class="card">
+        <div class="meeting-head">
+          <div>
+            <h3>💶 Aportaciones</h3>
+            <p>Control privado y local de excursiones, actividades, materiales y otras recogidas de dinero.</p>
+          </div>
+          <button class="primary" id="aportacion-nueva">Nueva aportación</button>
+        </div>
+        <div class="notice" style="margin-top:14px">
+          El alumnado se toma directamente de MiCuadernoDigital. No se crean copias de nombres ni se envían estos datos a la web.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Aportaciones guardadas</h3>
+        <div id="aportaciones-list">
+          <div class="empty">Todavía no hay aportaciones.</div>
+        </div>
+      </div>
+
+      <div id="aportacion-detalle" class="hidden" style="margin-top:18px"></div>
     </section>
 
     <section id="diario" class="section">
@@ -1534,7 +1559,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.4</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.5</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -1582,7 +1607,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.3.4';
+  const VERSION='0.3.5';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -1603,7 +1628,7 @@
       const raw=await nativeInvoke('load_state');
       if(raw){
         const stored=JSON.parse(raw),base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         data=merged;
         localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
@@ -1636,6 +1661,7 @@
     agenda:['Mi agenda','Agenda personal docente: reuniones, tareas y recordatorios.'],
     reuniones:['Reuniones','Registro completo de reuniones, participantes, desarrollo, acuerdos y seguimiento.'],
     actuaciones:['Actuaciones','Registro editable de encargos, coordinaciones, gestiones y trabajo realizado.'],
+    aportaciones:['Aportaciones','Control local de aportaciones, pagos y cantidades pendientes del alumnado.'],
     cuaderno:['Cuaderno de notas','Alumnado en filas y evidencias en columnas, conectadas a criterios y competencias.'],
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
@@ -1650,7 +1676,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','diario','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','asistencia','planificacion','configuracion'],
     evaluacion:['cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -1679,6 +1705,7 @@
     agenda:[],
     meetings:[],
     actuaciones:[],
+    aportaciones:[],
     meetingPeople:[],
     customDays:[],
     issues:[],
@@ -1710,7 +1737,7 @@
       const raw=localStorage.getItem(STORAGE_KEY);
       if(raw){
         const stored=JSON.parse(raw), base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         if(!merged.selectedUnitId||!merged.units.some(u=>u.id===merged.selectedUnitId))merged.selectedUnitId=merged.units[0]?.id||'';
         return merged;
@@ -2811,6 +2838,407 @@
     box.querySelectorAll('[data-act-edit]').forEach(b=>b.onclick=()=>editActuation(b.dataset.actEdit));box.querySelectorAll('[data-act-dup]').forEach(b=>b.onclick=()=>{const a=data.actuaciones.find(x=>x.id===b.dataset.actDup);if(!a)return;data.actuaciones.push({...clone(a),id:uid('act'),date:today(),title:`${a.title} · copia`,updatedAt:new Date().toISOString()});save('Actuación duplicada')});box.querySelectorAll('[data-act-del]').forEach(b=>b.onclick=()=>{if(confirm('¿Eliminar esta actuación?')){data.actuaciones=data.actuaciones.filter(a=>a.id!==b.dataset.actDel);save('Actuación eliminada')}});
   }
 
+  let selectedAportacionId='';
+
+  function money(v){
+    const n=Number(v||0);
+    return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  }
+
+  function aportacionStatus(payment){
+    const amount=Number(payment?.amount||0);
+    if(payment?.status==='Pagado')return 'Pagado';
+    if(amount>0)return 'Parcial';
+    return 'Pendiente';
+  }
+
+  function newAportacion(){
+    modal('Nueva aportación',`<div class="form-grid">
+      <label>Denominación<input id="ap-title" placeholder="Ej.: Excursión al Museo del Jurásico"></label>
+      <label>Tipo<select id="ap-type"><option>Excursión</option><option>Material</option><option>Actividad</option><option>Fotografías</option><option>Otro</option></select></label>
+      <label>Fecha<input type="date" id="ap-date" value="${today()}"></label>
+      <label>Lugar<input id="ap-place" placeholder="Opcional"></label>
+      <label>Importe previsto por alumno (€)<input type="number" id="ap-expected" min="0" step="0.01" placeholder="0,00"></label>
+
+      <div style="grid-column:1/-1;margin-top:8px">
+        <strong>Datos para documento de Secretaría</strong>
+        <div class="small">Opcionales. Se utilizarán al generar el PDF de la aportación.</div>
+      </div>
+
+      <label>Etapa<input id="ap-stage" value="Primaria" placeholder="Primaria"></label>
+      <label>Ciclo / internivel<input id="ap-cycle" placeholder="Ej.: 3.º"></label>
+      <label>Nivel<input id="ap-level" placeholder="Ej.: 5.º"></label>
+      <label>Grupo<input id="ap-group" placeholder="Ej.: B"></label>
+      <label>Localidad<input id="ap-locality" value="Lugones" placeholder="Localidad"></label>
+      <label>Fecha del documento<input type="date" id="ap-document-date" value="${today()}"></label>
+
+      <label style="grid-column:1/-1">Observaciones<textarea id="ap-notes" placeholder="Información interna sobre esta recogida..."></textarea></label>
+    </div>`,()=>{
+      const title=document.querySelector('#ap-title').value.trim();
+      if(!title){toast('Escribe una denominación.');return false}
+      const expected=Math.max(0,Number(document.querySelector('#ap-expected').value||0));
+      const payments={};
+      (data.students||[]).forEach(st=>{
+        payments[st.id]={status:'Pendiente',amount:0,date:'',note:''};
+      });
+      const a={
+        id:uid('aport'),
+        title,
+        type:document.querySelector('#ap-type').value,
+        date:document.querySelector('#ap-date').value,
+        place:document.querySelector('#ap-place').value.trim(),
+        expected,
+        stage:document.querySelector('#ap-stage').value.trim(),
+        cycle:document.querySelector('#ap-cycle').value.trim(),
+        level:document.querySelector('#ap-level').value.trim(),
+        group:document.querySelector('#ap-group').value.trim(),
+        locality:document.querySelector('#ap-locality').value.trim(),
+        documentDate:document.querySelector('#ap-document-date').value,
+        notes:document.querySelector('#ap-notes').value.trim(),
+        payments
+      };
+      data.aportaciones=data.aportaciones||[];
+      data.aportaciones.push(a);
+      selectedAportacionId=a.id;
+      save('Aportación creada');
+    });
+  }
+
+  async function aportacionPdf(a){
+    try{
+      const students=Array.isArray(data.students)?data.students:[];
+
+      if(!a){
+        toast('No se encontró la aportación.');
+        return;
+      }
+
+      const paid=students.filter(st=>{
+        const p=(a.payments&&a.payments[st.id])||{};
+        return aportacionStatus(p)==='Pagado';
+      });
+
+      if(!paid.length){
+        toast('No hay alumnado marcado como Pagado.');
+        return;
+      }
+
+      toast('Generando PDF de Secretaría…');
+
+      const path=await window.__TAURI__.core.invoke('generate_aportacion_pdf',{
+        aportacionJson:JSON.stringify(a),
+        studentsJson:JSON.stringify(students)
+      });
+
+      console.log('PDF de aportaciones creado:',path);
+      toast('PDF generado correctamente.');
+    }catch(e){
+      console.error('Error generando PDF de aportaciones:',e);
+      toast('No se pudo generar el PDF: '+String(e));
+    }
+  }
+
+  function renderAportaciones(){
+    const list=document.querySelector('#aportaciones-list');
+    const detail=document.querySelector('#aportacion-detalle');
+    if(!list||!detail)return;
+
+    const arr=[...(data.aportaciones||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+    list.innerHTML=arr.length?arr.map(a=>{
+      const students=data.students||[];
+      const paid=students.filter(st=>aportacionStatus(a.payments?.[st.id])==='Pagado').length;
+      const partial=students.filter(st=>aportacionStatus(a.payments?.[st.id])==='Parcial').length;
+      const collected=students.reduce((sum,st)=>sum+Number(a.payments?.[st.id]?.amount||0),0);
+      return `<div class="actuation-card">
+        <div class="actuation-head">
+          <div>
+            <strong>${esc(a.title)}</strong>
+            <div class="actuation-meta">${esc(a.type||'Aportación')}${a.date?' · '+esc(a.date):''}${a.place?' · '+esc(a.place):''}</div>
+          </div>
+          <div class="agenda-actions">
+            <span class="pill green">${paid} pagados</span>
+            ${partial?`<span class="pill yellow">${partial} parciales</span>`:''}
+            <button data-ap-open="${esc(a.id)}">Abrir</button>
+          </div>
+        </div>
+        <div class="small" style="margin-top:10px"><strong>Recogido:</strong> ${money(collected)} · <strong>Previsto:</strong> ${money(Number(a.expected||0)*students.length)}</div>
+      </div>`;
+    }).join(''):'<div class="empty">Todavía no hay aportaciones.</div>';
+
+    list.querySelectorAll('[data-ap-open]').forEach(b=>b.onclick=()=>{
+      selectedAportacionId=b.dataset.apOpen;
+      renderAportaciones();
+    });
+
+    const a=(data.aportaciones||[]).find(x=>x.id===selectedAportacionId);
+    if(!a){
+      detail.classList.add('hidden');
+      detail.innerHTML='';
+      return;
+    }
+
+    a.payments=a.payments||{};
+    (data.students||[]).forEach(st=>{
+      if(!a.payments[st.id])a.payments[st.id]={status:'Pendiente',amount:0,date:'',note:''};
+    });
+
+    const students=data.students||[];
+    const paid=students.filter(st=>aportacionStatus(a.payments[st.id])==='Pagado').length;
+    const partial=students.filter(st=>aportacionStatus(a.payments[st.id])==='Parcial').length;
+    const pending=students.length-paid-partial;
+    const collected=students.reduce((sum,st)=>sum+Number(a.payments[st.id]?.amount||0),0);
+    const totalExpected=Number(a.expected||0)*students.length;
+
+    detail.classList.remove('hidden');
+    detail.innerHTML=`<div class="card">
+      <div class="actuation-head">
+        <div>
+          <h3>${esc(a.title)}</h3>
+          <p>${esc(a.type||'Aportación')}${a.date?' · '+esc(a.date):''}${a.place?' · '+esc(a.place):''}</p>
+        </div>
+        <button class="ghost" id="ap-close">Cerrar detalle</button>
+      </div>
+
+      <div class="stats" style="margin-top:14px">
+        <div class="stat"><strong>${paid}</strong><span>Pagados</span></div>
+        <div class="stat"><strong>${partial}</strong><span>Parciales</span></div>
+        <div class="stat"><strong>${pending}</strong><span>Pendientes</span></div>
+        <div class="stat"><strong>${money(collected)}</strong><span>Recogido</span></div>
+        <div class="stat"><strong>${money(totalExpected)}</strong><span>Previsto</span></div>
+      </div>
+
+      ${(a.stage||a.cycle||a.level||a.group||a.locality||a.documentDate)?`
+      <div class="notice" style="margin-top:14px">
+        <strong>Documento de Secretaría</strong>
+        <div class="small" style="margin-top:6px">
+          ${a.stage?`Etapa: ${esc(a.stage)}`:''}
+          ${a.cycle?` · Ciclo/internivel: ${esc(a.cycle)}`:''}
+          ${a.level?` · Nivel: ${esc(a.level)}`:''}
+          ${a.group?` · Grupo: ${esc(a.group)}`:''}
+          ${a.locality?` · Localidad: ${esc(a.locality)}`:''}
+          ${a.documentDate?` · Fecha documento: ${esc(a.documentDate)}`:''}
+        </div>
+      </div>`:''}
+
+      ${a.notes?`<div class="notice" style="margin-top:14px">${esc(a.notes)}</div>`:''}
+
+      <div class="actions" style="justify-content:flex-start;margin-top:16px">
+        <button class="primary" id="ap-pdf">📄 PDF Secretaría</button>
+        <button class="secondary" id="ap-csv">📊 CSV</button>
+        <button class="secondary" id="ap-edit">✏️ Editar aportación</button>
+        <button class="secondary" id="ap-all-paid">Marcar todos pagados</button>
+        <button class="ghost" id="ap-all-unpaid">Desmarcar todos</button>
+        <button class="ghost" id="ap-copy-pending">Copiar pendientes</button>
+        <button class="ghost danger" id="ap-delete">Eliminar aportación</button>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>Alumno/a</th><th>Estado</th><th>Importe</th><th>Fecha</th><th>Observación</th><th></th></tr></thead>
+          <tbody>
+            ${students.map(st=>{
+              const p=a.payments[st.id]||{};
+              const status=aportacionStatus(p);
+              return `<tr>
+                <td><strong>${esc(st.name)}</strong></td>
+                <td><span class="pill ${status==='Pagado'?'green':status==='Parcial'?'yellow':'red'}">${status}</span></td>
+                <td>${money(p.amount)}</td>
+                <td>${esc(p.date||'—')}</td>
+                <td>${esc(p.note||'—')}</td>
+                <td><button class="ghost" data-ap-pay="${esc(st.id)}">Editar</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+    document.querySelector('#ap-close').onclick=()=>{
+      selectedAportacionId='';
+      renderAportaciones();
+    };
+
+    document.querySelector('#ap-pdf').onclick=()=>aportacionPdf(a);
+
+    document.querySelector('#ap-csv').onclick=async()=>{
+      try{
+        const students=Array.isArray(data.students)?data.students:[];
+
+        toast('Generando CSV…');
+
+        const path=await window.__TAURI__.core.invoke('generate_aportacion_csv',{
+          aportacionJson:JSON.stringify(a),
+          studentsJson:JSON.stringify(students)
+        });
+
+        console.log('CSV de aportaciones creado:',path);
+        toast('CSV generado correctamente.');
+      }catch(e){
+        console.error('Error generando CSV de aportaciones:',e);
+        toast('No se pudo generar el CSV: '+String(e));
+      }
+    };
+
+    document.querySelector('#ap-edit').onclick=()=>{
+      modal('Editar aportación',`<div class="form-grid">
+        <label style="grid-column:1/-1">Denominación
+          <input id="ap-edit-title" value="${esc(a.title||'')}">
+        </label>
+
+        <label>Tipo
+          <select id="ap-edit-type">
+            ${['Excursión','Material','Actividad','Fotografías','Otro'].map(x=>`<option ${a.type===x?'selected':''}>${x}</option>`).join('')}
+          </select>
+        </label>
+
+        <label>Importe previsto (€)
+          <input type="number" min="0" step="0.01" id="ap-edit-expected" value="${Number(a.expected||0)}">
+        </label>
+
+        <label>Fecha
+          <input type="date" id="ap-edit-date" value="${esc(a.date||'')}">
+        </label>
+
+        <label>Lugar
+          <input id="ap-edit-place" value="${esc(a.place||'')}">
+        </label>
+
+        <label>Etapa
+          <input id="ap-edit-stage" value="${esc(a.stage||'')}">
+        </label>
+
+        <label>Ciclo / internivel
+          <input id="ap-edit-cycle" value="${esc(a.cycle||'')}">
+        </label>
+
+        <label>Nivel
+          <input id="ap-edit-level" value="${esc(a.level||'')}">
+        </label>
+
+        <label>Grupo
+          <input id="ap-edit-group" value="${esc(a.group||'')}">
+        </label>
+
+        <label>Localidad
+          <input id="ap-edit-locality" value="${esc(a.locality||'')}">
+        </label>
+
+        <label>Fecha documento
+          <input type="date" id="ap-edit-document-date" value="${esc(a.documentDate||'')}">
+        </label>
+
+        <label style="grid-column:1/-1">Observaciones
+          <textarea id="ap-edit-notes">${esc(a.notes||'')}</textarea>
+        </label>
+      </div>`,()=>{
+
+        const title=document.querySelector('#ap-edit-title').value.trim();
+
+        if(!title){
+          toast('La denominación es obligatoria.');
+          return false;
+        }
+
+        const expected=Math.max(
+          0,
+          Number(document.querySelector('#ap-edit-expected').value||0)
+        );
+
+        a.title=title;
+        a.type=document.querySelector('#ap-edit-type').value;
+        a.expected=expected;
+        a.date=document.querySelector('#ap-edit-date').value;
+        a.place=document.querySelector('#ap-edit-place').value.trim();
+        a.stage=document.querySelector('#ap-edit-stage').value.trim();
+        a.cycle=document.querySelector('#ap-edit-cycle').value.trim();
+        a.level=document.querySelector('#ap-edit-level').value.trim();
+        a.group=document.querySelector('#ap-edit-group').value.trim();
+        a.locality=document.querySelector('#ap-edit-locality').value.trim();
+        a.documentDate=document.querySelector('#ap-edit-document-date').value;
+        a.notes=document.querySelector('#ap-edit-notes').value.trim();
+
+        save('Aportación actualizada');
+      });
+    };
+
+    detail.querySelectorAll('[data-ap-pay]').forEach(b=>b.onclick=()=>{
+      const sid=b.dataset.apPay;
+      const st=students.find(x=>x.id===sid);
+      const p=a.payments[sid]||{status:'Pendiente',amount:0,date:'',note:''};
+      modal(`Pago · ${st?.name||'Alumno/a'}`,`<div class="form-grid">
+        <label>Estado<select id="ap-pay-status">
+          <option ${aportacionStatus(p)==='Pendiente'?'selected':''}>Pendiente</option>
+          <option ${aportacionStatus(p)==='Parcial'?'selected':''}>Parcial</option>
+          <option ${aportacionStatus(p)==='Pagado'?'selected':''}>Pagado</option>
+        </select></label>
+        <label>Importe (€)<input type="number" min="0" step="0.01" id="ap-pay-amount" value="${Number(p.amount||0)}"></label>
+        <label>Fecha<input type="date" id="ap-pay-date" value="${esc(p.date||today())}"></label>
+        <label style="grid-column:1/-1">Observación<textarea id="ap-pay-note">${esc(p.note||'')}</textarea></label>
+      </div>`,()=>{
+        let status=document.querySelector('#ap-pay-status').value;
+        let amount=Math.max(0,Number(document.querySelector('#ap-pay-amount').value||0));
+        if(status==='Pagado' && Number(a.expected||0)>0)amount=Number(a.expected||0);
+        if(status==='Pendiente')amount=0;
+        if(status==='Parcial' && amount<=0){toast('Indica un importe para el pago parcial.');return false}
+        a.payments[sid]={
+          status,
+          amount,
+          date:status==='Pendiente'?'':document.querySelector('#ap-pay-date').value,
+          note:document.querySelector('#ap-pay-note').value.trim()
+        };
+        save('Pago actualizado');
+      });
+    });
+
+    document.querySelector('#ap-all-paid').onclick=()=>{
+      students.forEach(st=>{
+        const p=a.payments[st.id]||{};
+        a.payments[st.id]={
+          status:'Pagado',
+          amount:Number(a.expected||0),
+          date:today(),
+          note:p.note||''
+        };
+      });
+      save('Todos marcados como pagados');
+    };
+
+    document.querySelector('#ap-all-unpaid').onclick=()=>{
+      students.forEach(st=>{
+        const p=a.payments[st.id]||{};
+        a.payments[st.id]={status:'Pendiente',amount:0,date:'',note:p.note||''};
+      });
+      save('Pagos desmarcados');
+    };
+
+    document.querySelector('#ap-copy-pending').onclick=async()=>{
+      const names=students.filter(st=>aportacionStatus(a.payments[st.id])!=='Pagado').map(st=>st.name);
+      const text=names.length
+        ? `Pendientes de ${a.title}: ${names.join(', ')}.`
+        : `No hay alumnado pendiente de ${a.title}.`;
+      try{
+        await navigator.clipboard.writeText(text);
+        toast('Pendientes copiados');
+      }catch(e){
+        toast(text);
+      }
+    };
+
+    document.querySelector('#ap-delete').onclick=()=>{
+      modal('Eliminar aportación',`<div class="notice danger">
+        Se eliminará <strong>${esc(a.title)}</strong> y todos sus pagos registrados. Esta acción no afecta al alumnado.
+      </div>`,()=>{
+        data.aportaciones=data.aportaciones.filter(x=>x.id!==a.id);
+        selectedAportacionId='';
+        save('Aportación eliminada');
+      });
+      const saveBtn=document.querySelector('#modal-save');
+      saveBtn.textContent='Eliminar definitivamente';
+      saveBtn.classList.add('danger');
+    };
+  }
+
   function renderIssues(){
     const box=document.querySelector('#issue-list');if(!box)return;
     const filter=document.querySelector('#issue-filter')?.value||'open';
@@ -2831,7 +3259,7 @@
     document.querySelector('#issue-title').value='';document.querySelector('#issue-description').value='';document.querySelector('#issue-expected').value='';
     save('Incidencia registrada');
   }
-  function renderAll(){renderStudents();renderNotebook();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();}
+  function renderAll(){renderStudents();renderNotebook();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();}
 
 
   let pendingUpdateVersion='';
@@ -2839,7 +3267,7 @@
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.4'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.5'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
@@ -2867,6 +3295,7 @@
   document.querySelector('#meeting-new-person').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addMeetingPerson()}};
   document.querySelector('#meeting-filter').onchange=renderMeetings;
   document.querySelector('#meeting-cancel-edit').onclick=resetMeetingForm;
+  document.querySelector('#aportacion-nueva').onclick=newAportacion;
   document.querySelector('#act-save').onclick=saveActuation;
   document.querySelector('#act-cancel-edit').onclick=resetActuationForm;
   document.querySelector('#act-filter-scope').onchange=renderActuations;

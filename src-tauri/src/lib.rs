@@ -11,7 +11,7 @@ use url::Url;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_updater::UpdaterExt;
 
-const SCHEMA_VERSION: i64 = 4;
+const SCHEMA_VERSION: i64 = 5;
 const GOOGLE_SCOPE: &str = "https://www.googleapis.com/auth/calendar.app.created";
 const GOOGLE_CLIENT_ID: &str = env!("GOOGLE_CLIENT_ID");
 const GOOGLE_CLIENT_SECRET: &str = env!("GOOGLE_CLIENT_SECRET");
@@ -61,6 +61,9 @@ fn open_db(app: &AppHandle) -> Result<Connection, String> {
       CREATE TABLE IF NOT EXISTS meeting_people(name TEXT PRIMARY KEY);
       CREATE TABLE IF NOT EXISTS actuaciones(id TEXT PRIMARY KEY,date TEXT,time TEXT,scope TEXT,requested_by TEXT,status TEXT,title TEXT,request_html TEXT,work_html TEXT,result_html TEXT,followup_html TEXT,updated_at TEXT,raw_json TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS idx_actuaciones_date ON actuaciones(date,time);
+      CREATE TABLE IF NOT EXISTS aportaciones(id TEXT PRIMARY KEY,title TEXT NOT NULL,type TEXT,date TEXT,place TEXT,expected REAL,notes TEXT,raw_json TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS idx_aportaciones_date ON aportaciones(date);
+      CREATE TABLE IF NOT EXISTS aportacion_pagos(aportacion_id TEXT NOT NULL,student_id TEXT NOT NULL,status TEXT,amount REAL,date TEXT,note TEXT,PRIMARY KEY(aportacion_id,student_id));
       CREATE TABLE IF NOT EXISTS custom_days(id TEXT PRIMARY KEY,start TEXT NOT NULL,end TEXT NOT NULL,type TEXT,label TEXT,raw_json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS issues(id TEXT PRIMARY KEY,created_at TEXT,updated_at TEXT,version TEXT,type TEXT,section TEXT,priority TEXT,title TEXT,description TEXT,expected TEXT,status TEXT,raw_json TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS idx_issues_status_created ON issues(status,created_at);
@@ -82,7 +85,7 @@ fn json(v: &Value) -> String { serde_json::to_string(v).unwrap_or_else(|_| "null
 fn arr<'a>(root: &'a Value,key:&str)->Vec<&'a Value>{root.get(key).and_then(Value::as_array).map(|a|a.iter().collect()).unwrap_or_default()}
 
 fn sync_normalized(tx:&Transaction<'_>, root:&Value)->Result<(),String>{
-    for table in ["students","observations","attendance_entries","units","sessions","criteria","products","product_criteria","evidence_columns","grades","agenda","meetings","meeting_participants","meeting_people","actuaciones","custom_days","issues","settings"] {
+    for table in ["students","observations","attendance_entries","units","sessions","criteria","products","product_criteria","evidence_columns","grades","agenda","meetings","meeting_participants","meeting_people","actuaciones","aportacion_pagos","aportaciones","custom_days","issues","settings"] {
         tx.execute(&format!("DELETE FROM {table}"),[]).map_err(|e|e.to_string())?;
     }
     for v in arr(root,"students"){
@@ -109,6 +112,7 @@ fn sync_normalized(tx:&Transaction<'_>, root:&Value)->Result<(),String>{
     for v in arr(root,"meetings"){let mid=sval(v,"id");tx.execute("INSERT INTO meetings(id,date,student_id,type,start_time,end_time,title,development,agreements,followup,raw_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)",params![mid,sval(v,"date"),sval(v,"studentId"),sval(v,"type"),sval(v,"start"),sval(v,"end"),sval(v,"title"),sval(v,"development"),sval(v,"agreements"),sval(v,"followup"),json(v)]).map_err(|e|e.to_string())?;if let Some(a)=v.get("participants").and_then(Value::as_array){for p in a{tx.execute("INSERT OR REPLACE INTO meeting_participants(meeting_id,name,status) VALUES(?1,?2,?3)",params![mid,sval(p,"name"),if p.get("present").and_then(Value::as_bool).unwrap_or(true){"Presente"}else{"Ausente"}]).map_err(|e|e.to_string())?;}}}
     for p in arr(root,"meetingPeople"){if let Some(name)=p.as_str(){tx.execute("INSERT OR IGNORE INTO meeting_people(name) VALUES(?1)",params![name]).map_err(|e|e.to_string())?;}}
     for v in arr(root,"actuaciones"){tx.execute("INSERT INTO actuaciones(id,date,time,scope,requested_by,status,title,request_html,work_html,result_html,followup_html,updated_at,raw_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13)",params![sval(v,"id"),sval(v,"date"),sval(v,"time"),sval(v,"scope"),sval(v,"requestedBy"),sval(v,"status"),sval(v,"title"),sval(v,"request"),sval(v,"work"),sval(v,"result"),sval(v,"followup"),sval(v,"updatedAt"),json(v)]).map_err(|e|e.to_string())?;}
+    for v in arr(root,"aportaciones"){let aid=sval(v,"id");tx.execute("INSERT INTO aportaciones(id,title,type,date,place,expected,notes,raw_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8)",params![aid,sval(v,"title"),sval(v,"type"),sval(v,"date"),sval(v,"place"),v.get("expected").and_then(Value::as_f64),sval(v,"notes"),json(v)]).map_err(|e|e.to_string())?;if let Some(payments)=v.get("payments").and_then(Value::as_object){for (sid,p) in payments{tx.execute("INSERT INTO aportacion_pagos(aportacion_id,student_id,status,amount,date,note) VALUES(?1,?2,?3,?4,?5,?6)",params![aid,sid,sval(p,"status"),p.get("amount").and_then(Value::as_f64),sval(p,"date"),sval(p,"note")]).map_err(|e|e.to_string())?;}}}
     for v in arr(root,"customDays"){tx.execute("INSERT INTO custom_days(id,start,end,type,label,raw_json) VALUES(?1,?2,?3,?4,?5,?6)",params![sval(v,"id"),sval(v,"start"),sval(v,"end"),sval(v,"type"),sval(v,"label"),json(v)]).map_err(|e|e.to_string())?;}
     for v in arr(root,"issues"){tx.execute("INSERT INTO issues(id,created_at,updated_at,version,type,section,priority,title,description,expected,status,raw_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)",params![sval(v,"id"),sval(v,"createdAt"),sval(v,"updatedAt"),sval(v,"version"),sval(v,"type"),sval(v,"section"),sval(v,"priority"),sval(v,"title"),sval(v,"description"),sval(v,"expected"),sval(v,"status"),json(v)]).map_err(|e|e.to_string())?;}
     let settings=json(root.get("settings").unwrap_or(&Value::Object(Default::default())));
@@ -440,11 +444,496 @@ fn database_status(app:AppHandle)->Result<String,String>{
     Ok(format!("SQLite · esquema {ver} · {students} alumnos · {issues} incidencias pendientes · {}",path.display()))
 }
 
+
+#[tauri::command]
+fn generate_aportacion_csv(
+    app: AppHandle,
+    aportacion_json: String,
+    students_json: String,
+) -> Result<String, String> {
+    let aportacion: serde_json::Value =
+        serde_json::from_str(&aportacion_json).map_err(|e| e.to_string())?;
+
+    let students: Vec<serde_json::Value> =
+        serde_json::from_str(&students_json).map_err(|e| e.to_string())?;
+
+    fn val(v: Option<&serde_json::Value>) -> String {
+        match v {
+            Some(serde_json::Value::String(s)) => s.clone(),
+            Some(serde_json::Value::Number(n)) => n.to_string(),
+            Some(serde_json::Value::Bool(b)) => b.to_string(),
+            _ => String::new(),
+        }
+    }
+
+    fn csv_cell(s: &str) -> String {
+        let cleaned = s.replace('\r', " ").replace('\n', " ");
+        if cleaned.contains(';') || cleaned.contains('"') {
+            format!("\"{}\"", cleaned.replace('"', "\"\""))
+        } else {
+            cleaned
+        }
+    }
+
+    fn csv_number(v: f64) -> String {
+        format!("{:.2}", v).replace('.', ",")
+    }
+
+    let title = val(aportacion.get("title"));
+    let kind = val(aportacion.get("type"));
+    let date = val(aportacion.get("date"));
+    let place = val(aportacion.get("place"));
+    let expected = aportacion
+        .get("expected")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+
+    let payments = aportacion
+        .get("payments")
+        .and_then(|v| v.as_object());
+
+    let mut rows = String::new();
+
+    // BOM UTF-8 para que Excel reconozca correctamente tildes y ñ.
+    rows.push('\u{feff}');
+    rows.push_str(
+        "Aportación;Tipo;Fecha aportación;Lugar;Alumno/a;Estado;Importe entregado;Importe previsto;Fecha pago;Observación\n"
+    );
+
+    let mut ordered_students = students;
+    ordered_students.sort_by(|a, b| {
+        val(a.get("name"))
+            .to_lowercase()
+            .cmp(&val(b.get("name")).to_lowercase())
+    });
+
+    for student in ordered_students {
+        let student_id = val(student.get("id"));
+        let student_name = val(student.get("name"));
+
+        let payment = payments.and_then(|p| p.get(&student_id));
+
+        let explicit_status = payment
+            .and_then(|p| p.get("status"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+
+        let amount = payment
+            .and_then(|p| p.get("amount"))
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0);
+
+        let status = if explicit_status == "Pagado" {
+            "Pagado"
+        } else if amount > 0.0 {
+            "Parcial"
+        } else {
+            "Pendiente"
+        };
+
+        let payment_date = payment
+            .map(|p| val(p.get("date")))
+            .unwrap_or_default();
+
+        let note = payment
+            .map(|p| val(p.get("note")))
+            .unwrap_or_default();
+
+        let fields = [
+            csv_cell(&title),
+            csv_cell(&kind),
+            csv_cell(&date),
+            csv_cell(&place),
+            csv_cell(&student_name),
+            csv_cell(status),
+            csv_number(amount),
+            csv_number(expected),
+            csv_cell(&payment_date),
+            csv_cell(&note),
+        ];
+
+        rows.push_str(&fields.join(";"));
+        rows.push('\n');
+    }
+
+    let mut safe_name: String = title
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect();
+
+    while safe_name.contains("__") {
+        safe_name = safe_name.replace("__", "_");
+    }
+
+    safe_name = safe_name.trim_matches('_').to_string();
+
+    if safe_name.is_empty() {
+        safe_name = "aportacion".to_string();
+    }
+
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?;
+
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+
+    let path = dir.join(format!("aportaciones_{}.csv", safe_name));
+
+    std::fs::write(&path, rows.as_bytes()).map_err(|e| e.to_string())?;
+
+    open::that(&path).map_err(|e| e.to_string())?;
+
+    Ok(path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+fn generate_aportacion_pdf(
+    app: AppHandle,
+    aportacion_json: String,
+    students_json: String,
+) -> Result<String, String> {
+    use printpdf::*;
+    use std::io::BufWriter;
+
+    let a: Value = serde_json::from_str(&aportacion_json)
+        .map_err(|e| format!("Datos de la aportación inválidos: {e}"))?;
+
+    let students: Value = serde_json::from_str(&students_json)
+        .map_err(|e| format!("Datos del alumnado inválidos: {e}"))?;
+
+    let students = students
+        .as_array()
+        .ok_or_else(|| "El alumnado no tiene el formato esperado.".to_string())?;
+
+    fn text(v: &Value, key: &str) -> String {
+        v.get(key).and_then(Value::as_str).unwrap_or("").trim().to_string()
+    }
+
+    fn format_date(value: &str) -> String {
+        NaiveDate::parse_from_str(value, "%Y-%m-%d")
+            .map(|d| d.format("%d/%m/%Y").to_string())
+            .unwrap_or_else(|_| value.to_string())
+    }
+
+    fn safe_pdf_text(value: &str) -> String {
+        value
+            .replace('€', "EUR")
+            .replace('–', "-")
+            .replace('—', "-")
+            .replace('“', "\"")
+            .replace('”', "\"")
+            .replace('’', "'")
+    }
+
+    let title = text(&a, "title");
+    let date = format_date(&text(&a, "date"));
+    let place = text(&a, "place");
+    let stage = text(&a, "stage");
+    let cycle = text(&a, "cycle");
+    let level = text(&a, "level");
+    let group = text(&a, "group");
+    let locality = text(&a, "locality");
+    let document_date = format_date(&text(&a, "documentDate"));
+
+    let payments = a
+        .get("payments")
+        .and_then(Value::as_object);
+
+    let mut paid_students: Vec<(String, f64)> = Vec::new();
+
+    for student in students {
+        let sid = text(student, "id");
+        let name = text(student, "name");
+
+        if sid.is_empty() || name.is_empty() {
+            continue;
+        }
+
+        let Some(payment) = payments.and_then(|p| p.get(&sid)) else {
+            continue;
+        };
+
+        let status = payment
+            .get("status")
+            .and_then(Value::as_str)
+            .unwrap_or("");
+
+        if status != "Pagado" {
+            continue;
+        }
+
+        let amount = payment
+            .get("amount")
+            .and_then(Value::as_f64)
+            .unwrap_or(0.0);
+
+        paid_students.push((name, amount));
+    }
+
+    paid_students.sort_by(|a, b| {
+        a.0.to_lowercase().cmp(&b.0.to_lowercase())
+    });
+
+    let total: f64 = paid_students.iter().map(|(_, amount)| *amount).sum();
+
+    let (doc, page1, layer1) =
+        PdfDocument::new("Aportaciones alumnado", Mm(210.0), Mm(297.0), "Documento");
+
+    let regular = doc
+        .add_builtin_font(BuiltinFont::Helvetica)
+        .map_err(|e| format!("No se pudo preparar la fuente del PDF: {e}"))?;
+
+    let bold = doc
+        .add_builtin_font(BuiltinFont::HelveticaBold)
+        .map_err(|e| format!("No se pudo preparar la fuente del PDF: {e}"))?;
+
+    let mut page = page1;
+    let mut layer = layer1;
+    let mut y = 280.0_f32;
+
+    fn write_line(
+        doc: &PdfDocumentReference,
+        page: PdfPageIndex,
+        layer: PdfLayerIndex,
+        font: &IndirectFontRef,
+        value: &str,
+        size: f32,
+        x: f32,
+        y: f32,
+    ) {
+        doc.get_page(page)
+            .get_layer(layer)
+            .use_text(value, size, Mm(x), Mm(y), font);
+    }
+
+    fn new_page(
+        doc: &PdfDocumentReference,
+    ) -> (PdfPageIndex, PdfLayerIndex) {
+        doc.add_page(Mm(210.0), Mm(297.0), "Documento")
+    }
+
+    // Cabecera del centro, conservando el formato del documento original.
+    write_line(&doc, page, layer, &bold, "C.P. SANTA BARBARA", 12.0, 18.0, y);
+    y -= 5.5;
+    write_line(&doc, page, layer, &regular, "C/ El Resbalon s/n - 33420 - LUGONES", 8.5, 18.0, y);
+    y -= 4.5;
+    write_line(&doc, page, layer, &regular, "E-MAIL: santabar@educastur.org", 8.5, 18.0, y);
+
+    y -= 14.0;
+
+    write_line(
+        &doc, page, layer, &bold,
+        "FICHA APORTACIONES ALUMNADO SALIDA",
+        14.0, 37.0, y
+    );
+    y -= 7.0;
+    write_line(
+        &doc, page, layer, &bold,
+        "COMPLEMENTARIA/EXTRAESCOLAR",
+        14.0, 48.0, y
+    );
+
+    y -= 15.0;
+
+    let school_year = {
+        let today = Utc::now().with_timezone(&Madrid).date_naive();
+        let year = today.format("%Y").to_string().parse::<i32>().unwrap_or(0);
+        let month = today.format("%m").to_string().parse::<u32>().unwrap_or(1);
+
+        if month >= 9 {
+            format!("CURSO {}/{}", year, year + 1)
+        } else {
+            format!("CURSO {}/{}", year - 1, year)
+        }
+    };
+
+    write_line(&doc, page, layer, &bold, &school_year, 10.0, 18.0, y);
+    y -= 10.0;
+
+    let row1 = format!(
+        "ETAPA: {}     CICLO/INTERNIVEL: {}     NIVEL: {}     GRUPO: {}",
+        safe_pdf_text(&stage),
+        safe_pdf_text(&cycle),
+        safe_pdf_text(&level),
+        safe_pdf_text(&group)
+    );
+    write_line(&doc, page, layer, &regular, &row1, 9.0, 18.0, y);
+
+    y -= 8.0;
+    write_line(
+        &doc, page, layer, &bold,
+        &format!("DENOMINACION: {}", safe_pdf_text(&title)),
+        9.5, 18.0, y
+    );
+
+    y -= 8.0;
+    write_line(
+        &doc, page, layer, &regular,
+        &format!("FECHA: {}     LUGAR: {}", safe_pdf_text(&date), safe_pdf_text(&place)),
+        9.0, 18.0, y
+    );
+
+    y -= 14.0;
+
+    write_line(&doc, page, layer, &bold, "ALUMNO/A", 9.0, 20.0, y);
+    write_line(&doc, page, layer, &bold, "APORTACION ECONOMICA", 9.0, 130.0, y);
+    y -= 3.0;
+
+    // Línea bajo la cabecera de la tabla.
+    {
+        let current_layer = doc.get_page(page).get_layer(layer);
+        let line = Line {
+            points: vec![
+                (Point::new(Mm(18.0), Mm(y)), false),
+                (Point::new(Mm(192.0), Mm(y)), false),
+            ],
+            is_closed: false,
+        };
+        current_layer.add_line(line);
+    }
+
+    y -= 7.0;
+
+    if paid_students.is_empty() {
+        write_line(
+            &doc, page, layer, &regular,
+            "No hay alumnado marcado como Pagado.",
+            9.0, 20.0, y
+        );
+        y -= 8.0;
+    } else {
+        for (name, amount) in &paid_students {
+            if y < 35.0 {
+                let next = new_page(&doc);
+                page = next.0;
+                layer = next.1;
+                y = 278.0;
+
+                write_line(&doc, page, layer, &bold, "ALUMNO/A", 9.0, 20.0, y);
+                write_line(&doc, page, layer, &bold, "APORTACION ECONOMICA", 9.0, 130.0, y);
+                y -= 9.0;
+            }
+
+            let amount_text = format!("{:.2} EUR", amount).replace('.', ",");
+
+            write_line(
+                &doc, page, layer, &regular,
+                &safe_pdf_text(name),
+                9.0, 20.0, y
+            );
+
+            write_line(
+                &doc, page, layer, &regular,
+                &amount_text,
+                9.0, 145.0, y
+            );
+
+            y -= 7.0;
+        }
+    }
+
+    if y < 55.0 {
+        let next = new_page(&doc);
+        page = next.0;
+        layer = next.1;
+        y = 278.0;
+    }
+
+    y -= 4.0;
+
+    {
+        let current_layer = doc.get_page(page).get_layer(layer);
+        let line = Line {
+            points: vec![
+                (Point::new(Mm(18.0), Mm(y)), false),
+                (Point::new(Mm(192.0), Mm(y)), false),
+            ],
+            is_closed: false,
+        };
+        current_layer.add_line(line);
+    }
+
+    y -= 8.0;
+
+    let total_text = format!("TOTAL: {:.2} EUR", total).replace('.', ",");
+    write_line(&doc, page, layer, &bold, &total_text, 10.0, 130.0, y);
+
+    y -= 18.0;
+
+    let signature = if locality.is_empty() && document_date.is_empty() {
+        String::new()
+    } else if document_date.is_empty() {
+        locality
+    } else if locality.is_empty() {
+        document_date
+    } else {
+        format!("{}, {}", locality, document_date)
+    };
+
+    if !signature.is_empty() {
+        write_line(
+            &doc, page, layer, &regular,
+            &safe_pdf_text(&signature),
+            9.0, 20.0, y
+        );
+        y -= 14.0;
+    }
+
+    write_line(&doc, page, layer, &regular, "Firmado:", 9.0, 20.0, y);
+
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("No se pudo localizar la carpeta de la aplicacion: {e}"))?;
+
+    fs::create_dir_all(&dir)
+        .map_err(|e| format!("No se pudo preparar la carpeta del PDF: {e}"))?;
+
+    let filename = if title.trim().is_empty() {
+        "aportaciones.pdf".to_string()
+    } else {
+        let clean: String = title
+            .chars()
+            .map(|c| {
+                if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                    c
+                } else if c.is_whitespace() {
+                    '_'
+                } else {
+                    '_'
+                }
+            })
+            .collect();
+
+        format!("aportaciones_{}.pdf", clean)
+    };
+
+    let path = dir.join(filename);
+
+    let file = fs::File::create(&path)
+        .map_err(|e| format!("No se pudo crear el PDF: {e}"))?;
+
+    doc.save(&mut BufWriter::new(file))
+        .map_err(|e| format!("No se pudo guardar el PDF: {e}"))?;
+
+    open::that(&path)
+        .map_err(|e| format!("El PDF se creo, pero no se pudo abrir: {e}"))?;
+
+    Ok(path.to_string_lossy().to_string())
+}
+
 #[cfg_attr(mobile,tauri::mobile_entry_point)]
 pub fn run(){
     tauri::Builder::default()
       .plugin(tauri_plugin_updater::Builder::new().build())
-      .invoke_handler(tauri::generate_handler![load_state,save_state,create_backup,database_status,google_connect,google_status,google_disconnect,google_sync_agenda,check_for_update,install_update])
+      .invoke_handler(tauri::generate_handler![load_state,save_state,create_backup,database_status,google_connect,google_status,google_disconnect,google_sync_agenda,check_for_update,install_update,generate_aportacion_pdf,generate_aportacion_csv])
       .run(tauri::generate_context!())
       .expect("error while running MiCuadernoDigital");
 }
