@@ -35,8 +35,7 @@
     }
 
     .app{
-      display:grid;
-      grid-template-columns:280px 1fr;
+      display:block;
       min-height:100vh;
     }
 
@@ -44,10 +43,108 @@
       background:#0f172a;
       color:white;
       padding:22px;
-      position:sticky;
+      position:fixed;
+      left:0;
       top:0;
+      width:280px;
+      box-sizing:border-box;
       height:100vh;
       overflow:auto;
+      z-index:1000;
+      transform:translateX(calc(-100% + 10px));
+      transition:
+        transform .30s ease .45s,
+        box-shadow .30s ease .45s;
+      box-shadow:none;
+    }
+
+    aside:hover,
+    aside:focus-within{
+      transform:translateX(0);
+      box-shadow:12px 0 32px rgba(15,23,42,.22);
+      transition-delay:0s;
+    }
+
+    aside::after{
+      content:"";
+      position:fixed;
+      left:0;
+      top:0;
+      width:10px;
+      height:100vh;
+      background:#0f172a;
+    }
+
+    /* Sidebar autoocultable · asa y modo fijado */
+    .sidebar-handle{
+      position:fixed;
+      left:0;
+      top:50%;
+      transform:translateY(-50%);
+      width:28px;
+      height:86px;
+      border-radius:0 12px 12px 0;
+      background:#1d4ed8;
+      box-shadow:3px 0 10px rgba(15,23,42,.18);
+      z-index:999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      transition:opacity .2s ease, width .2s ease;
+    }
+
+    .sidebar-handle:hover{
+      width:34px;
+    }
+
+    .sidebar-handle span{
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      letter-spacing:.12em;
+      font-size:11px;
+      line-height:1;
+    }
+
+    .sidebar-pin{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:34px;
+      height:34px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:10px;
+      background:rgba(255,255,255,.08);
+      color:white;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      z-index:2;
+    }
+
+    .sidebar-pin:hover{
+      background:rgba(255,255,255,.16);
+    }
+
+    body.sidebar-pinned aside{
+      transform:translateX(0);
+      box-shadow:none;
+      transition-delay:0s;
+    }
+
+    body.sidebar-pinned .sidebar-handle{
+      opacity:0;
+      pointer-events:none;
+    }
+
+    body.sidebar-pinned main{
+      margin-left:280px;
+      width:calc(100% - 280px);
     }
 
     .brand{
@@ -126,8 +223,10 @@
     }
 
     main{
-      padding:28px;
+      padding:28px 28px 28px 22px;
       overflow:hidden;
+      width:100%;
+      box-sizing:border-box;
     }
 
     .topbar{
@@ -813,10 +912,16 @@
 
 <body>
 <div class="app">
+  <div class="sidebar-handle no-print" id="sidebar-handle" title="Abrir menú">
+    <span>MENÚ</span>
+  </div>
+
   <aside>
+    <button class="sidebar-pin no-print" id="sidebar-pin" title="Fijar menú" aria-label="Fijar menú">📌</button>
+
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.3.5 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.4.0 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -831,6 +936,7 @@
       <button data-section="reuniones">Reuniones</button>
       <button data-section="actuaciones">Actuaciones</button>
       <button data-section="aportaciones">💶 Aportaciones</button>
+      <button data-section="instrumentos">🧰 Instrumentos</button>
       <button data-section="cuaderno">Cuaderno de notas</button>
       <button data-section="alumnado">Alumnado</button>
       <button data-section="diario">Diario</button>
@@ -891,10 +997,81 @@
         <button class="primary hidden" id="live-class-open">Abrir sesión</button>
       </div>
 
+      <div class="card" id="daily-note-card" style="margin-top:18px">
+        <div class="notebook-title-row" style="align-items:flex-start">
+          <div>
+            <div class="small" style="font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--primary)">
+              📝 Para hoy
+            </div>
+            <h3 id="daily-note-date" style="margin:5px 0 3px">Hoy</h3>
+            <p style="margin:0">Tu hoja de trabajo del día. Escribe aquí lo que necesites, esté o no vinculado al currículo.</p>
+          </div>
+
+          <div class="actions no-print" style="margin:0">
+            <button class="ghost" id="daily-note-prev" title="Día anterior">←</button>
+            <button class="secondary" id="daily-note-today">Hoy</button>
+            <button class="ghost" id="daily-note-next" title="Día siguiente">→</button>
+          </div>
+        </div>
+
+        <div class="rich-editor" style="margin-top:16px">
+          <div class="rich-toolbar" data-rich-toolbar>
+            <button type="button" data-rich-cmd="bold" title="Negrita"><b>B</b></button>
+            <button type="button" data-rich-cmd="italic" title="Cursiva"><i>I</i></button>
+            <button type="button" data-rich-cmd="underline" title="Subrayado"><u>U</u></button>
+            <button type="button" data-rich-cmd="insertUnorderedList" title="Viñetas">• Lista</button>
+            <button type="button" data-rich-cmd="insertOrderedList" title="Numeración">1. Lista</button>
+            <button type="button" data-rich-cmd="formatBlock" data-rich-value="h3" title="Título">Título</button>
+            <button type="button" data-rich-cmd="formatBlock" data-rich-value="p" title="Párrafo">Párrafo</button>
+            <button type="button" id="daily-note-checkbox" title="Insertar tarea">☐ Tarea</button>
+            <button type="button" data-rich-cmd="undo" title="Deshacer">↶</button>
+            <button type="button" data-rich-cmd="redo" title="Rehacer">↷</button>
+          </div>
+
+          <div
+            id="daily-note-editor"
+            class="rich-area"
+            contenteditable="true"
+            style="min-height:220px;padding:18px;line-height:1.65"
+            data-placeholder="Escribe a lo bonzo: qué quieres hacer hoy, cosas que no puedes olvidar, ideas, materiales, conversaciones pendientes..."
+          ></div>
+        </div>
+
+        <div class="small" id="daily-note-save-status" style="margin-top:8px">
+          Se guarda automáticamente.
+        </div>
+      </div>
+
       <div class="card" style="margin-top:18px">
         <h3>Resumen pedagógico del día</h3>
         <p id="daily-summary">El resumen se actualiza con la asistencia, las evidencias y el seguimiento registrado.</p>
         <div id="daily-summary-pills"></div>
+      </div>
+    </section>
+
+    <section id="instrumentos" class="section">
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Instrumentos de evaluación</h3>
+            <p>Crea instrumentos reutilizables para recoger y cuantificar evidencias de aprendizaje.</p>
+          </div>
+          <button class="primary no-print" id="nuevo-instrumento">＋ Nuevo instrumento</button>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:18px">
+          <div class="card">
+            <h3>📊 Rúbricas</h3>
+            <p>Evalúa indicadores mediante niveles de desempeño y vincúlalos a criterios de evaluación.</p>
+            <div id="rubric-list" class="small">Todavía no has creado ninguna rúbrica.</div>
+          </div>
+
+          <div class="card">
+            <h3>☑️ Listas de cotejo</h3>
+            <p>Registra de forma rápida la presencia o ausencia de desempeños observables.</p>
+            <div id="checklist-list" class="small">Todavía no has creado ninguna lista de cotejo.</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -905,7 +1082,10 @@
             <h3>Cuaderno de evaluación</h3>
             <p>Evalúa los criterios a través de los productos de tus situaciones. La trama curricular se actualiza por detrás.</p>
           </div>
-          <button class="primary no-print" id="nueva-evidencia-local">＋ Evidencia manual</button>
+          <div class="actions no-print" style="margin:0">
+            <button class="secondary" id="aplicar-instrumento">🧰 Aplicar instrumento</button>
+            <button class="primary" id="nueva-evidencia-local">＋ Evidencia manual</button>
+          </div>
         </div>
 
         <div class="notebook-stats" id="notebook-stats"></div>
@@ -939,6 +1119,7 @@
         </div>
       </div>
 
+      <div id="notebook-instrument-applications" style="margin-bottom:18px"></div>
       <div id="notebook-matrix" class="notebook-view"></div>
       <div id="notebook-student-focus" class="notebook-view hidden"></div>
       <div id="notebook-evidence-focus" class="notebook-view hidden"></div>
@@ -1403,17 +1584,7 @@
     </section>
 
     <section id="perfil" class="section">
-      <div class="card">
-        <h3>Perfil competencial</h3>
-        <table>
-          <thead><tr><th>Competencia clave</th><th>CE vinculadas</th><th>Criterios</th><th>Evidencias</th><th>Evolución</th></tr></thead>
-          <tbody>
-            <tr><td>CCL</td><td>CE5, CE6</td><td>4</td><td>12</td><td><span class="pill green">↗ Mejora</span></td></tr>
-            <tr><td>STEM</td><td>CE1, CE2</td><td>5</td><td>7</td><td><span class="pill yellow">→ Reforzar</span></td></tr>
-            <tr><td>CPSAA</td><td>CE8</td><td>3</td><td>10</td><td><span class="pill green">↗ Mejora</span></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="competency-profile-content"></div>
     </section>
 
     <section id="mapa" class="section">
@@ -1559,7 +1730,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.5</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.0</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -1607,7 +1778,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.3.5';
+  const VERSION='0.4.0';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -1628,7 +1799,8 @@
       const raw=await nativeInvoke('load_state');
       if(raw){
         const stored=JSON.parse(raw),base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],instruments:Array.isArray(stored.instruments)?stored.instruments:[],instrumentApplications:Array.isArray(stored.instrumentApplications)?stored.instrumentApplications:[],
+          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         data=merged;
         localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
@@ -1662,6 +1834,7 @@
     reuniones:['Reuniones','Registro completo de reuniones, participantes, desarrollo, acuerdos y seguimiento.'],
     actuaciones:['Actuaciones','Registro editable de encargos, coordinaciones, gestiones y trabajo realizado.'],
     aportaciones:['Aportaciones','Control local de aportaciones, pagos y cantidades pendientes del alumnado.'],
+    instrumentos:['Instrumentos de evaluación','Rúbricas y listas de cotejo reutilizables para recoger evidencias de aprendizaje.'],
     cuaderno:['Cuaderno de notas','Alumnado en filas y evidencias en columnas, conectadas a criterios y competencias.'],
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
@@ -1677,7 +1850,7 @@
   };
   const modeSections={
     diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','asistencia','planificacion','configuracion'],
-    evaluacion:['cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
+    evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
     selectedStudentId:'claudia',
@@ -1706,9 +1879,14 @@
     meetings:[],
     actuaciones:[],
     aportaciones:[],
+
+    instruments:[],
+    instrumentApplications:[],
+    instrumentEvidence:[],
     meetingPeople:[],
     customDays:[],
     issues:[],
+    dailyNotes:{},
     settings:{mode:'diario',calendarMonth:'2026-09',notebookView:'matrix',notebookSearch:'',notebookCompetency:'all',notebookEvidence:'all',notebookStudentId:'',timetable:[
       {time:'09:00 - 09:45',days:['','','','','']},
       {time:'09:45 - 10:30',days:['','','','','']},
@@ -1737,7 +1915,8 @@
       const raw=localStorage.getItem(STORAGE_KEY);
       if(raw){
         const stored=JSON.parse(raw), base=clone(demo);
-        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[]};
+        const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],instruments:Array.isArray(stored.instruments)?stored.instruments:[],instrumentApplications:Array.isArray(stored.instrumentApplications)?stored.instrumentApplications:[],
+          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         if(!merged.selectedUnitId||!merged.units.some(u=>u.id===merged.selectedUnitId))merged.selectedUnitId=merged.units[0]?.id||'';
         return merged;
@@ -2382,9 +2561,304 @@
     data.students.forEach(st=>{data.evidence[st.id]=data.evidence[st.id]||{};generated.forEach(c=>{if(!(c.id in data.evidence[st.id]))data.evidence[st.id][c.id]='—'})});
   }
 
+  function renderInstrumentApplications(){
+    const box=document.querySelector('#notebook-instrument-applications');
+    if(!box) return;
+
+    const applications=[...(data.instrumentApplications||[])]
+      .sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+
+    if(!applications.length){
+      box.innerHTML='';
+      return;
+    }
+
+    box.innerHTML=`
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>📋 Evaluaciones con instrumentos</h3>
+            <p>Aplicaciones concretas de tus rúbricas y listas de cotejo.</p>
+          </div>
+        </div>
+
+        <div class="grid" style="gap:10px">
+          ${applications.map(app=>{
+            const rubric=app.rubricSnapshot||{};
+            const total=(app.studentIds||[]).length;
+            const indicators=rubric.indicators||[];
+
+            const completed=(app.studentIds||[]).filter(studentId=>{
+              if(!indicators.length) return false;
+              const studentResults=app.results?.[studentId]||{};
+              return indicators.every(indicator=>
+                [1,2,3,4].includes(Number(studentResults[indicator.id]))
+              );
+            }).length;
+
+            const hasAnyResult=Object.values(app.results||{}).some(studentResults=>
+              Object.values(studentResults||{}).some(value=>
+                [1,2,3,4].includes(Number(value))
+              )
+            );
+
+            const status=
+              total>0 && completed===total
+                ? 'Completada'
+                : hasAnyResult
+                  ? 'En curso'
+                  : 'Sin comenzar';
+
+            return `
+              <div class="notice" style="margin:0">
+                <div style="display:flex;justify-content:space-between;gap:14px;align-items:center">
+                  <div>
+                    <strong>${esc(app.name||'Evaluación sin nombre')}</strong>
+                    <div class="small" style="margin-top:4px">
+                      ${esc(app.date||'Sin fecha')}
+                      · 📊 ${esc(rubric.name||'Instrumento')}
+                      · ${total} alumno${total===1?'':'s'}
+                    </div>
+                    <div class="small" style="margin-top:4px">
+                      <strong>${completed}/${total} completos</strong>
+                      · ${status}
+                    </div>
+                  </div>
+
+                  <button type="button"
+                          class="secondary"
+                          data-open-instrument-application="${esc(app.id)}">
+                    Abrir evaluación
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    box.querySelectorAll('[data-open-instrument-application]').forEach(btn=>{
+      btn.onclick=()=>{
+        openInstrumentApplication(btn.dataset.openInstrumentApplication);
+      };
+    });
+  }
+
+  function syncInstrumentEvidenceForResult(app,studentId,indicator,value){
+    data.instrumentEvidence=Array.isArray(data.instrumentEvidence)?data.instrumentEvidence:[];
+
+    const rubric=app.rubricSnapshot||{};
+    const criteria=Array.isArray(indicator.criteria)?indicator.criteria:[];
+
+    criteria.forEach(criterion=>{
+      const criterionKey=criterion.key||`${criterion.ce||''}|${criterion.code||''}|${criterion.text||''}`;
+
+      const existing=data.instrumentEvidence.find(ev=>
+        ev.applicationId===app.id &&
+        ev.studentId===studentId &&
+        ev.indicatorId===indicator.id &&
+        ev.criterionKey===criterionKey
+      );
+
+      const payload={
+        value:Number(value),
+        criterionKey,
+        criterionCode:criterion.code||'',
+        criterionText:criterion.text||'',
+        specificCompetence:criterion.ce||'',
+        specificCompetenceText:criterion.ceText||'',
+        descriptors:criterion.descriptors||'',
+        area:criterion.area||'',
+        areaLabel:criterion.areaLabel||'',
+        grade:criterion.grade||'',
+        source:criterion.source||'',
+        date:app.date||'',
+        activityName:app.name||'',
+        instrumentName:rubric.name||'',
+        updatedAt:new Date().toISOString()
+      };
+
+      if(existing){
+        Object.assign(existing,payload);
+      }else{
+        data.instrumentEvidence.push({
+          id:uid('iev'),
+          applicationId:app.id,
+          studentId,
+          indicatorId:indicator.id,
+          createdAt:new Date().toISOString(),
+          ...payload
+        });
+      }
+    });
+  }
+
+  function openInstrumentApplication(appId){
+    const app=(data.instrumentApplications||[]).find(x=>x.id===appId);
+    if(!app){
+      toast('No encuentro esta evaluación.');
+      return;
+    }
+
+    const rubric=app.rubricSnapshot||{};
+    const indicators=rubric.indicators||[];
+    const students=(app.studentIds||[])
+      .map(id=>data.students.find(s=>s.id===id))
+      .filter(Boolean);
+
+    if(!students.length){
+      modal('Evaluación',`
+        <div class="notice">
+          <strong>No hay alumnado disponible en esta evaluación.</strong>
+        </div>
+      `,()=>true);
+      return;
+    }
+
+    let currentIndex=0;
+
+    const renderStudent=()=>{
+      const st=students[currentIndex];
+      if(!st) return;
+
+      modal(app.name||'Evaluación',`
+        <div class="notice" style="margin-bottom:14px">
+          <strong>${esc(rubric.name||'Instrumento')}</strong>
+          <div class="small" style="margin-top:4px">
+            ${esc(app.date||'Sin fecha')} · ${currentIndex+1}/${students.length}
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px">
+          <div>
+            <div class="small">Alumno/a</div>
+            <h3 style="margin:2px 0 0">${esc(st.name)}</h3>
+          </div>
+
+          <div class="small">
+            ${indicators.length} indicador${indicators.length===1?'':'es'}
+          </div>
+        </div>
+
+        <div class="grid" style="gap:10px">
+          ${indicators.map(indicator=>`
+            <div class="notice" style="margin:0">
+              <strong>${esc(indicator.name||'Indicador')}</strong>
+
+              <div class="actions" style="justify-content:flex-start;margin-top:10px;gap:8px">
+                ${[1,2,3,4].map(score=>{
+                  const savedScore=app.results?.[st.id]?.[indicator.id];
+                  const selected=Number(savedScore)===score;
+
+                  return `
+                    <button type="button"
+                            class="${selected?'primary':'secondary'} instrument-score-preview"
+                            data-instrument-indicator="${esc(indicator.id)}"
+                            data-instrument-score="${score}">
+                      ${score}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="actions" style="justify-content:space-between;margin-top:16px">
+          <button type="button"
+                  class="secondary"
+                  id="instrument-prev-student"
+                  ${currentIndex===0?'disabled':''}>
+            ← Anterior
+          </button>
+
+          <span class="small">${currentIndex+1} de ${students.length}</span>
+
+          <button type="button"
+                  class="secondary"
+                  id="instrument-next-student"
+                  ${currentIndex===students.length-1?'disabled':''}>
+            Siguiente →
+          </button>
+        </div>
+      `,()=>true);
+
+      const saveBtn=document.querySelector('#modal-save');
+      if(saveBtn) saveBtn.classList.add('hidden');
+
+      const prev=document.querySelector('#instrument-prev-student');
+      const next=document.querySelector('#instrument-next-student');
+
+      if(prev){
+        prev.onclick=()=>{
+          if(currentIndex>0){
+            currentIndex--;
+            renderStudent();
+          }
+        };
+      }
+
+      if(next){
+        next.onclick=()=>{
+          if(currentIndex<students.length-1){
+            currentIndex++;
+            renderStudent();
+          }
+        };
+      }
+
+      document.querySelectorAll('.instrument-score-preview').forEach(btn=>{
+        btn.onclick=()=>{
+          const indicatorId=btn.dataset.instrumentIndicator;
+
+          document.querySelectorAll(
+            `.instrument-score-preview[data-instrument-indicator="${indicatorId}"]`
+          ).forEach(other=>{
+            other.classList.remove('primary');
+            other.classList.add('secondary');
+          });
+
+          btn.classList.remove('secondary');
+          btn.classList.add('primary');
+
+          app.results=app.results||{};
+          app.results[st.id]=app.results[st.id]||{};
+          const score=Number(btn.dataset.instrumentScore);
+          app.results[st.id][indicatorId]=score;
+
+          const indicator=(rubric.indicators||[]).find(x=>x.id===indicatorId);
+          if(indicator){
+            syncInstrumentEvidenceForResult(app,st.id,indicator,score);
+          }
+
+          persistState();
+          renderInstrumentApplications();
+
+          const linkedEvidence=(data.instrumentEvidence||[]).filter(ev=>
+            ev.applicationId===app.id &&
+            ev.studentId===st.id &&
+            ev.indicatorId===indicatorId
+          );
+
+          toast(
+            'Nivel '+score+' guardado · '+
+            linkedEvidence.length+' evidencia'+
+            (linkedEvidence.length===1?'':'s')+
+            ' curricular'+(linkedEvidence.length===1?'':'es')
+          );
+        };
+      });
+    };
+
+    renderStudent();
+  }
+
   function renderNotebook(){
     syncCurricularEvidenceColumns();
     const section=document.querySelector('#cuaderno');if(!section)return;
+
+    renderInstrumentApplications();
     data.settings=data.settings||{};
     const view=['matrix','student','evidence'].includes(data.settings.notebookView)?data.settings.notebookView:'matrix';
     const search=(data.settings.notebookSearch||'').toLowerCase();
@@ -2416,6 +2890,7 @@
     section.querySelectorAll('[data-cycle-grade]').forEach(b=>b.onclick=e=>{e.stopPropagation();const [sid,cid]=b.dataset.cycleGrade.split('|');cycleGrade(sid,cid)});
     section.querySelectorAll('[data-open-notebook-student]').forEach(b=>b.onclick=()=>notebookOpenStudent(b.dataset.openNotebookStudent));
     section.querySelectorAll('[data-open-notebook-evidence]').forEach(b=>b.onclick=()=>notebookOpenEvidence(b.dataset.openNotebookEvidence));
+    section.querySelectorAll('[data-open-instrument-application]').forEach(b=>b.onclick=()=>openInstrumentApplication(b.dataset.openInstrumentApplication));
   }
 
   function renderNotebookMatrix(students,cols){
@@ -3259,7 +3734,859 @@
     document.querySelector('#issue-title').value='';document.querySelector('#issue-description').value='';document.querySelector('#issue-expected').value='';
     save('Incidencia registrada');
   }
-  function renderAll(){renderStudents();renderNotebook();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();}
+  function evidenceLevelName(value){
+    return ({
+      1:'Inicial',
+      2:'En desarrollo',
+      3:'Adecuado',
+      4:'Avanzado'
+    })[Number(value)]||'Sin nivel';
+  }
+
+  function interpretEvidenceSequence(values){
+    const seq=(values||[])
+      .map(Number)
+      .filter(v=>[1,2,3,4].includes(v));
+
+    if(!seq.length){
+      return {
+        observed:null,
+        consolidated:null,
+        previousConsolidated:null,
+        status:'Sin evidencias',
+        trend:'none',
+        trendLabel:'Sin tendencia',
+        support:0,
+        needed:3
+      };
+    }
+
+    const observed=seq[seq.length-1];
+
+    // Recorremos toda la historia y registramos cada cambio
+    // de nivel que llega a consolidarse con 3 evidencias
+    // consecutivas coherentes.
+    let consolidated=null;
+    let previousConsolidated=null;
+    let consolidatedAt=-1;
+    let consolidationChange=null;
+
+    let runValue=null;
+    let runLength=0;
+
+    seq.forEach((value,index)=>{
+      if(value===runValue){
+        runLength++;
+      }else{
+        runValue=value;
+        runLength=1;
+      }
+
+      if(runLength===3 && value!==consolidated){
+        const oldLevel=consolidated;
+
+        previousConsolidated=oldLevel;
+        consolidated=value;
+        consolidatedAt=index;
+
+        if(oldLevel!==null){
+          consolidationChange=value>oldLevel?'up':'down';
+        }else{
+          consolidationChange=null;
+        }
+      }
+    });
+
+    // Todavía no existe ningún nivel consolidado.
+    if(consolidated===null){
+      let support=0;
+
+      for(let i=seq.length-1;i>=0;i--){
+        if(seq[i]===observed) support++;
+        else break;
+      }
+
+      return {
+        observed,
+        consolidated:null,
+        previousConsolidated:null,
+        status:support===2?'Consolidación en progreso':'Por confirmar',
+        trend:'none',
+        trendLabel:seq.length===1
+          ? 'Primera observación'
+          : 'Aún sin nivel consolidado',
+        support,
+        needed:Math.max(0,3-support)
+      };
+    }
+
+    const after=seq.slice(consolidatedAt+1);
+
+    // El nivel acaba de consolidarse y no hay observaciones
+    // posteriores. Si venía de otro nivel consolidado,
+    // conservamos la historia del cambio.
+    if(!after.length){
+      if(consolidationChange==='up'){
+        return {
+          observed,
+          consolidated,
+          previousConsolidated,
+          status:'Consolidado',
+          trend:'up',
+          trendLabel:'Mejora consolidada',
+          support:3,
+          needed:0
+        };
+      }
+
+      if(consolidationChange==='down'){
+        return {
+          observed,
+          consolidated,
+          previousConsolidated,
+          status:'Consolidado',
+          trend:'down',
+          trendLabel:'Descenso confirmado',
+          support:3,
+          needed:0
+        };
+      }
+
+      return {
+        observed,
+        consolidated,
+        previousConsolidated:null,
+        status:'Consolidado',
+        trend:'stable',
+        trendLabel:'Nivel consolidado',
+        support:3,
+        needed:0
+      };
+    }
+
+    const candidate=after[after.length-1];
+
+    // Si las observaciones posteriores siguen en el nivel
+    // consolidado, mantenemos la lectura del último cambio
+    // consolidado cuando exista.
+    if(candidate===consolidated){
+      if(consolidationChange==='up'){
+        return {
+          observed,
+          consolidated,
+          previousConsolidated,
+          status:'Consolidado',
+          trend:'up',
+          trendLabel:'Mejora consolidada',
+          support:3,
+          needed:0
+        };
+      }
+
+      if(consolidationChange==='down'){
+        return {
+          observed,
+          consolidated,
+          previousConsolidated,
+          status:'Consolidado',
+          trend:'down',
+          trendLabel:'Descenso confirmado',
+          support:3,
+          needed:0
+        };
+      }
+
+      return {
+        observed,
+        consolidated,
+        previousConsolidated:null,
+        status:'Consolidado',
+        trend:'stable',
+        trendLabel:'Se mantiene',
+        support:3,
+        needed:0
+      };
+    }
+
+    // Hay un nivel distinto posterior al consolidado:
+    // detectamos si es un cambio emergente.
+    let candidateSupport=0;
+
+    for(let i=after.length-1;i>=0;i--){
+      if(after[i]===candidate) candidateSupport++;
+      else break;
+    }
+
+    const direction=candidate>consolidated?'up':'down';
+
+    return {
+      observed,
+      consolidated,
+      previousConsolidated,
+      status:candidateSupport>=2?'Cambio en proceso':'Por confirmar',
+      trend:direction,
+      trendLabel:direction==='up'
+        ? (candidateSupport>=2?'Mejora en proceso':'Mejora observada')
+        : (candidateSupport>=2?'Descenso en proceso':'Posible descenso'),
+      support:candidateSupport,
+      needed:Math.max(0,3-candidateSupport)
+    };
+  }
+
+  function renderCompetencyProfile(){
+    const box=document.querySelector('#competency-profile-content');
+    if(!box) return;
+
+    const sid=(data.selectedStudentId&&data.students.some(s=>s.id===data.selectedStudentId))
+      ? data.selectedStudentId
+      : (data.students[0]?.id||'');
+
+    data.selectedStudentId=sid;
+
+    const st=data.students.find(s=>s.id===sid);
+
+    if(!st){
+      box.innerHTML='<div class="card"><h3>Perfil competencial</h3><p>No hay alumnado todavía.</p></div>';
+      return;
+    }
+
+    const evidence=(data.instrumentEvidence||[])
+      .filter(ev=>ev.studentId===sid)
+      .sort((a,b)=>{
+        const byDate=(a.date||'').localeCompare(b.date||'');
+        if(byDate!==0) return byDate;
+        return (a.createdAt||a.updatedAt||'').localeCompare(
+          b.createdAt||b.updatedAt||''
+        );
+      });
+
+    const groups=new Map();
+
+    evidence.forEach(ev=>{
+      const area=ev.areaLabel||ev.area||'Área sin especificar';
+      const ce=ev.specificCompetence||'CE sin especificar';
+      const ceText=ev.specificCompetenceText||'';
+      const criterionKey=ev.criterionKey||`${ce}|${ev.criterionCode||''}|${ev.criterionText||''}`;
+
+      if(!groups.has(area)) groups.set(area,new Map());
+      const areaMap=groups.get(area);
+
+      if(!areaMap.has(ce)){
+        areaMap.set(ce,{
+          text:ceText,
+          criteria:new Map()
+        });
+      }
+
+      const ceGroup=areaMap.get(ce);
+
+      if(!ceGroup.criteria.has(criterionKey)){
+        ceGroup.criteria.set(criterionKey,{
+          code:ev.criterionCode||'',
+          text:ev.criterionText||'',
+          evidence:[]
+        });
+      }
+
+      ceGroup.criteria.get(criterionKey).evidence.push(ev);
+    });
+
+    box.innerHTML=`
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Perfil competencial · ${esc(st.name)}</h3>
+            <p>Evidencias reales procedentes de instrumentos de evaluación. Sin convertir todavía estos datos en calificación.</p>
+          </div>
+
+          <label style="min-width:220px">
+            Alumno/a
+            <select id="competency-profile-student">
+              ${data.students.map(student=>`
+                <option value="${esc(student.id)}" ${student.id===sid?'selected':''}>
+                  ${esc(student.name)}
+                </option>
+              `).join('')}
+            </select>
+          </label>
+        </div>
+      </div>
+
+      ${!evidence.length ? `
+        <div class="card">
+          <div class="empty">
+            Todavía no hay evidencias curriculares generadas mediante instrumentos para ${esc(st.name)}.
+          </div>
+        </div>
+      ` : [...groups.entries()].map(([area,ceMap])=>`
+        <div class="card">
+          <h3>${esc(area)}</h3>
+
+          <div class="grid" style="gap:14px">
+            ${[...ceMap.entries()].map(([ce,ceData])=>`
+              <div class="notice" style="margin:0">
+                <strong>${esc(ce)}</strong>
+                ${ceData.text?`<div class="small" style="margin-top:4px">${esc(ceData.text)}</div>`:''}
+
+                <div class="grid" style="gap:8px;margin-top:12px">
+                  ${[...ceData.criteria.values()].map(cr=>{
+                    const interpretation=interpretEvidenceSequence(
+                      cr.evidence.map(ev=>ev.value)
+                    );
+
+                    const consolidated=interpretation.consolidated;
+                    const observed=interpretation.observed;
+                    const different=
+                      consolidated!==null &&
+                      observed!==consolidated;
+
+                    const isSingleVariation=
+                      different &&
+                      interpretation.support===1;
+
+                    const isPendingChange=
+                      different &&
+                      interpretation.support===2;
+
+                    const visualTrend=
+                      interpretation.trend==='up'?'↗':
+                      interpretation.trend==='down'?'↘':
+                      '→';
+
+                    let readingTitle='';
+                    let readingText='';
+                    let readingClass='blue';
+
+                    if(consolidated===null){
+                      if(interpretation.support===2){
+                        readingTitle='◌ Consolidación en progreso';
+                        readingText=`Dos evidencias coherentes sostienen el nivel ${observed}. Una evidencia más permitiría consolidarlo.`;
+                        readingClass='yellow';
+                      }else{
+                        readingTitle='○ Nivel todavía no consolidado';
+                        readingText=cr.evidence.length===1
+                          ? `Existe una primera evidencia en nivel ${observed}. Se necesitan más observaciones antes de establecer un nivel consolidado.`
+                          : `Las evidencias disponibles todavía no permiten establecer un nivel consolidado.`;
+                        readingClass='yellow';
+                      }
+                    }else if(isSingleVariation){
+                      readingTitle='◇ Variación puntual';
+                      readingText=
+                        `La última evidencia está ${observed>consolidated?'por encima':'por debajo'} del nivel consolidado ${consolidated}. Una observación aislada no modifica el nivel consolidado.`;
+                      readingClass='blue';
+                    }else if(isPendingChange){
+                      readingTitle=`${visualTrend} Cambio por confirmar`;
+                      readingText=
+                        `Dos evidencias recientes y coherentes se sitúan en el nivel ${observed}. Una evidencia más confirmaría el cambio desde el nivel ${consolidated}.`;
+                      readingClass='yellow';
+                    }else if(
+                      consolidated!==null &&
+                      interpretation.previousConsolidated!==null &&
+                      interpretation.previousConsolidated!==consolidated
+                    ){
+                      readingTitle=
+                        interpretation.trend==='up'
+                          ? '↗ Mejora consolidada'
+                          : '↘ Cambio de nivel consolidado';
+
+                      readingText=
+                        `El nivel ${consolidated} está respaldado por al menos tres evidencias coherentes. Nivel consolidado anterior: ${interpretation.previousConsolidated}.`;
+
+                      readingClass=
+                        interpretation.trend==='up'?'green':'blue';
+                    }else{
+                      readingTitle='✓ Nivel consolidado';
+                      readingText=
+                        `El nivel ${consolidated} está respaldado por al menos tres evidencias coherentes. Las variaciones puntuales permanecen visibles en la trayectoria.`;
+                      readingClass='green';
+                    }
+
+                    return `
+                      <div style="
+                        margin-top:10px;
+                        padding:18px;
+                        border:1px solid var(--border);
+                        border-radius:16px;
+                        background:var(--surface,#fff);
+                      ">
+                        <div style="
+                          display:flex;
+                          justify-content:space-between;
+                          gap:14px;
+                          align-items:flex-start;
+                          flex-wrap:wrap;
+                        ">
+                          <div style="flex:1;min-width:240px">
+                            <div class="small" style="
+                              text-transform:uppercase;
+                              letter-spacing:.06em;
+                              margin-bottom:5px;
+                            ">
+                              Criterio ${esc(cr.code||'')}
+                            </div>
+
+                            <div style="
+                              font-size:15px;
+                              font-weight:700;
+                              line-height:1.45;
+                            ">
+                              ${esc(cr.text||'Criterio de evaluación')}
+                            </div>
+                          </div>
+
+                          <span class="pill">
+                            ${cr.evidence.length} evidencia${cr.evidence.length===1?'':'s'}
+                          </span>
+                        </div>
+
+                        <div style="
+                          display:grid;
+                          grid-template-columns:minmax(210px,1.15fr) minmax(180px,.85fr);
+                          gap:12px;
+                          margin-top:16px;
+                        ">
+                          <div style="
+                            padding:16px;
+                            border-radius:14px;
+                            background:var(--primary-soft,#eff6ff);
+                            border:1px solid #bfdbfe;
+                          ">
+                            <div class="small" style="
+                              text-transform:uppercase;
+                              letter-spacing:.06em;
+                            ">
+                              Nivel consolidado
+                            </div>
+
+                            ${
+                              consolidated!==null
+                                ? `
+                                  <div style="
+                                    display:flex;
+                                    align-items:baseline;
+                                    gap:9px;
+                                    margin-top:5px;
+                                  ">
+                                    <strong style="
+                                      font-size:36px;
+                                      line-height:1;
+                                    ">
+                                      ${consolidated}
+                                    </strong>
+
+                                    <strong style="font-size:17px">
+                                      ${esc(evidenceLevelName(consolidated))}
+                                    </strong>
+                                  </div>
+
+                                  <div style="margin-top:10px">
+                                    <span class="pill green">
+                                      ✓ Consolidado
+                                    </span>
+                                  </div>
+                                `
+                                : `
+                                  <div style="
+                                    font-size:19px;
+                                    font-weight:800;
+                                    margin-top:7px;
+                                  ">
+                                    Aún sin consolidar
+                                  </div>
+
+                                  <div style="margin-top:10px">
+                                    <span class="pill yellow">
+                                      ${esc(interpretation.status)}
+                                    </span>
+                                  </div>
+                                `
+                            }
+                          </div>
+
+                          <div style="
+                            padding:16px;
+                            border-radius:14px;
+                            border:1px solid #dbeafe;
+                            background:#f8fbff;
+                            display:flex;
+                            flex-direction:column;
+                            justify-content:center;
+                          ">
+                            <div class="small" style="
+                              text-transform:uppercase;
+                              letter-spacing:.06em;
+                            ">
+                              Última evidencia
+                            </div>
+
+                            <div style="
+                              display:flex;
+                              align-items:baseline;
+                              gap:9px;
+                              margin-top:5px;
+                            ">
+                              <strong style="
+                                font-size:30px;
+                                line-height:1;
+                              ">
+                                ${observed}
+                              </strong>
+
+                              <strong style="font-size:15px">
+                                ${esc(evidenceLevelName(observed))}
+                              </strong>
+                            </div>
+
+                            <div class="small" style="margin-top:10px">
+                              ${esc(cr.evidence[cr.evidence.length-1]?.date||'Sin fecha')}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style="margin-top:18px">
+                          <div style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:10px;
+                            margin-bottom:10px;
+                          ">
+                            <div class="small" style="
+                              text-transform:uppercase;
+                              letter-spacing:.06em;
+                            ">
+                              Trayectoria
+                            </div>
+
+                            <div class="small">
+                              ${esc(String(cr.evidence.length))} observación${cr.evidence.length===1?'':'es'}
+                            </div>
+                          </div>
+
+                          <div style="
+                            display:flex;
+                            align-items:center;
+                            overflow-x:auto;
+                            padding:3px 2px 8px;
+                          ">
+                            ${cr.evidence.map((ev,index)=>{
+                              const level=Number(ev.value);
+                              const isLast=index===cr.evidence.length-1;
+                              const isConsolidated=
+                                consolidated!==null &&
+                                level===consolidated;
+
+                              return `
+                                <div style="
+                                  display:flex;
+                                  align-items:center;
+                                  flex:0 0 auto;
+                                ">
+                                  <div
+                                    title="${esc(ev.date||'Sin fecha')} · ${esc(ev.activityName||'Actividad')} · ${esc(ev.instrumentName||'Instrumento')}"
+                                    style="
+                                      width:${isLast?'36px':'32px'};
+                                      height:${isLast?'36px':'32px'};
+                                      border-radius:50%;
+                                      display:flex;
+                                      align-items:center;
+                                      justify-content:center;
+                                      font-weight:800;
+                                      border:${isLast?'2px':'1px'} solid ${isConsolidated?'#86efac':'#bfdbfe'};
+                                      background:${isConsolidated?'var(--green-soft)':'var(--primary-soft)'};
+                                      box-shadow:${isLast?'0 0 0 3px rgba(59,130,246,.10)':'none'};
+                                    ">
+                                    ${esc(String(level))}
+                                  </div>
+
+                                  ${index<cr.evidence.length-1
+                                    ? `<div style="
+                                         width:34px;
+                                         height:3px;
+                                         margin:0 2px;
+                                         border-radius:999px;
+                                         background:#bfdbfe;
+                                       "></div>`
+                                    : ''
+                                  }
+                                </div>
+                              `;
+                            }).join('')}
+                          </div>
+                        </div>
+
+                        <div class="notice" style="
+                          margin:8px 0 0;
+                          background:transparent;
+                        ">
+                          <div style="
+                            display:flex;
+                            gap:8px;
+                            align-items:center;
+                            flex-wrap:wrap;
+                          ">
+                            <span class="pill ${readingClass}">
+                              ${readingTitle}
+                            </span>
+
+                            ${
+                              isPendingChange
+                                ? `<span class="small">1 evidencia para confirmar</span>`
+                                : ''
+                            }
+                          </div>
+
+                          <div class="small" style="
+                            margin-top:7px;
+                            line-height:1.5;
+                          ">
+                            ${readingText}
+                          </div>
+                        </div>
+
+                        <details style="
+                          margin-top:12px;
+                          border-top:1px solid var(--border);
+                          padding-top:11px;
+                        ">
+                          <summary style="
+                            cursor:pointer;
+                            font-weight:700;
+                            font-size:13px;
+                          ">
+                            Ver trazabilidad de las evidencias
+                          </summary>
+
+                          <div class="grid" style="
+                            gap:7px;
+                            margin-top:10px;
+                          ">
+                            ${cr.evidence.map(ev=>`
+                              <div style="
+                                display:grid;
+                                grid-template-columns:auto 1fr;
+                                gap:10px;
+                                align-items:start;
+                                padding:9px 10px;
+                                border-radius:10px;
+                                background:var(--bg,#f8fafc);
+                              ">
+                                <span class="pill">
+                                  ${esc(String(ev.value))}
+                                </span>
+
+                                <div>
+                                  <div style="
+                                    display:flex;
+                                    align-items:center;
+                                    gap:7px;
+                                    flex-wrap:wrap;
+                                  ">
+                                    <strong style="font-size:13px">
+                                      ${esc(ev.activityName||'Actividad')}
+                                    </strong>
+
+                                    <span class="small">
+                                      ${esc(ev.date||'Sin fecha')}
+                                    </span>
+                                  </div>
+
+                                  <div class="small" style="margin-top:3px">
+                                    ${esc(evidenceLevelName(ev.value))}
+                                    · Instrumento: ${esc(ev.instrumentName||'Instrumento')}
+                                  </div>
+                                </div>
+                              </div>
+                            `).join('')}
+                          </div>
+                        </details>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    `;
+
+    const select=document.querySelector('#competency-profile-student');
+    if(select){
+      select.onchange=e=>{
+        data.selectedStudentId=e.target.value;
+        persistState();
+        renderCompetencyProfile();
+      };
+    }
+  }
+
+
+  let dailyNoteDate=today();
+  let dailyNoteSaveTimer=null;
+
+  function dailyNoteDateLabel(dateKey){
+    const [y,m,d]=dateKey.split('-').map(Number);
+    const date=new Date(y,m-1,d);
+
+    const text=new Intl.DateTimeFormat('es-ES',{
+      weekday:'long',
+      day:'numeric',
+      month:'long',
+      year:'numeric'
+    }).format(date);
+
+    return text.charAt(0).toUpperCase()+text.slice(1);
+  }
+
+  function moveDailyNoteDate(days){
+    const [y,m,d]=dailyNoteDate.split('-').map(Number);
+    const date=new Date(y,m-1,d);
+    date.setDate(date.getDate()+days);
+
+    const yy=date.getFullYear();
+    const mm=String(date.getMonth()+1).padStart(2,'0');
+    const dd=String(date.getDate()).padStart(2,'0');
+
+    dailyNoteDate=`${yy}-${mm}-${dd}`;
+    renderDailyNote();
+  }
+
+  function saveDailyNote(){
+    const editor=document.querySelector('#daily-note-editor');
+    const status=document.querySelector('#daily-note-save-status');
+    if(!editor)return;
+
+    data.dailyNotes=data.dailyNotes||{};
+
+    const html=sanitizeRich(editor.innerHTML);
+
+    if(html.replace(/<br\s*\/?>/gi,'').trim()){
+      data.dailyNotes[dailyNoteDate]=html;
+    }else{
+      delete data.dailyNotes[dailyNoteDate];
+    }
+
+    persistState();
+
+    if(status){
+      status.textContent='Guardado automáticamente.';
+      clearTimeout(dailyNoteSaveTimer);
+      dailyNoteSaveTimer=setTimeout(()=>{
+        status.textContent='Se guarda automáticamente.';
+      },1200);
+    }
+  }
+
+  function renderDailyNote(){
+    const editor=document.querySelector('#daily-note-editor');
+    const dateLabel=document.querySelector('#daily-note-date');
+    const todayButton=document.querySelector('#daily-note-today');
+
+    if(!editor||!dateLabel)return;
+
+    data.dailyNotes=data.dailyNotes||{};
+
+    dateLabel.textContent=dailyNoteDateLabel(dailyNoteDate);
+    editor.innerHTML=sanitizeRich(data.dailyNotes[dailyNoteDate]||'');
+
+    if(todayButton){
+      todayButton.disabled=dailyNoteDate===today();
+    }
+  }
+
+  function bindDailyNote(){
+    const editor=document.querySelector('#daily-note-editor');
+    const prev=document.querySelector('#daily-note-prev');
+    const next=document.querySelector('#daily-note-next');
+    const todayButton=document.querySelector('#daily-note-today');
+    const checkbox=document.querySelector('#daily-note-checkbox');
+
+    if(!editor||editor.dataset.dailyBound)return;
+    editor.dataset.dailyBound='1';
+
+    let inputTimer=null;
+
+    editor.addEventListener('input',()=>{
+      const status=document.querySelector('#daily-note-save-status');
+      if(status)status.textContent='Guardando…';
+
+      clearTimeout(inputTimer);
+      inputTimer=setTimeout(saveDailyNote,350);
+    });
+
+    if(prev)prev.onclick=()=>{
+      saveDailyNote();
+      moveDailyNoteDate(-1);
+    };
+
+    if(next)next.onclick=()=>{
+      saveDailyNote();
+      moveDailyNoteDate(1);
+    };
+
+    if(todayButton)todayButton.onclick=()=>{
+      saveDailyNote();
+      dailyNoteDate=today();
+      renderDailyNote();
+    };
+
+    if(checkbox)checkbox.onclick=()=>{
+      editor.focus();
+      document.execCommand('insertText',false,'☐ ');
+      saveDailyNote();
+    };
+  }
+
+  function applySidebarState(){
+    const pinned=!!data.settings?.sidebarPinned;
+    document.body.classList.toggle('sidebar-pinned',pinned);
+
+    const pin=document.querySelector('#sidebar-pin');
+    if(pin){
+      pin.textContent=pinned?'📍':'📌';
+      pin.title=pinned?'Soltar menú':'Fijar menú';
+      pin.setAttribute('aria-label',pinned?'Soltar menú':'Fijar menú');
+    }
+  }
+
+  function bindSidebar(){
+    const pin=document.querySelector('#sidebar-pin');
+    const handle=document.querySelector('#sidebar-handle');
+    const aside=document.querySelector('aside');
+
+    if(pin && !pin.dataset.bound){
+      pin.dataset.bound='1';
+      pin.onclick=()=>{
+        data.settings=data.settings||{};
+        data.settings.sidebarPinned=!data.settings.sidebarPinned;
+        applySidebarState();
+        persistState();
+      };
+    }
+
+    if(handle && aside && !handle.dataset.bound){
+      handle.dataset.bound='1';
+
+      handle.addEventListener('mouseenter',()=>{
+        if(!data.settings?.sidebarPinned){
+          aside.style.transform='translateX(0)';
+          aside.style.transitionDelay='0s';
+        }
+      });
+
+      aside.addEventListener('mouseleave',()=>{
+        if(!data.settings?.sidebarPinned){
+          aside.style.transform='';
+          aside.style.transitionDelay='';
+        }
+      });
+    }
+
+    applySidebarState();
+  }
+
+  function renderAll(){renderStudents();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
 
 
   let pendingUpdateVersion='';
@@ -3267,13 +4594,542 @@
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.5'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.0'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
     const msg=document.querySelector('#update-message'),btn=document.querySelector('#update-install');btn.disabled=true;msg.textContent='Descargando e instalando la actualización… La app se reiniciará al terminar.';
     try{await nativeInvoke('install_update');}catch(err){btn.disabled=false;msg.textContent='No se pudo instalar: '+String(err)}
   }
+  function rubricEditorModal(rubric=null){
+    const editing=!!rubric;
+
+    const indicatorRow=(indicator=null)=>{
+      const id=indicator?.id||uid('rindi');
+      const descriptors=indicator?.descriptors||{};
+      const criteria=Array.isArray(indicator?.criteria)?indicator.criteria:[];
+
+      return `
+        <div class="card rubric-indicator" data-rubric-indicator="${esc(id)}" style="margin-bottom:12px">
+          <div style="display:flex;gap:10px;align-items:flex-end">
+            <label style="flex:1">Indicador
+              <input class="rubric-indicator-name"
+                value="${esc(indicator?.name||'')}"
+                placeholder="Ej. Identifica los datos relevantes">
+            </label>
+            <button type="button" class="ghost danger" data-remove-rubric-indicator="${esc(id)}">Eliminar</button>
+          </div>
+
+          <div class="rubric-criteria-box" style="margin-top:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div>
+                <strong>🔗 Criterios de evaluación</strong>
+                <div class="rubric-criteria-summary"
+                     data-rubric-criteria='${esc(JSON.stringify(criteria))}'
+                     style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                  ${criteria.length
+                    ? criteria.map(c=>`
+                        <span class="pill">${esc((c.areaLabel||c.area||'')+' · '+c.code)}</span>
+                      `).join('')
+                    : '<span class="small">Todavía no hay criterios vinculados.</span>'
+                  }
+                </div>
+              </div>
+              <button type="button" class="ghost no-print" data-link-rubric-criterion="${esc(id)}">＋ Vincular criterio</button>
+            </div>
+          </div>
+
+          <div class="grid cols-2" style="margin-top:10px">
+            <label>1 · Inicial
+              <textarea class="rubric-level" data-level="1" rows="2" placeholder="Descriptor del nivel inicial">${esc(descriptors[1]||'')}</textarea>
+            </label>
+            <label>2 · En desarrollo
+              <textarea class="rubric-level" data-level="2" rows="2" placeholder="Descriptor del nivel en desarrollo">${esc(descriptors[2]||'')}</textarea>
+            </label>
+            <label>3 · Adecuado
+              <textarea class="rubric-level" data-level="3" rows="2" placeholder="Descriptor del nivel adecuado">${esc(descriptors[3]||'')}</textarea>
+            </label>
+            <label>4 · Avanzado
+              <textarea class="rubric-level" data-level="4" rows="2" placeholder="Descriptor del nivel avanzado">${esc(descriptors[4]||'')}</textarea>
+            </label>
+          </div>
+        </div>`;
+    };
+
+    const existingIndicators=editing && Array.isArray(rubric.indicators) && rubric.indicators.length
+      ? rubric.indicators
+      : [null];
+
+    modal(editing?'Editar rúbrica':'Nueva rúbrica',`
+      <label>Nombre de la rúbrica
+        <input id="rubric-name"
+          value="${esc(rubric?.name||'')}"
+          placeholder="Ej. Resolución de problemas">
+      </label>
+
+      <div class="notice" style="margin-top:14px">
+        <strong>Escala de desempeño · 1 → 4</strong><br>
+        <strong>1 = menor nivel de desempeño · 4 = mayor nivel de desempeño</strong><br>
+        <span class="small">Inicial → En desarrollo → Adecuado → Avanzado</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;margin-bottom:10px">
+        <h3 style="margin:0">Indicadores</h3>
+        <button type="button" class="secondary" id="add-rubric-indicator">＋ Añadir indicador</button>
+      </div>
+
+      <div id="rubric-indicators">
+        ${existingIndicators.map(indicatorRow).join('')}
+      </div>
+    `,()=>{
+      const name=document.querySelector('#rubric-name').value.trim();
+
+      if(!name){
+        toast('Pon un nombre a la rúbrica.');
+        return false;
+      }
+
+      const rows=[...document.querySelectorAll('.rubric-indicator')];
+
+      const indicators=rows.map(row=>{
+        const indicatorName=row.querySelector('.rubric-indicator-name')?.value.trim()||'';
+        const descriptors={};
+
+        row.querySelectorAll('.rubric-level').forEach(el=>{
+          descriptors[el.dataset.level]=el.value.trim();
+        });
+
+        let criteria=[];
+        try{
+          criteria=JSON.parse(
+            row.querySelector('.rubric-criteria-summary')?.dataset.rubricCriteria||'[]'
+          );
+        }catch(_){
+          criteria=[];
+        }
+
+        return {
+          id:row.dataset.rubricIndicator||uid('rindi'),
+          name:indicatorName,
+          descriptors,
+          criteria:Array.isArray(criteria)?criteria:[]
+        };
+      });
+
+      if(!indicators.some(x=>x.name)){
+        toast('Añade al menos un indicador con nombre.');
+        return false;
+      }
+
+      data.instruments=data.instruments||[];
+
+      if(editing){
+        rubric.name=name;
+        rubric.indicators=indicators.filter(x=>x.name);
+        rubric.updatedAt=new Date().toISOString();
+        save('Rúbrica actualizada');
+      }else{
+        data.instruments.push({
+          id:uid('instr'),
+          type:'rubric',
+          name,
+          levels:[
+            {value:1,name:'Inicial'},
+            {value:2,name:'En desarrollo'},
+            {value:3,name:'Adecuado'},
+            {value:4,name:'Avanzado'}
+          ],
+          indicators:indicators.filter(x=>x.name),
+          createdAt:new Date().toISOString()
+        });
+
+        save('Rúbrica guardada');
+      }
+
+      return true;
+    });
+
+    document.querySelector('#modal-save').textContent=editing?'Guardar cambios':'Guardar rúbrica';
+
+    const box=document.querySelector('#rubric-indicators');
+
+    const areaOptions=[
+      ['matematicas','Matemáticas'],
+      ['lengua_castellana','Lengua Castellana y Literatura'],
+      ['ciencias_naturaleza','Ciencias de la Naturaleza'],
+      ['ciencias_sociales','Ciencias Sociales'],
+      ['educacion_artistica','Educación Artística'],
+      ['educacion_fisica','Educación Física'],
+      ['valores','Educación en Valores Cívicos y Éticos'],
+      ['ingles','Lengua Extranjera · Inglés'],
+      ['lengua_asturiana','Lengua Asturiana y Literatura'],
+      ['cultura_asturiana','Cultura Asturiana']
+    ];
+
+    const renderRubricCriteria=(row)=>{
+      const summary=row.querySelector('.rubric-criteria-summary');
+      if(!summary) return;
+
+      let linked=[];
+      try{
+        linked=JSON.parse(summary.dataset.rubricCriteria||'[]');
+      }catch(_){
+        linked=[];
+      }
+
+      summary.innerHTML=linked.length
+        ? linked.map(c=>`
+            <span class="pill">
+              ${esc((c.areaLabel||c.area||'')+' · '+c.code)}
+              <button type="button"
+                      class="rubric-criterion-unlink"
+                      data-rubric-criterion-key="${esc(c.key||'')}"
+                      aria-label="Desvincular criterio"
+                      style="border:0;background:transparent;padding:0 0 0 6px;cursor:pointer;font:inherit">
+                ×
+              </button>
+            </span>
+          `).join('')
+        : '<span class="small">Todavía no hay criterios vinculados.</span>';
+
+      summary.querySelectorAll('.rubric-criterion-unlink').forEach(btn=>{
+        btn.onclick=()=>{
+          const key=btn.dataset.rubricCriterionKey;
+          const updated=linked.filter(c=>c.key!==key);
+          summary.dataset.rubricCriteria=JSON.stringify(updated);
+          renderRubricCriteria(row);
+        };
+      });
+    };
+
+    const openRubricCriterionPicker=(row)=>{
+      let panel=row.querySelector('.rubric-criterion-picker');
+      if(panel){
+        panel.remove();
+        return;
+      }
+
+      panel=document.createElement('div');
+      panel.className='rubric-criterion-picker notice';
+      panel.style.marginTop='10px';
+      panel.innerHTML=`
+        <div class="grid cols-2">
+          <label>Curso
+            <select class="rubric-picker-grade">
+              <option value="5">5.º de Primaria</option>
+              <option value="6">6.º de Primaria</option>
+            </select>
+          </label>
+
+          <label>Área
+            <select class="rubric-picker-area">
+              ${areaOptions.map(([value,label])=>`<option value="${esc(value)}">${esc(label)}</option>`).join('')}
+            </select>
+          </label>
+        </div>
+
+        <div class="rubric-picker-selection"
+             style="margin-top:12px"></div>
+
+        <div class="rubric-picker-list curriculum-bank-list"
+             style="margin-top:14px"></div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+          <button type="button" class="ghost rubric-picker-close">Cancelar</button>
+          <button type="button" class="primary rubric-picker-add">Vincular seleccionados</button>
+        </div>
+      `;
+
+      row.querySelector('.rubric-criteria-box').insertAdjacentElement('afterend',panel);
+
+      const gradeEl=panel.querySelector('.rubric-picker-grade');
+      const areaEl=panel.querySelector('.rubric-picker-area');
+      const list=panel.querySelector('.rubric-picker-list');
+      const selectionEl=panel.querySelector('.rubric-picker-selection');
+
+      // Cesta temporal: conserva la selección aunque cambiemos de curso o área.
+      const pendingCriteria=new Map();
+
+      const linkedCriteria=()=>{
+        const summary=row.querySelector('.rubric-criteria-summary');
+        try{
+          return JSON.parse(summary?.dataset.rubricCriteria||'[]');
+        }catch(_){
+          return [];
+        }
+      };
+
+      const renderPendingSelection=()=>{
+        const pending=[...pendingCriteria.values()];
+
+        selectionEl.innerHTML=pending.length
+          ? `
+              <div class="small"><strong>Seleccionados: ${pending.length}</strong></div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                ${pending.map(c=>`
+                  <span class="pill">${esc((c.areaLabel||c.area||'')+' · '+c.code)}</span>
+                `).join('')}
+              </div>
+            `
+          : '<div class="small">Selecciona criterios de una o varias áreas.</div>';
+      };
+
+      const renderPicker=()=>{
+        const grade=gradeEl.value;
+        const area=areaEl.value;
+        const areaLabel=areaOptions.find(x=>x[0]===area)?.[1]||area;
+        const items=ASTURIAS_CURRICULUM?.[grade]?.[area]||[];
+        const linkedKeys=new Set(linkedCriteria().map(c=>c.key));
+
+        list.innerHTML=items.length
+          ? items.map(c=>{
+              const key=curriculumKey(c);
+              const already=linkedKeys.has(key);
+              const pending=pendingCriteria.has(key);
+
+              return `
+                <label class="curriculum-bank-item">
+                  <input type="checkbox"
+                         class="rubric-criterion-check"
+                         value="${esc(key)}"
+                         ${pending?'checked':''}
+                         ${already?'disabled':''}>
+                  <span>
+                    <strong>${esc(c.code)} · ${esc(c.text)}</strong>
+                    <span class="ce-title">${esc(c.ce)} · ${esc(c.ceText||'')}</span>
+                    <span class="desc">
+                      ${already?'✓ Ya vinculado · ':''}Descriptores: ${esc(c.descriptors||'')}
+                    </span>
+                  </span>
+                </label>`;
+            }).join('')
+          : '<div class="empty">No hay criterios disponibles para esta selección.</div>';
+
+        list.querySelectorAll('.rubric-criterion-check:not(:disabled)').forEach(check=>{
+          check.onchange=()=>{
+            const key=check.value;
+
+            if(check.checked){
+              const c=items.find(x=>curriculumKey(x)===key);
+
+              if(c){
+                pendingCriteria.set(key,{
+                  key,
+                  code:c.code,
+                  text:c.text,
+                  ce:c.ce,
+                  ceText:c.ceText||'',
+                  descriptors:c.descriptors||'',
+                  source:'asturias',
+                  grade,
+                  area,
+                  areaLabel
+                });
+              }
+            }else{
+              pendingCriteria.delete(key);
+            }
+
+            renderPendingSelection();
+          };
+        });
+      };
+
+      gradeEl.onchange=renderPicker;
+      areaEl.onchange=renderPicker;
+
+      panel.querySelector('.rubric-picker-close').onclick=()=>panel.remove();
+
+      panel.querySelector('.rubric-picker-add').onclick=()=>{
+        const selected=[...pendingCriteria.values()];
+
+        if(!selected.length){
+          toast('Selecciona al menos un criterio.');
+          return;
+        }
+
+        const summary=row.querySelector('.rubric-criteria-summary');
+        const linked=linkedCriteria();
+        const existing=new Set(linked.map(c=>c.key));
+
+        selected.forEach(c=>{
+          if(!existing.has(c.key)){
+            linked.push({...c});
+            existing.add(c.key);
+          }
+        });
+
+        summary.dataset.rubricCriteria=JSON.stringify(linked);
+        renderRubricCriteria(row);
+        panel.remove();
+      };
+
+      renderPendingSelection();
+      renderPicker();
+    };
+
+    const bindRows=()=>{
+      box.querySelectorAll('.rubric-indicator').forEach(row=>renderRubricCriteria(row));
+
+      box.querySelectorAll('[data-link-rubric-criterion]').forEach(btn=>btn.onclick=()=>{
+        const row=btn.closest('.rubric-indicator');
+        if(row) openRubricCriterionPicker(row);
+      });
+
+      box.querySelectorAll('[data-remove-rubric-indicator]').forEach(btn=>btn.onclick=()=>{
+        const rows=box.querySelectorAll('.rubric-indicator');
+
+        if(rows.length<=1){
+          toast('La rúbrica necesita al menos un indicador.');
+          return;
+        }
+
+        btn.closest('.rubric-indicator')?.remove();
+      });
+    };
+
+    document.querySelector('#add-rubric-indicator').onclick=()=>{
+      box.insertAdjacentHTML('beforeend',indicatorRow());
+      bindRows();
+      box.lastElementChild?.scrollIntoView({behavior:'smooth',block:'center'});
+    };
+
+    bindRows();
+  }
+
+  function renderInstrumentLists(){
+    const rubricBox=document.querySelector('#rubric-list');
+    const checklistBox=document.querySelector('#checklist-list');
+
+    if(rubricBox){
+      const rubrics=(data.instruments||[]).filter(x=>x.type==='rubric');
+      rubricBox.innerHTML=rubrics.length
+        ? rubrics.map(r=>`
+            <div class="mini-item">
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+                <div>
+                  <strong>${esc(r.name||'Rúbrica sin nombre')}</strong>
+                  <div class="small">${(r.indicators||[]).length} indicador(es) · ${(r.levels||[]).length||4} niveles</div>
+                </div>
+                <button type="button" class="ghost no-print" data-edit-rubric="${esc(r.id)}">Editar</button>
+                  <button type="button" class="ghost no-print" data-duplicate-rubric="${esc(r.id)}">Duplicar</button>
+                  <button type="button" class="ghost danger no-print" data-delete-rubric="${esc(r.id)}">Eliminar</button>
+              </div>
+            </div>
+          `).join('')
+        : 'Todavía no has creado ninguna rúbrica.';
+
+      rubricBox.querySelectorAll('[data-edit-rubric]').forEach(btn=>btn.onclick=()=>{
+        const rubric=(data.instruments||[]).find(x=>x.id===btn.dataset.editRubric && x.type==='rubric');
+        if(rubric) rubricEditorModal(rubric);
+      });
+
+      rubricBox.querySelectorAll('[data-duplicate-rubric]').forEach(btn=>btn.onclick=()=>{
+        const rubric=(data.instruments||[]).find(
+          x=>x.id===btn.dataset.duplicateRubric && x.type==='rubric'
+        );
+        if(!rubric) return;
+
+        const copy={
+          ...rubric,
+          id:uid('instr'),
+          name:(rubric.name||'Rúbrica')+' · copia',
+          levels:(rubric.levels||[]).map(level=>({...level})),
+          indicators:(rubric.indicators||[]).map(indicator=>({
+            ...indicator,
+            id:uid('rindi'),
+            descriptors:{...(indicator.descriptors||{})},
+            criteria:(indicator.criteria||[]).map(c=>({...c}))
+          })),
+          createdAt:new Date().toISOString(),
+          updatedAt:null
+        };
+
+        data.instruments.push(copy);
+        save('Rúbrica duplicada');
+      });
+
+      rubricBox.querySelectorAll('[data-delete-rubric]').forEach(btn=>btn.onclick=()=>{
+        const rubric=(data.instruments||[]).find(
+          x=>x.id===btn.dataset.deleteRubric && x.type==='rubric'
+        );
+        if(!rubric) return;
+
+        modal('Eliminar rúbrica',`
+          <div class="notice">
+            <strong>¿Eliminar “${esc(rubric.name||'Rúbrica sin nombre')}”?</strong>
+            <p style="margin-bottom:0">Esta acción no se puede deshacer.</p>
+          </div>
+        `,()=>{
+          data.instruments=data.instruments.filter(x=>x.id!==rubric.id);
+          save('Rúbrica eliminada');
+          return true;
+        });
+
+        document.querySelector('#modal-save').textContent='Eliminar';
+      });
+    }
+
+    if(checklistBox){
+      const checklists=(data.instruments||[]).filter(x=>x.type==='checklist');
+      checklistBox.innerHTML=checklists.length
+        ? checklists.map(c=>`
+            <div class="mini-item">
+              <strong>${esc(c.name||'Lista de cotejo sin nombre')}</strong>
+            </div>
+          `).join('')
+        : 'Todavía no has creado ninguna lista de cotejo.';
+    }
+  }
+
+  function instrumentModal(){
+    modal('Nuevo instrumento de evaluación',`
+      <div class="grid cols-2">
+        <button type="button" class="card instrument-type-card" data-instrument-type="rubric" style="text-align:left;cursor:pointer">
+          <h3>📊 Rúbrica</h3>
+          <p>Niveles de desempeño para varios indicadores observables.</p>
+        </button>
+
+        <button type="button" class="card instrument-type-card" data-instrument-type="checklist" style="text-align:left;cursor:pointer">
+          <h3>☑️ Lista de cotejo</h3>
+          <p>Comprobación rápida de desempeños observables.</p>
+        </button>
+      </div>
+      <p class="small" id="instrument-type-help" style="margin-top:14px">Selecciona el tipo de instrumento que quieres crear.</p>
+    `,()=>false);
+
+    const saveBtn=document.querySelector('#modal-save');
+    saveBtn.classList.add('hidden');
+
+    document.querySelectorAll('[data-instrument-type]').forEach(btn=>btn.onclick=()=>{
+      const type=btn.dataset.instrumentType;
+      document.querySelectorAll('[data-instrument-type]').forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected');
+
+      const help=document.querySelector('#instrument-type-help');
+
+      if(type==='rubric'){
+        document.querySelector('#modal-backdrop').classList.remove('show');
+        saveBtn.classList.remove('hidden');
+
+        document.querySelector('#modal-cancel').onclick=
+          ()=>document.querySelector('#modal-backdrop').classList.remove('show');
+
+        rubricEditorModal();
+        return;
+      }
+
+      help.textContent='Has seleccionado Lista de cotejo. El editor llegará después de la rúbrica.';
+    });
+
+    const oldCancel=document.querySelector('#modal-cancel').onclick;
+    document.querySelector('#modal-cancel').onclick=()=>{
+      saveBtn.classList.remove('hidden');
+      document.querySelector('#modal-backdrop').classList.remove('show');
+      document.querySelector('#modal-cancel').onclick=oldCancel;
+    };
+  }
+
   function modal(title,html,onSave){const bg=document.querySelector('#modal-backdrop'),saveBtn=document.querySelector('#modal-save');document.querySelector('#modal-title').textContent=title;document.querySelector('#modal-content').innerHTML=html;saveBtn.classList.remove('hidden');saveBtn.textContent='Guardar';bg.classList.add('show');saveBtn.onclick=()=>{if(onSave()!==false)bg.classList.remove('show')}}
   document.querySelector('#modal-cancel').onclick=()=>document.querySelector('#modal-backdrop').classList.remove('show');
   document.querySelector('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')e.currentTarget.classList.remove('show')};
@@ -3316,6 +5172,7 @@
   document.querySelector('#add-unit-product').onclick=addUnitProduct;
   document.querySelector('#guardar-sesion').onclick=saveSession;
   document.querySelector('#cancelar-edicion-sesion').onclick=()=>clearSessionForm(true);
+  document.querySelector('#nuevo-instrumento').onclick=instrumentModal;
   document.querySelector('#nuevo-alumno').onclick=()=>studentModal(false);
   document.querySelector('#editar-alumno').onclick=()=>studentModal(true);
   document.querySelector('#eliminar-alumno').onclick=()=>{
@@ -3375,11 +5232,128 @@
     btn.classList.add('danger');
   }
 };
+  function applyInstrumentModal(){
+    const rubrics=(data.instruments||[]).filter(x=>x.type==='rubric');
+
+    if(!rubrics.length){
+      modal('Aplicar instrumento',`
+        <div class="notice">
+          <strong>Todavía no tienes ninguna rúbrica.</strong>
+          <p style="margin-bottom:0">Crea una desde Instrumentos de evaluación antes de aplicarla.</p>
+        </div>
+      `,()=>true);
+
+      const saveBtn=document.querySelector('#modal-save');
+      if(saveBtn) saveBtn.textContent='Cerrar';
+      return;
+    }
+
+    modal('Aplicar instrumento',`
+      <p>Elige una rúbrica de tu biblioteca para aplicarla a una actividad concreta.</p>
+
+      <div class="grid" style="gap:10px">
+        ${rubrics.map(rubric=>{
+          const indicators=rubric.indicators||[];
+          const links=indicators.reduce(
+            (total,indicator)=>total+(indicator.criteria||[]).length,
+            0
+          );
+
+          return `
+            <button type="button"
+                    class="secondary apply-rubric-choice"
+                    data-apply-rubric="${esc(rubric.id)}"
+                    style="text-align:left;width:100%;padding:14px">
+              <strong>${esc(rubric.name||'Rúbrica sin nombre')}</strong>
+              <span class="small" style="display:block;margin-top:4px">
+                ${indicators.length} indicador${indicators.length===1?'':'es'}
+                · ${links} vínculo${links===1?'':'s'} curricular${links===1?'':'es'}
+              </span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `,()=>true);
+
+    const saveBtn=document.querySelector('#modal-save');
+    if(saveBtn) saveBtn.classList.add('hidden');
+
+    document.querySelectorAll('.apply-rubric-choice').forEach(btn=>{
+      btn.onclick=()=>{
+        const rubric=rubrics.find(r=>r.id===btn.dataset.applyRubric);
+        if(!rubric) return;
+
+        const todayValue=new Date().toISOString().slice(0,10);
+
+        modal('Aplicar · '+rubric.name,`
+          <div class="form-grid">
+            <label>
+              Actividad / evidencia
+              <input id="application-name"
+                     placeholder="Ej.: Prueba 1 · Problema de las cajas">
+            </label>
+
+            <label>
+              Fecha
+              <input id="application-date"
+                     type="date"
+                     value="${esc(todayValue)}">
+            </label>
+          </div>
+
+          <div class="notice" style="margin-top:14px">
+            <strong>Alumnado · Todo el grupo</strong>
+            <p style="margin-bottom:0">
+              ${data.students.length} alumno${data.students.length===1?'':'s'}.
+              Más adelante podrás aplicar instrumentos a equipos o alumnado seleccionado.
+            </p>
+          </div>
+
+          <p class="small" style="margin-top:14px">
+            Se utilizará una copia de esta rúbrica para que futuras modificaciones
+            de la plantilla no alteren esta evaluación.
+          </p>
+        `,()=>{
+          const name=document.querySelector('#application-name')?.value.trim();
+          const date=document.querySelector('#application-date')?.value||today();
+
+          if(!name){
+            toast('Escribe el nombre de la actividad.');
+            return false;
+          }
+
+          const application={
+            id:uid('iapp'),
+            name,
+            date,
+            rubricId:rubric.id,
+            rubricSnapshot:clone(rubric),
+            studentIds:data.students.map(student=>student.id),
+            results:{},
+            createdAt:new Date().toISOString()
+          };
+
+          data.instrumentApplications.push(application);
+          save('Evaluación creada · '+name);
+
+          console.log('Instrument application created',application);
+          return true;
+        });
+
+        const nextBtn=document.querySelector('#modal-save');
+        if(nextBtn) nextBtn.textContent='Comenzar evaluación';
+
+        setTimeout(()=>document.querySelector('#application-name')?.focus(),0);
+      };
+    });
+  }
+
   document.querySelectorAll('[data-notebook-view]').forEach(b=>b.onclick=()=>{data.settings.notebookView=b.dataset.notebookView;persistState();renderNotebook()});
   document.querySelector('#notebook-search').oninput=e=>{data.settings.notebookSearch=e.target.value;persistState();renderNotebook();const x=document.querySelector('#notebook-search');if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length)}};
   document.querySelector('#notebook-competency').onchange=e=>{data.settings.notebookCompetency=e.target.value;persistState();renderNotebook()};
   document.querySelector('#notebook-evidence-filter').onchange=e=>{data.settings.notebookEvidence=e.target.value;persistState();renderNotebook()};
   document.querySelector('#nueva-evidencia-local').onclick=evidenceModal;
+  document.querySelector('#aplicar-instrumento').onclick=applyInstrumentModal;
   const topButtons=[...document.querySelectorAll('.topbar .actions button')];
   topButtons.find(b=>b.textContent.includes('Nueva observación')).onclick=()=>{applyMode('diario',false);openSection('diario');document.querySelector('#diario-text').focus()};
   topButtons.find(b=>b.textContent.includes('Nueva evidencia')).onclick=()=>{applyMode('evaluacion',false);openSection('cuaderno');evidenceModal()};
