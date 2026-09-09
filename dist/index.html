@@ -1198,6 +1198,9 @@
                 <div><strong>Asistencia</strong><span class="small">Retraso justificado.</span></div>
               </div>
             </div>
+            <button class="secondary no-print" id="student-open-diary" type="button" style="margin-top:12px">
+              Ver todas sus observaciones en Diario
+            </button>
           </div>
         </div>
       </div>
@@ -1330,6 +1333,13 @@
             <label>Categoría<select id="diario-categoria"><option>General</option><option>Participación</option><option>Convivencia</option><option>Autonomía</option><option>Oralidad</option><option>Matemáticas</option><option>Atención</option><option>DUA</option></select></label>
           </div>
           <button class="primary" id="guardar-diario" style="margin-top:12px">Guardar observación</button>
+          <div class="toolbar no-print" style="margin-top:18px">
+            <strong>Historial</strong>
+            <div>
+              <button class="secondary active" id="diario-vista-dias" type="button">Por días</button>
+              <button class="ghost" id="diario-vista-alumnos" type="button">Por alumno</button>
+            </div>
+          </div>
           <div id="diario-historial" class="mini-list"></div>
         </div>
         <div class="card">
@@ -1665,12 +1675,20 @@
           <div id="custom-days-list" class="mini-list"></div>
         </div>
         <div class="card">
-          <h3>Horario personal</h3>
-          <span class="pill purple">Docencia</span>
-          <span class="pill purple">Guardias</span>
-          <span class="pill purple">Coordinaciones</span>
-          <span class="pill purple">Familias</span>
-          <span class="pill purple">Programación</span>
+          <h3>Horario docente</h3>
+          <p>Tu horario semanal completo. Puedes incluir docencia, guardias, coordinaciones, familias, programación, recreos u otras tareas.</p>
+          <div class="timetable-wrap">
+            <table class="timetable">
+              <thead>
+                <tr><th>Franja</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th></tr>
+              </thead>
+              <tbody id="teacher-timetable-body"></tbody>
+            </table>
+          </div>
+          <div class="timetable-actions no-print">
+            <button class="secondary" id="teacher-timetable-add-row">Añadir franja</button>
+            <button class="ghost" id="teacher-timetable-reset">Restablecer horario</button>
+          </div>
         </div>
       </div>
       <div class="card" style="margin-top:18px">
@@ -1825,7 +1843,8 @@
   const GOOGLE_AGENDA_TYPES=['Recordatorio','Reunión','Familias','Tarea','Centro','Personal'];
   function mergeSettings(baseSettings,storedSettings={}){
     const bg=baseSettings.googleCalendar||{},sg=storedSettings.googleCalendar||{};
-    return {...baseSettings,...storedSettings,timetable:Array.isArray(storedSettings?.timetable)?storedSettings.timetable:baseSettings.timetable,googleCalendar:{...bg,...sg,colors:{...(bg.colors||{}),...(sg.colors||{})}}};
+    return {...baseSettings,...storedSettings,timetable:Array.isArray(storedSettings?.timetable)?storedSettings.timetable:baseSettings.timetable,
+      teacherTimetable:Array.isArray(storedSettings?.teacherTimetable)?storedSettings.teacherTimetable:baseSettings.teacherTimetable,googleCalendar:{...bg,...sg,colors:{...(bg.colors||{}),...(sg.colors||{})}}};
   }
 
   const pageInfo={
@@ -1891,6 +1910,14 @@
       {time:'09:00 - 09:45',days:['','','','','']},
       {time:'09:45 - 10:30',days:['','','','','']},
       {time:'10:30 - 11:15',days:['','','','','']},
+      {time:'11:45 - 12:30',days:['','','','','']},
+      {time:'12:30 - 13:15',days:['','','','','']},
+      {time:'13:15 - 14:00',days:['','','','','']}
+    ],teacherTimetable:[
+      {time:'09:00 - 09:45',days:['','','','','']},
+      {time:'09:45 - 10:30',days:['','','','','']},
+      {time:'10:30 - 11:15',days:['','','','','']},
+      {time:'11:15 - 11:45',days:['Recreo','Recreo','Recreo','Recreo','Recreo']},
       {time:'11:45 - 12:30',days:['','','','','']},
       {time:'12:30 - 13:15',days:['','','','','']},
       {time:'13:15 - 14:00',days:['','','','','']}
@@ -2148,6 +2175,18 @@
       if(cols[2]) cols[2].innerHTML='<h4>Próximos pasos</h4><p>'+esc(st.next||'Recoger nuevas evidencias y revisar la evolución.')+'</p>';
     }
     renderTimeline(st.id);
+
+    const diaryBtn=document.querySelector('#student-open-diary');
+    if(diaryBtn){
+      diaryBtn.onclick=()=>{
+        data.settings=data.settings||{};
+        data.settings.diaryView='students';
+        data.settings.diaryStudentOpen=st.id;
+        persistState();
+        openSection('diario');
+        renderDiary();
+      };
+    }
   }
   function buildInterpretation(st){
     const ev=data.evidence[st.id]||{}; const vals=Object.values(ev); const low=vals.filter(v=>migrateGradeValue(v)==='INS').length; const high=vals.filter(v=>v==='A').length;
@@ -2924,9 +2963,131 @@
 
   function renderDiary(){
     const box=document.querySelector('#diario-historial'); if(!box)return;
-    const sorted=[...data.observations].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
-    box.innerHTML=sorted.length?sorted.map(o=>{const st=data.students.find(s=>s.id===o.studentId);return `<div class="mini-item"><strong>${esc(o.date)} · ${esc(o.category)}${st?' · '+esc(st.name):''}</strong>${esc(o.text)}</div>`}).join(''):'<div class="empty">Aún no hay observaciones guardadas.</div>';
+
+    data.settings=data.settings||{};
+    const view=data.settings.diaryView==='students'?'students':'days';
+    const observations=[...(data.observations||[])].sort((a,b)=>b.date.localeCompare(a.date));
+
+    const daysBtn=document.querySelector('#diario-vista-dias');
+    const studentsBtn=document.querySelector('#diario-vista-alumnos');
+
+    if(daysBtn){
+      daysBtn.className=view==='days'?'secondary active':'ghost';
+      daysBtn.onclick=()=>{
+        data.settings.diaryView='days';
+        persistState();
+        renderDiary();
+      };
+    }
+
+    if(studentsBtn){
+      studentsBtn.className=view==='students'?'secondary active':'ghost';
+      studentsBtn.onclick=()=>{
+        data.settings.diaryView='students';
+        persistState();
+        renderDiary();
+      };
+    }
+
+    if(!observations.length){
+      box.innerHTML='<div class="empty">Aún no hay observaciones guardadas.</div>';
+      return;
+    }
+
+    const studentName=sid=>{
+      if(!sid)return 'Grupo / general';
+      return data.students.find(s=>s.id===sid)?.name||'Alumno/a';
+    };
+
+    const openStudent=sid=>{
+      if(!sid)return;
+      data.selectedStudentId=sid;
+      persistState();
+      openSection('alumnado');
+      renderStudents();
+    };
+
+    const observationHtml=o=>{
+      const hasStudent=!!o.studentId;
+      return `<div class="mini-item">
+        <strong>${esc(o.category||'General')}${hasStudent
+          ? ` · <button type="button" class="link-button" data-diary-student="${esc(o.studentId)}">${esc(studentName(o.studentId))}</button>`
+          : ' · Grupo / general'}</strong>
+        ${esc(o.text)}
+      </div>`;
+    };
+
+    if(view==='days'){
+      const groups={};
+      observations.forEach(o=>{
+        (groups[o.date]||(groups[o.date]=[])).push(o);
+      });
+
+      box.innerHTML=Object.entries(groups).map(([date,items])=>{
+        let label=date;
+        const d=new Date(date+'T12:00:00');
+        if(!Number.isNaN(d.getTime())){
+          label=new Intl.DateTimeFormat('es-ES',{
+            weekday:'long',
+            day:'numeric',
+            month:'long',
+            year:'numeric'
+          }).format(d);
+          label=label.charAt(0).toUpperCase()+label.slice(1);
+        }
+
+        return `<details class="diary-group">
+          <summary><strong>${esc(label)}</strong> · ${items.length} observación${items.length===1?'':'es'}</summary>
+          <div class="mini-list" style="margin-top:10px">
+            ${items.map(observationHtml).join('')}
+          </div>
+        </details>`;
+      }).join('');
+    }else{
+      const groups=new Map();
+
+      observations.forEach(o=>{
+        const key=o.studentId||'__general__';
+        if(!groups.has(key))groups.set(key,[]);
+        groups.get(key).push(o);
+      });
+
+      const ordered=[...groups.entries()].sort(([a],[b])=>{
+        if(a==='__general__')return -1;
+        if(b==='__general__')return 1;
+        return studentName(a).localeCompare(studentName(b),'es');
+      });
+
+      box.innerHTML=ordered.map(([sid,items])=>{
+        const general=sid==='__general__';
+        const name=general?'Grupo / general':studentName(sid);
+
+        const shouldOpen=!general && data.settings.diaryStudentOpen===sid;
+
+        return `<details class="diary-group" ${shouldOpen?'open':''}>
+          <summary>
+            <strong>${esc(name)}</strong> · ${items.length} observación${items.length===1?'':'es'}
+          </summary>
+          <div class="mini-list" style="margin-top:10px">
+            ${items.map(o=>`<div class="mini-item">
+              <strong>${esc(o.date)} · ${esc(o.category||'General')}</strong>
+              ${esc(o.text)}
+            </div>`).join('')}
+            ${general?'':`<button type="button" class="secondary" data-diary-student="${esc(sid)}" style="margin-top:8px">Abrir ficha de ${esc(name)}</button>`}
+          </div>
+        </details>`;
+      }).join('');
+    }
+
+    box.querySelectorAll('[data-diary-student]').forEach(btn=>{
+      btn.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openStudent(btn.dataset.diaryStudent);
+      };
+    });
   }
+
   function addObservation(){const text=document.querySelector('#diario-text').value.trim();if(!text)return toast('Escribe una observación antes de guardar.');data.observations.push({id:uid('obs'),date:today(),studentId:document.querySelector('#diario-alumno').value||'',category:document.querySelector('#diario-categoria').value,text});document.querySelector('#diario-text').value='';save('Observación guardada');}
 
   function renderAttendance(){
@@ -3076,6 +3237,36 @@
   }
   function addTimetableRow(){data.settings.timetable.push({time:'',days:['','','','','']});save('Franja añadida')}
   function resetTimetable(){if(confirm('¿Restablecer las franjas del horario?')){data.settings.timetable=clone(demo.settings.timetable);save('Horario restablecido')}}
+
+  function renderTeacherTimetable(){
+    const body=document.querySelector('#teacher-timetable-body');if(!body)return;
+    const rows=data.settings.teacherTimetable||[];
+    body.innerHTML=rows.map((r,ri)=>`<tr><td class="time-slot"><input data-teacher-time-row="${ri}" value="${esc(r.time||'')}"></td>${[0,1,2,3,4].map(di=>`<td><input data-teacher-tt="${ri}|${di}" value="${esc((r.days||[])[di]||'')}" placeholder="Docencia / guardia / tarea"></td>`).join('')}</tr>`).join('');
+    body.querySelectorAll('[data-teacher-tt]').forEach(inp=>inp.onchange=()=>{
+      const [ri,di]=inp.dataset.teacherTt.split('|').map(Number);
+      data.settings.teacherTimetable[ri].days[di]=inp.value;
+      persistState();
+      toast('Horario docente guardado');
+    });
+    body.querySelectorAll('[data-teacher-time-row]').forEach(inp=>inp.onchange=()=>{
+      data.settings.teacherTimetable[Number(inp.dataset.teacherTimeRow)].time=inp.value;
+      persistState();
+      toast('Franja docente guardada');
+    });
+  }
+
+  function addTeacherTimetableRow(){
+    data.settings.teacherTimetable=data.settings.teacherTimetable||[];
+    data.settings.teacherTimetable.push({time:'',days:['','','','','']});
+    save('Franja docente añadida');
+  }
+
+  function resetTeacherTimetable(){
+    if(confirm('¿Restablecer las franjas del horario docente?')){
+      data.settings.teacherTimetable=clone(demo.settings.teacherTimetable);
+      save('Horario docente restablecido');
+    }
+  }
 
   function intelligenceStudent(){
     const id=data.intelligenceStudentId||data.students[0]?.id||'';
@@ -4586,7 +4777,7 @@
     applySidebarState();
   }
 
-  function renderAll(){renderStudents();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
+  function renderAll(){renderStudents();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
 
 
   let pendingUpdateVersion='';
@@ -5367,6 +5558,8 @@
   document.querySelectorAll('[data-dashboard]').forEach(card=>{card.onclick=()=>dashboardDetails(card.dataset.dashboard);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();dashboardDetails(card.dataset.dashboard)}}});
   document.querySelector('#timetable-add-row').onclick=addTimetableRow;
   document.querySelector('#timetable-reset').onclick=resetTimetable;
+  document.querySelector('#teacher-timetable-add-row').onclick=addTeacherTimetableRow;
+  document.querySelector('#teacher-timetable-reset').onclick=resetTeacherTimetable;
   document.querySelector('#issue-add').onclick=addIssue;
   document.querySelector('#issue-filter').onchange=renderIssues;
   document.querySelector('#google-connect').onclick=connectGoogle;
