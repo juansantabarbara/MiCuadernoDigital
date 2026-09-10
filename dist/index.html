@@ -940,6 +940,7 @@
       <button data-section="cuaderno">Cuaderno de notas</button>
       <button data-section="alumnado">Alumnado</button>
       <button data-section="diario">Diario</button>
+      <button data-section="aula">🪑 Aula</button>
       <button data-section="asistencia">Asistencia</button>
       <button data-section="planificacion">UP / Situaciones</button>
       <button data-section="perfil">Perfil competencial</button>
@@ -1356,6 +1357,24 @@
           </div>
           <div id="bank-suggestions" style="margin-top:12px"><div class="empty">Selecciona una categoría para ver sugerencias.</div></div>
         </div>
+      </div>
+    </section>
+
+    <section id="aula" class="section">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h3>Plano del aula</h3>
+            <p class="small">Organiza el espacio y coloca al alumnado como está realmente en clase.</p>
+          </div>
+        </div>
+
+        <div class="toolbar no-print" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="primary" id="classroom-add-desk">＋ Añadir mesa</button>
+          <button id="classroom-reset">Vaciar plano</button>
+        </div>
+
+        <div id="classroom-layout"></div>
       </div>
     </section>
 
@@ -1850,6 +1869,7 @@
     cuaderno:['Cuaderno de notas','Alumnado en filas y evidencias en columnas, conectadas a criterios y competencias.'],
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
+    aula:['Plano del aula','Distribución editable del espacio y ubicación del alumnado.'],
     asistencia:['Asistencia','Faltas, retrasos, justificadas y estadísticas persistentes.'],
     planificacion:['UP / Situaciones','Crea rápido, desarrolla currículo, programa sesiones y abre la clase que toca desde Inicio.'],
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
@@ -1861,7 +1881,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -1883,6 +1903,7 @@
       {id:'o1',date:'2026-04-18',studentId:'claudia',category:'Matemáticas',text:'Mejora en participación espontánea durante discusión matemática.'}
     ],
     attendance:{},
+    classroomLayout:{desks:[],placements:{}},
     selectedUnitId:'unit_demo_1',
     units:[
       {id:'unit_demo_1',title:'Feria del pueblo sostenible',areas:'Lengua, Matemáticas, Sociales',challenge:'¿Cómo mejoraríamos nuestro pueblo?',product:'Feria del pueblo sostenible',activities:'Investigación, podcast, estudio estadístico y propuesta urbanística.',group:'',duration:'',context:'',specificCompetences:'',criteria:'',knowledge:'',keyCompetences:'',descriptors:'',objectives:'',ods:'',crosscurricular:'',methodology:'',dua:'',strategies:'',grouping:'',resources:'',spaces:'',diversity:'',transversal:'',evidences:'',instruments:'',assessmentMoments:'',feedback:'',selfAssessment:'',peerAssessment:'',metacognition:'',curricularCriteria:[],products:[],sessions:[{id:'ses_demo_1',title:'Presentación del reto',subject:'',date:'2026-09-01',startTime:'09:00',endTime:'09:45',grouping:'Gran grupo',objective:'Presentar el reto y activar ideas previas.',opening:'Presentación de la pregunta guía.',development:'Lluvia de ideas inicial y primeras hipótesis.',closing:'Recoger preguntas que queremos investigar.',resources:'',evidence:'Participación e ideas previas.',notes:''}]}
@@ -5048,7 +5069,299 @@
     applySidebarState();
   }
 
-  function renderAll(){renderStudents();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
+  function ensureClassroomLayout(){
+    if(!data.classroomLayout || typeof data.classroomLayout!=='object'){
+      data.classroomLayout={desks:[],placements:{}};
+    }
+    if(!Array.isArray(data.classroomLayout.desks)){
+      data.classroomLayout.desks=[];
+    }
+    if(!data.classroomLayout.placements || typeof data.classroomLayout.placements!=='object'){
+      data.classroomLayout.placements={};
+    }
+
+    data.classroomLayout.desks.forEach((desk,index)=>{
+      if(!Number.isFinite(desk.x)) desk.x=40+(index%4)*190;
+      if(!Number.isFinite(desk.y)) desk.y=90+Math.floor(index/4)*125;
+    });
+  }
+
+  function addClassroomDesk(){
+    ensureClassroomLayout();
+
+    const index=data.classroomLayout.desks.length;
+    const id=uid('desk');
+
+    data.classroomLayout.desks.push({
+      id,
+      label:`Mesa ${index+1}`,
+      x:40+(index%4)*190,
+      y:90+Math.floor(index/4)*125
+    });
+
+    save('Mesa añadida');
+  }
+
+  function removeClassroomDesk(deskId){
+    ensureClassroomLayout();
+
+    data.classroomLayout.desks=data.classroomLayout.desks.filter(d=>d.id!==deskId);
+    delete data.classroomLayout.placements[deskId];
+
+    save('Mesa eliminada');
+  }
+
+  function setClassroomStudent(deskId,studentId){
+    ensureClassroomLayout();
+
+    if(studentId){
+      Object.keys(data.classroomLayout.placements).forEach(id=>{
+        if(data.classroomLayout.placements[id]===studentId){
+          delete data.classroomLayout.placements[id];
+        }
+      });
+
+      data.classroomLayout.placements[deskId]=studentId;
+    }else{
+      delete data.classroomLayout.placements[deskId];
+    }
+
+    save();
+  }
+
+  function bindClassroomDragging(canvas){
+    canvas.querySelectorAll('[data-classroom-drag]').forEach(handle=>{
+      handle.onpointerdown=e=>{
+        if(e.button!==0)return;
+
+        const deskEl=handle.closest('[data-classroom-desk-card]');
+        const deskId=deskEl?.dataset.classroomDeskCard;
+        const desk=data.classroomLayout.desks.find(d=>d.id===deskId);
+
+        if(!deskEl||!desk)return;
+
+        e.preventDefault();
+
+        const canvasRect=canvas.getBoundingClientRect();
+        const deskRect=deskEl.getBoundingClientRect();
+
+        const offsetX=e.clientX-deskRect.left;
+        const offsetY=e.clientY-deskRect.top;
+
+        deskEl.style.zIndex='20';
+        deskEl.style.cursor='grabbing';
+        handle.setPointerCapture(e.pointerId);
+
+        const move=ev=>{
+          const maxX=Math.max(0,canvas.clientWidth-deskEl.offsetWidth);
+
+          const x=Math.max(0,Math.min(maxX,ev.clientX-canvasRect.left-offsetX));
+          const y=Math.max(58,ev.clientY-canvasRect.top-offsetY);
+
+          desk.x=Math.round(x);
+          desk.y=Math.round(y);
+
+          deskEl.style.left=`${desk.x}px`;
+          deskEl.style.top=`${desk.y}px`;
+
+          const neededHeight=Math.max(
+            520,
+            ...data.classroomLayout.desks.map(d=>
+              d.id===desk.id
+                ? desk.y+deskEl.offsetHeight+40
+                : (Number(d.y)||0)+150
+            )
+          );
+
+          canvas.style.minHeight=`${neededHeight}px`;
+        };
+
+        const finish=ev=>{
+          handle.releasePointerCapture?.(ev.pointerId);
+          handle.onpointermove=null;
+          handle.onpointerup=null;
+          handle.onpointercancel=null;
+
+          deskEl.style.zIndex='';
+          deskEl.style.cursor='';
+
+          persistState();
+        };
+
+        handle.onpointermove=move;
+        handle.onpointerup=finish;
+        handle.onpointercancel=finish;
+      };
+    });
+  }
+
+  function renderClassroom(){
+    const box=document.querySelector('#classroom-layout');
+    if(!box)return;
+
+    ensureClassroomLayout();
+
+    const desks=data.classroomLayout.desks;
+    const placements=data.classroomLayout.placements;
+
+    if(!desks.length){
+      box.innerHTML=`
+        <div class="empty">
+          Todavía no hay mesas en el plano.<br>
+          Añade la primera para empezar a construir tu aula.
+        </div>
+      `;
+    }else{
+      const neededHeight=Math.max(
+        520,
+        ...desks.map(d=>(Number(d.y)||0)+150)
+      );
+
+      box.innerHTML=`
+        <div
+          id="classroom-canvas"
+          style="
+            position:relative;
+            width:100%;
+            min-height:${neededHeight}px;
+            border:1px solid #dbe3ec;
+            border-radius:16px;
+            background:#f8fafc;
+            overflow:hidden;
+          "
+        >
+          <div style="
+            position:absolute;
+            top:16px;
+            left:50%;
+            transform:translateX(-50%);
+            width:min(280px,45%);
+            padding:9px 16px;
+            text-align:center;
+            border:2px solid #94a3b8;
+            border-radius:8px;
+            background:white;
+            font-weight:700;
+            box-sizing:border-box;
+          ">PIZARRA</div>
+
+          ${desks.map((desk,index)=>{
+            const selected=placements[desk.id]||'';
+
+            return `
+              <div
+                data-classroom-desk-card="${esc(desk.id)}"
+                style="
+                  position:absolute;
+                  left:${Number(desk.x)||0}px;
+                  top:${Number(desk.y)||90}px;
+                  width:170px;
+                  box-sizing:border-box;
+                  background:white;
+                  border:1px solid #cbd5e1;
+                  border-radius:12px;
+                  padding:10px;
+                  box-shadow:0 2px 6px rgba(15,23,42,.08);
+                "
+              >
+                <div
+                  data-classroom-drag
+                  title="Arrastrar mesa"
+                  style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    gap:8px;
+                    margin:-10px -10px 10px;
+                    padding:8px 10px;
+                    border-radius:12px 12px 0 0;
+                    background:#eef2f7;
+                    cursor:grab;
+                    user-select:none;
+                    touch-action:none;
+                  "
+                >
+                  <span style="
+                    font-size:11px;
+                    font-weight:700;
+                    color:#64748b;
+                    letter-spacing:.02em;
+                  ">⠿ ${esc(desk.label||`Mesa ${index+1}`)}</span>
+
+                  <button
+                    class="no-print"
+                    data-classroom-remove="${esc(desk.id)}"
+                    title="Eliminar mesa"
+                    style="padding:3px 7px"
+                  >×</button>
+                </div>
+
+                <div style="
+                  margin-bottom:8px;
+                  min-height:34px;
+                  display:flex;
+                  align-items:center;
+                ">
+                  ${
+                    selected
+                      ? `<strong style="
+                          font-size:16px;
+                          line-height:1.15;
+                          color:#0f172a;
+                        ">${esc(data.students.find(st=>st.id===selected)?.name||'Alumno')}</strong>`
+                      : `<span style="
+                          font-size:14px;
+                          color:#94a3b8;
+                          font-style:italic;
+                        ">Sin asignar</span>`
+                  }
+                </div>
+
+                <select data-classroom-desk="${esc(desk.id)}" style="width:100%">
+                  <option value="">Sin asignar</option>
+                  ${data.students.map(st=>`
+                    <option
+                      value="${esc(st.id)}"
+                      ${selected===st.id?'selected':''}
+                    >${esc(st.name)}</option>
+                  `).join('')}
+                </select>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      box.querySelectorAll('[data-classroom-desk]').forEach(sel=>{
+        sel.onchange=()=>setClassroomStudent(sel.dataset.classroomDesk,sel.value);
+      });
+
+      box.querySelectorAll('[data-classroom-remove]').forEach(btn=>{
+        btn.onclick=e=>{
+          e.stopPropagation();
+          removeClassroomDesk(btn.dataset.classroomRemove);
+        };
+        btn.onpointerdown=e=>e.stopPropagation();
+      });
+
+      const canvas=document.querySelector('#classroom-canvas');
+      if(canvas)bindClassroomDragging(canvas);
+    }
+
+    const add=document.querySelector('#classroom-add-desk');
+    if(add)add.onclick=addClassroomDesk;
+
+    const reset=document.querySelector('#classroom-reset');
+    if(reset){
+      reset.onclick=()=>{
+        if(!data.classroomLayout.desks.length)return;
+        data.classroomLayout={desks:[],placements:{}};
+        save('Plano vaciado');
+      };
+    }
+  }
+
+  function renderAll(){renderStudents();renderClassroom();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
 
 
   let pendingUpdateVersion='';
