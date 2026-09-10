@@ -1632,17 +1632,10 @@
         </div>
       </div>
 
+      <div id="intelligence-radar" style="margin-bottom:18px"></div>
+
       <div id="tutoring-report" class="tutoring-shell"></div>
 
-      <details style="margin-top:18px">
-        <summary>Lectura pedagógica ampliada del alumno</summary>
-        <div class="card" style="margin-top:14px">
-          <h3 id="development-student-title">Desarrollo del alumno</h3>
-          <p>Lectura individual automática basada en los datos registrados.</p>
-          <button class="primary" id="interpretar-desarrollo">Mostrar / ocultar interpretación</button>
-          <div class="interpretation" id="interpretacion-desarrollo"></div>
-        </div>
-      </details>
     </section>
 
     <section id="riesgo" class="section">
@@ -2189,9 +2182,54 @@
     }
   }
   function buildInterpretation(st){
-    const ev=data.evidence[st.id]||{}; const vals=Object.values(ev); const low=vals.filter(v=>migrateGradeValue(v)==='INS').length; const high=vals.filter(v=>v==='A').length;
-    const trajectory=high>low?'mantiene una trayectoria global positiva':low>high?'necesita seguimiento cercano':'muestra una evolución estable';
-    return `${st.name} ${trajectory}. Sus fortalezas más visibles son ${st.strengths.join(', ')||'aún por determinar'}. Conviene reforzar ${st.difficulties.join(', ')||'los criterios con menor número de evidencias'}. Próximo paso: ${st.next||'recoger nuevas evidencias variadas.'}`;
+    const cur=studentIntelligenceCurricularSummary(st.id);
+    const parts=[];
+
+    if(!cur.evidenceCount){
+      parts.push('Todavía no hay evidencias curriculares procedentes de instrumentos suficientes para realizar una lectura de su evolución.');
+    }else{
+      parts.push(
+        `${st.name} cuenta con ${cur.evidenceCount} evidencia${cur.evidenceCount===1?'':'s'} curricular${cur.evidenceCount===1?'':'es'} registrada${cur.evidenceCount===1?'':'s'} en ${cur.criteria.length} criterio${cur.criteria.length===1?'':'s'}.`
+      );
+
+      if(cur.improvements.length){
+        parts.push(
+          `Se observa evolución positiva en ${cur.improvements.length} criterio${cur.improvements.length===1?'':'s'}.`
+        );
+      }
+
+      if(cur.changesToConfirm.length){
+        parts.push(
+          `${cur.changesToConfirm.length} cambio${cur.changesToConfirm.length===1?' necesita':'s necesitan'} nuevas evidencias para poder confirmarse.`
+        );
+      }
+
+      if(cur.needs.length){
+        parts.push(
+          `Conviene seguir observando ${cur.needs.length} criterio${cur.needs.length===1?'':'s'} en los que las evidencias recientes difieren del nivel previamente consolidado.`
+        );
+      }
+
+      if(cur.pending.length){
+        parts.push(
+          `${cur.pending.length} criterio${cur.pending.length===1?' todavía no cuenta':'s todavía no cuentan'} con evidencia suficiente para establecer un nivel consolidado.`
+        );
+      }
+    }
+
+    if((st.strengths||[]).length){
+      parts.push(`Como valoración docente, se señalan como fortalezas: ${st.strengths.join(', ')}.`);
+    }
+
+    if((st.difficulties||[]).length){
+      parts.push(`Como aspectos de acompañamiento registrados por el docente: ${st.difficulties.join(', ')}.`);
+    }
+
+    if(st.next){
+      parts.push(`Próximo paso: ${st.next}.`);
+    }
+
+    return parts.join(' ');
   }
   function renderTimeline(studentId){
     const box=document.querySelector('#alumnado .timeline'); if(!box)return;
@@ -3283,36 +3321,6 @@
     return {total,pct,absences,lates};
   }
 
-  function studentGradeRecords(studentId){
-    return (data.evidenceColumns||[]).map(c=>({
-      column:c,
-      grade:migrateGradeValue(data.evidence?.[studentId]?.[c.id]||'—')
-    })).filter(x=>x.grade!=='—');
-  }
-
-  function gradeRank(v){return {'INS':1,'SUF':2,'BI':3,'NOT':4,'SOBRE':5}[v]||0}
-
-  function studentCurricularSummary(studentId){
-    const records=studentGradeRecords(studentId);
-    const byCriterion={};
-    records.forEach(r=>{
-      const key=r.column.criterion||r.column.label;
-      byCriterion[key]=byCriterion[key]||{label:key,text:r.column.criterionText||'',ce:r.column.specificCompetence||'',descriptors:r.column.descriptors||'',grades:[],products:[]};
-      byCriterion[key].grades.push(r.grade);
-      if(r.column.productName)byCriterion[key].products.push(r.column.productName);
-    });
-    const criteria=Object.values(byCriterion).map(x=>{
-      const latest=x.grades[x.grades.length-1]||'—';
-      const avg=x.grades.length?x.grades.reduce((a,v)=>a+gradeRank(v),0)/x.grades.length:0;
-      return {...x,latest,avg};
-    });
-    return {
-      records,criteria,
-      strengths:[...criteria].sort((a,b)=>b.avg-a.avg).filter(x=>x.avg>=4).slice(0,4),
-      needs:[...criteria].sort((a,b)=>a.avg-b.avg).filter(x=>x.avg>0&&x.avg<=2).slice(0,4)
-    };
-  }
-
   function studentObservations(studentId){
     return (data.observations||[]).filter(o=>o.studentId===studentId).sort((a,b)=>b.date.localeCompare(a.date));
   }
@@ -3327,29 +3335,171 @@
   }
 
   function tutoringFamilyNarrative(st,cur,att,obs,meetings){
-    const assessed=cur.records.length;
-    const strong=cur.strengths.map(x=>x.label).slice(0,2);
-    const needs=cur.needs.map(x=>x.label).slice(0,2);
+    const criterionLabel=c=>{
+      const code=c.code?`criterio ${c.code}`:'un criterio';
+      return `${code}${c.area?` de ${c.area}`:''}`;
+    };
+
+    const assessed=cur.criteria.length;
+    const evidenceCount=cur.evidenceCount;
+    const strong=cur.strengths.map(criterionLabel).slice(0,2);
+    const needs=cur.needs.map(criterionLabel).slice(0,2);
+    const changes=cur.changesToConfirm.map(criterionLabel).slice(0,2);
+    const pending=cur.pending.length;
+
     const parts=[];
-    parts.push(`${st.name} cuenta actualmente con ${assessed} valoración${assessed===1?'':'es'} registrada${assessed===1?'':'s'} en el cuaderno.`);
-    if(strong.length)parts.push(`Los resultados más sólidos aparecen en ${strong.join(' y ')}.`);
-    if(needs.length)parts.push(`Conviene seguir acompañando especialmente ${needs.join(' y ')}.`);
-    if(obs.length)parts.push(`Hay ${obs.length} observación${obs.length===1?'':'es'} individual${obs.length===1?'':'es'} registrada${obs.length===1?'':'s'}; la más reciente es del ${obs[0].date}.`);
-    if(att.total)parts.push(`La asistencia registrada es del ${att.pct}%, con ${att.absences.length} falta${att.absences.length===1?'':'s'} y ${att.lates.length} retraso${att.lates.length===1?'':'s'}.`);
-    if(meetings.length)parts.push(`Constan ${meetings.length} reunión${meetings.length===1?'':'es'} relacionada${meetings.length===1?'':'s'} en el historial.`);
+
+    if(evidenceCount){
+      parts.push(
+        `${st.name} cuenta actualmente con ${evidenceCount} evidencia${evidenceCount===1?'':'s'} curricular${evidenceCount===1?'':'es'} registrada${evidenceCount===1?'':'s'} en ${assessed} criterio${assessed===1?'':'s'}.`
+      );
+    }else{
+      parts.push(
+        `Todavía no hay evidencias curriculares procedentes de instrumentos registradas para ${st.name}.`
+      );
+    }
+
+    if(strong.length){
+      parts.push(`Se observan fortalezas consolidadas en ${strong.join(' y ')}.`);
+    }
+
+    if(needs.length){
+      parts.push(`Conviene observar la evolución en ${needs.join(' y ')}, sin considerar todavía una variación puntual como un cambio de nivel.`);
+    }
+
+    if(changes.length){
+      parts.push(`Hay cambios que todavía necesitan confirmarse con nuevas evidencias en ${changes.join(' y ')}.`);
+    }
+
+    if(pending){
+      parts.push(
+        `${pending} criterio${pending===1?' todavía no cuenta':'s todavía no cuentan'} con evidencia suficiente para establecer un nivel consolidado.`
+      );
+    }
+
+    if(obs.length){
+      parts.push(`Hay ${obs.length} observación${obs.length===1?'':'es'} individual${obs.length===1?'':'es'} registrada${obs.length===1?'':'s'}; la más reciente es del ${obs[0].date}.`);
+    }
+
+    if(att.total){
+      parts.push(`La asistencia registrada es del ${att.pct}%, con ${att.absences.length} falta${att.absences.length===1?'':'s'} y ${att.lates.length} retraso${att.lates.length===1?'':'s'}.`);
+    }
+
+    if(meetings.length){
+      parts.push(`Constan ${meetings.length} reunión${meetings.length===1?'':'es'} relacionada${meetings.length===1?'':'s'} en el historial.`);
+    }
+
     return parts.join(' ');
+  }
+
+  function renderIntelligenceRadar(){
+    const box=document.querySelector('#intelligence-radar');
+    const st=intelligenceStudent();
+    if(!box||!st)return;
+
+    const cur=studentIntelligenceCurricularSummary(st.id);
+
+    const criterionName=c=>{
+      const code=c.code?`Criterio ${c.code}`:'Criterio';
+      return `${code}${c.area?` · ${c.area}`:''}`;
+    };
+
+    const signalCard=(title,text,items,tone='blue')=>`
+      <div class="notice ${tone}" style="margin:0">
+        <strong>${title}</strong>
+        <div class="small" style="margin-top:5px">${text}</div>
+        ${items.length?`
+          <div style="display:grid;gap:7px;margin-top:10px">
+            ${items.map(c=>`
+              <div style="padding-top:7px;border-top:1px solid var(--border)">
+                <strong>${esc(criterionName(c))}</strong>
+                ${c.text?`<div class="small">${esc(c.text)}</div>`:''}
+              </div>
+            `).join('')}
+          </div>
+        `:'<div class="small" style="margin-top:10px">No hay señales en este apartado.</div>'}
+      </div>
+    `;
+
+    const improvements=cur.improvements;
+    const changes=cur.changesToConfirm;
+    const needs=cur.needs;
+    const pending=cur.pending;
+
+    box.innerHTML=`
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Radar docente · ${esc(st.name)}</h3>
+            <p>
+              Señales construidas a partir de las evidencias registradas.
+              Orientan dónde mirar; no sustituyen tu valoración profesional.
+            </p>
+          </div>
+          <span class="pill blue">${cur.evidenceCount} evidencia${cur.evidenceCount===1?'':'s'}</span>
+        </div>
+
+        ${!cur.criteria.length?`
+          <div class="empty">
+            Todavía no hay evidencias curriculares procedentes de instrumentos
+            para construir una lectura pedagógica.
+          </div>
+        `:`
+          <div class="grid cols-2" style="gap:12px;margin-top:14px">
+            ${signalCard(
+              '↗ Evolución positiva',
+              'Cambios ascendentes respaldados por la trayectoria de evidencias.',
+              improvements,
+              'green'
+            )}
+            ${signalCard(
+              '◌ Cambios por confirmar',
+              'Dos evidencias recientes apuntan a un nivel distinto. Una evidencia más permitiría confirmar el cambio.',
+              changes,
+              'yellow'
+            )}
+            ${signalCard(
+              '◇ Conviene observar',
+              'La evidencia más reciente está por debajo de un nivel previamente consolidado. No implica por sí sola un cambio de nivel.',
+              needs,
+              'blue'
+            )}
+            ${signalCard(
+              '○ Necesitamos más información',
+              'Estos criterios todavía no cuentan con tres evidencias coherentes para establecer un nivel consolidado.',
+              pending,
+              'yellow'
+            )}
+          </div>
+        `}
+      </div>
+    `;
   }
 
   function renderTutoringReport(){
     const box=document.querySelector('#tutoring-report'),st=intelligenceStudent();
     if(!box||!st)return;
-    const cur=studentCurricularSummary(st.id),att=studentAttendanceSummary(st.id),obs=studentObservations(st.id),meetings=studentMeetings(st);
+    const cur=studentIntelligenceCurricularSummary(st.id),att=studentAttendanceSummary(st.id),obs=studentObservations(st.id),meetings=studentMeetings(st);
     const recentObs=obs.slice(0,5), recentMeetings=meetings.slice(0,3);
     const lastMeeting=recentMeetings[0];
-    const strengths=[...(st.strengths||[]),...cur.strengths.map(x=>x.label)].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
-    const difficulties=[...(st.difficulties||[]),...cur.needs.map(x=>x.label)].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
+
+    const criterionLabel=c=>{
+      const code=c.code?`Criterio ${c.code}`:'Criterio';
+      return `${code}${c.area?` · ${c.area}`:''}`;
+    };
+
+    const strengths=[
+      ...(st.strengths||[]),
+      ...cur.strengths.map(criterionLabel)
+    ].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
+
+    const difficulties=[
+      ...(st.difficulties||[]),
+      ...cur.needs.map(criterionLabel)
+    ].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
+
     const assessedCriteria=cur.criteria.length;
-    const pending=data.evidenceColumns.filter(c=>!data.evidence?.[st.id]?.[c.id]||migrateGradeValue(data.evidence[st.id][c.id])==='—').length;
+    const pending=cur.pending.length;
 
     box.innerHTML=`
       <div class="tutoring-hero">
@@ -3388,7 +3538,41 @@
 
       <div class="tutor-section">
         <h4>📚 Evolución curricular</h4>
-        ${cur.criteria.length?cur.criteria.map(c=>`<div class="tutor-grade-row"><div><strong>${esc(c.label)}</strong><div class="small">${esc(c.ce||'')}${c.products.length?' · '+esc([...new Set(c.products)].join(', ')):''}</div></div><span class="tutor-grade ${gradeClass(c.latest)}">${esc(c.latest)}</span></div>`).join(''):'<div class="empty">Todavía no hay criterios evaluados para este alumno.</div>'}
+        ${cur.criteria.length?cur.criteria.map(c=>{
+          const i=c.interpretation;
+          const consolidated=i.consolidated!==null
+            ?evidenceLevelName(i.consolidated)
+            :'Aún no consolidado';
+          const latest=i.observed!==null
+            ?evidenceLevelName(i.observed)
+            :'Sin evidencia';
+          const reading=
+            i.consolidated===null
+              ?(i.support===2?'Consolidación en progreso':'Necesitamos más evidencias')
+              :(i.observed!==i.consolidated
+                ?(i.support===2?'Cambio por confirmar':'Variación puntual')
+                :(i.previousConsolidated!==null && i.consolidated>i.previousConsolidated
+                  ?'Mejora consolidada'
+                  :'Nivel consolidado'));
+
+          return `
+            <div class="tutor-grade-row">
+              <div>
+                <strong>${esc(criterionLabel(c))}</strong>
+                ${c.text?`<div class="small">${esc(c.text)}</div>`:''}
+                <div class="small">
+                  ${esc(c.specificCompetence||'')}
+                  ${c.evidence.length?` · ${c.evidence.length} evidencia${c.evidence.length===1?'':'s'}`:''}
+                </div>
+              </div>
+              <div style="text-align:right">
+                <strong>${esc(consolidated)}</strong>
+                <div class="small">Última: ${esc(latest)}</div>
+                <div class="small">${esc(reading)}</div>
+              </div>
+            </div>
+          `;
+        }).join(''):'<div class="empty">Todavía no hay evidencias curriculares procedentes de instrumentos para este alumno.</div>'}
       </div>
 
       <div class="tutoring-two">
@@ -3439,11 +3623,7 @@
       sel.innerHTML=data.students.map(s=>`<option value="${esc(s.id)}" ${s.id===data.intelligenceStudentId?'selected':''}>${esc(s.name)}</option>`).join('');
       sel.onchange=()=>{data.intelligenceStudentId=sel.value;persistState();renderIntelligence()};
     }
-    const st=intelligenceStudent();
-    const dev=document.querySelector('#interpretacion-desarrollo');
-    if(dev&&st)dev.textContent=buildInterpretation(st);
-    const title=document.querySelector('#development-student-title');
-    if(title&&st)title.textContent=`Desarrollo de ${st.name}`;
+    renderIntelligenceRadar();
     renderTutoringReport();
   }
 
@@ -4121,6 +4301,97 @@
         : (candidateSupport>=2?'Descenso en proceso':'Posible descenso'),
       support:candidateSupport,
       needed:Math.max(0,3-candidateSupport)
+    };
+  }
+
+  function studentInstrumentCriterionSummary(studentId){
+    const evidence=(data.instrumentEvidence||[])
+      .filter(ev=>ev.studentId===studentId)
+      .sort((a,b)=>{
+        const byDate=(a.date||'').localeCompare(b.date||'');
+        if(byDate!==0) return byDate;
+        return (a.createdAt||a.updatedAt||'').localeCompare(
+          b.createdAt||b.updatedAt||''
+        );
+      });
+
+    const criteria=new Map();
+
+    evidence.forEach(ev=>{
+      const area=ev.areaLabel||ev.area||'Área sin especificar';
+      const ce=ev.specificCompetence||'CE sin especificar';
+      const criterionKey=ev.criterionKey||`${ce}|${ev.criterionCode||''}|${ev.criterionText||''}`;
+      const key=`${area}|${criterionKey}`;
+
+      if(!criteria.has(key)){
+        criteria.set(key,{
+          key:criterionKey,
+          area,
+          specificCompetence:ce,
+          specificCompetenceText:ev.specificCompetenceText||'',
+          code:ev.criterionCode||'',
+          text:ev.criterionText||'',
+          evidence:[]
+        });
+      }
+
+      criteria.get(key).evidence.push(ev);
+    });
+
+    return [...criteria.values()].map(criterion=>({
+      ...criterion,
+      interpretation:interpretEvidenceSequence(
+        criterion.evidence.map(ev=>ev.value)
+      )
+    }));
+  }
+
+  function studentIntelligenceCurricularSummary(studentId){
+    const criteria=studentInstrumentCriterionSummary(studentId);
+
+    const strengths=criteria.filter(c=>
+      c.interpretation.consolidated===4 ||
+      (
+        c.interpretation.status==='Consolidado' &&
+        c.interpretation.trend==='up'
+      )
+    );
+
+    const needs=criteria.filter(c=>{
+      const i=c.interpretation;
+      return (
+        i.consolidated!==null &&
+        i.observed!==null &&
+        i.observed<i.consolidated
+      );
+    });
+
+    const pending=criteria.filter(c=>
+      c.interpretation.consolidated===null
+    );
+
+    const changesToConfirm=criteria.filter(c=>
+      c.interpretation.consolidated!==null &&
+      c.interpretation.observed!==c.interpretation.consolidated &&
+      c.interpretation.support===2
+    );
+
+    const improvements=criteria.filter(c=>
+      c.interpretation.consolidated!==null &&
+      c.interpretation.trend==='up'
+    );
+
+    return {
+      criteria,
+      evidenceCount:criteria.reduce(
+        (total,c)=>total+c.evidence.length,
+        0
+      ),
+      strengths,
+      needs,
+      pending,
+      changesToConfirm,
+      improvements
     };
   }
 
@@ -5331,7 +5602,6 @@
   document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>openSection(btn.dataset.section)));
   document.querySelectorAll('.mode-switch button').forEach(btn=>btn.addEventListener('click',()=>applyMode(btn.dataset.mode,true)));
   document.querySelector('#interpretar-alumno').onclick=()=>document.querySelector('#interpretacion-alumno').classList.toggle('show');
-  document.querySelector('#interpretar-desarrollo').onclick=()=>document.querySelector('#interpretacion-desarrollo').classList.toggle('show');
   document.querySelector('#guardar-diario').onclick=addObservation;
   document.querySelectorAll('.bank-category').forEach(b=>b.onclick=()=>renderBank(b.dataset.bank));
   document.querySelector('#agenda-save').onclick=addAgenda;
