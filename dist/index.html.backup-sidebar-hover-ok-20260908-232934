@@ -75,78 +75,6 @@
       background:#0f172a;
     }
 
-    /* Sidebar autoocultable · asa y modo fijado */
-    .sidebar-handle{
-      position:fixed;
-      left:0;
-      top:50%;
-      transform:translateY(-50%);
-      width:28px;
-      height:86px;
-      border-radius:0 12px 12px 0;
-      background:#1d4ed8;
-      box-shadow:3px 0 10px rgba(15,23,42,.18);
-      z-index:999;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-size:13px;
-      font-weight:900;
-      cursor:pointer;
-      transition:opacity .2s ease, width .2s ease;
-    }
-
-    .sidebar-handle:hover{
-      width:34px;
-    }
-
-    .sidebar-handle span{
-      writing-mode:vertical-rl;
-      transform:rotate(180deg);
-      letter-spacing:.12em;
-      font-size:11px;
-      line-height:1;
-    }
-
-    .sidebar-pin{
-      position:absolute;
-      top:14px;
-      right:14px;
-      width:34px;
-      height:34px;
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:10px;
-      background:rgba(255,255,255,.08);
-      color:white;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:16px;
-      z-index:2;
-    }
-
-    .sidebar-pin:hover{
-      background:rgba(255,255,255,.16);
-    }
-
-    body.sidebar-pinned aside{
-      transform:translateX(0);
-      box-shadow:none;
-      transition-delay:0s;
-    }
-
-    body.sidebar-pinned .sidebar-handle{
-      opacity:0;
-      pointer-events:none;
-    }
-
-    body.sidebar-pinned main{
-      margin-left:280px;
-      width:calc(100% - 280px);
-    }
-
     .brand{
       margin-bottom:28px;
     }
@@ -907,954 +835,15 @@
     .update-notes{white-space:pre-wrap;font-size:13px;color:var(--muted);margin-top:10px}
     @media(max-width:900px){.actuation-grid{grid-template-columns:1fr}}
 
-
-    /* ===== MiCuadernoDigital · Visual 2.0 · Sidebar ===== */
-
-    aside{
-      background:#fbfdff;
-      color:#172033;
-      border-right:1px solid #e7edf4;
-      box-shadow:none;
-    }
-
-    aside:hover,
-    aside:focus-within{
-      box-shadow:14px 0 38px rgba(71,85,105,.12);
-    }
-
-    aside::after{
-      background:#dff4f1;
-    }
-
-    .sidebar-handle{
-      background:#55b8ac;
-      box-shadow:3px 0 12px rgba(71,85,105,.18);
-    }
-
-    .sidebar-pin{
-      border:1px solid #dbe4ec;
-      background:#ffffff;
-      color:#64748b;
-      box-shadow:0 2px 8px rgba(15,23,42,.06);
-    }
-
-    .sidebar-pin:hover{
-      background:#f0fdfa;
-      color:#0f766e;
-    }
-
-    .brand{
-      margin-bottom:22px;
-    }
-
-    .brand h1{
-      color:#172033;
-    }
-
-    .brand p{
-      color:#8090a3;
-    }
-
-    .mode-switch{
-      background:#edf3f7;
-      padding:5px;
-      border-radius:14px;
-      margin-bottom:10px;
-    }
-
-    .mode-switch button{
-      color:#718096;
-    }
-
-    .mode-switch button.active{
-      background:#ffffff;
-      color:#172033;
-      box-shadow:0 3px 10px rgba(15,23,42,.08);
-    }
-
-    .mode-badge{
-      color:#8a98a9;
-    }
-
-    nav{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      margin-top:8px;
-    }
-
-    .nav-home{
-      margin-bottom:4px;
-    }
-
-    .nav-group{
-      margin-top:10px;
-      padding-top:6px;
-      border-top:1px solid #edf1f5;
-    }
-
-    .nav-group-title{
-      padding:5px 12px 5px;
-      color:#9aa8b7;
-      font-size:10px;
-      line-height:1;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.10em;
-    }
-
-    nav button{
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      border:0;
-      background:transparent;
-      color:#536277;
-      text-align:left;
-      padding:9px 11px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:13.5px;
-      font-weight:650;
-      transition:background .16s ease,color .16s ease,transform .16s ease;
-    }
-
-    nav button .nav-icon{
-      width:22px;
-      min-width:22px;
-      height:22px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:7px;
-      background:#f0f4f8;
-      color:#728195;
-      font-size:14px;
-      font-weight:800;
-    }
-
-    nav button:hover{
-      background:#f4f7fa;
-      color:#172033;
-      transform:translateX(2px);
-    }
-
-    nav button.active{
-      background:#e8f7f4;
-      color:#167c70;
-      box-shadow:none;
-    }
-
-    nav button.active .nav-icon{
-      background:#cdeee8;
-      color:#167c70;
-    }
-
-    .nav-group-org .nav-icon{
-      background:#eaf2ff;
-      color:#5279b8;
-    }
-
-    .nav-group-aula .nav-icon{
-      background:#e4f7f1;
-      color:#398c7d;
-    }
-
-    .nav-group-eval .nav-icon{
-      background:#f0eafa;
-      color:#8061ac;
-    }
-
-    .nav-group-plan .nav-icon{
-      background:#fff5d9;
-      color:#a47a28;
-    }
-
-    .nav-group-system .nav-icon{
-      background:#eef2f6;
-      color:#758397;
-    }
-
-    .sidebar-note{
-      margin-top:18px;
-      border:1px solid #e3eaef;
-      background:#f8fafc;
-      color:#718096;
-      box-shadow:none;
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.0 ===== */
-
-    #inicio{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-column:1 / -1;
-      position:relative;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      min-height:118px;
-      padding:26px 30px;
-      border:1px solid #dfece9;
-      border-radius:26px;
-      background:
-        radial-gradient(circle at 85% 18%,rgba(255,255,255,.75),transparent 24%),
-        linear-gradient(135deg,#eefaf7 0%,#f4f8ff 58%,#fffaf0 100%);
-      box-shadow:0 10px 28px rgba(71,85,105,.08);
-    }
-
-    #inicio .home-welcome::after{
-      content:"";
-      position:absolute;
-      width:190px;
-      height:190px;
-      right:-45px;
-      bottom:-115px;
-      border-radius:50%;
-      background:rgba(89,184,172,.13);
-    }
-
-    #inicio .home-eyebrow{
-      margin-bottom:6px;
-      color:#2e8f82;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-    }
-
-    #inicio .home-welcome h2{
-      margin:0;
-      color:#172033;
-      font-size:30px;
-      line-height:1.08;
-      letter-spacing:-.035em;
-    }
-
-    #inicio .home-welcome p{
-      margin:8px 0 0;
-      color:#718096;
-      font-size:14px;
-    }
-
-    #inicio .home-welcome-badge{
-      position:relative;
-      z-index:1;
-      width:58px;
-      height:58px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 58px;
-      border-radius:18px;
-      background:rgba(255,255,255,.78);
-      box-shadow:0 8px 22px rgba(71,85,105,.10);
-      font-size:28px;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      gap:14px;
-      margin:0;
-    }
-
-    #inicio .dashboard-card{
-      min-height:112px;
-      padding:17px 18px;
-      border:1px solid #e8edf2;
-      border-radius:20px;
-      background:#fff;
-      box-shadow:0 7px 22px rgba(71,85,105,.055);
-      transition:transform .18s ease,box-shadow .18s ease;
-    }
-
-    #inicio .dashboard-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 12px 28px rgba(71,85,105,.09);
-    }
-
-    #inicio .dashboard-card h3{
-      margin:0 0 12px;
-      color:#718096;
-      font-size:12px;
-      font-weight:800;
-    }
-
-    #inicio .dashboard-card .metric{
-      align-items:flex-end;
-    }
-
-    #inicio .dashboard-card .metric strong{
-      color:#172033;
-      font-size:28px;
-      line-height:1;
-    }
-
-    #inicio .dashboard-card .metric span{
-      color:#8a98a9;
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(1){
-      background:linear-gradient(145deg,#f0faf8,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(2){
-      background:linear-gradient(145deg,#fff9e9,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(3){
-      background:linear-gradient(145deg,#f5f0fc,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(4){
-      background:linear-gradient(145deg,#fff1f2,#ffffff);
-    }
-
-    #inicio #live-class-panel{
-      grid-column:1;
-      margin:0;
-      min-height:205px;
-      padding:28px 30px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      align-items:flex-start;
-      border:0;
-      border-radius:26px;
-      background:
-        radial-gradient(circle at 92% 20%,rgba(255,255,255,.20),transparent 22%),
-        linear-gradient(135deg,#279d8f,#50b8aa);
-      color:#fff;
-      box-shadow:0 14px 32px rgba(39,157,143,.20);
-    }
-
-    #inicio #live-class-panel.now{
-      background:
-        radial-gradient(circle at 92% 20%,rgba(255,255,255,.20),transparent 22%),
-        linear-gradient(135deg,#168c7e,#45b9a9);
-    }
-
-    #inicio #live-class-panel .live-label{
-      display:inline-flex;
-      align-items:center;
-      width:max-content;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.16);
-      color:#eafffb;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:.1em;
-      text-transform:uppercase;
-    }
-
-    #inicio #live-class-panel h3{
-      margin:16px 0 8px;
-      max-width:720px;
-      color:#fff;
-      font-size:26px;
-      line-height:1.15;
-      letter-spacing:-.025em;
-    }
-
-    #inicio #live-class-panel p{
-      margin:0;
-      max-width:720px;
-      color:rgba(255,255,255,.82);
-      line-height:1.55;
-    }
-
-    #inicio #live-class-panel .primary{
-      margin-top:22px;
-      border:1px solid rgba(255,255,255,.32);
-      background:#fff;
-      color:#167c70;
-      box-shadow:0 7px 18px rgba(15,118,110,.18);
-    }
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:3 / span 2;
-      margin:0 !important;
-      padding:22px;
-      border:1px solid #e7ebf0;
-      border-radius:24px;
-      background:#fff;
-      box-shadow:0 9px 28px rgba(71,85,105,.07);
-    }
-
-    #inicio #daily-note-card h3{
-      color:#172033;
-    }
-
-    #inicio #daily-note-card p{
-      color:#718096;
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    #inicio #daily-note-card .rich-editor{
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid #e6ebf0;
-      background:#fbfcfd;
-    }
-
-    #inicio #daily-note-card .rich-toolbar{
-      background:#f6f8fa;
-      border-bottom:1px solid #e6ebf0;
-    }
-
-    #inicio #daily-note-card .rich-area{
-      min-height:180px !important;
-      background:#fff;
-    }
-
-    #inicio > .card:not(#daily-note-card){
-      grid-column:1;
-      margin:0 !important;
-      padding:22px 24px;
-      border:1px solid #e7ebf0;
-      border-radius:24px;
-      background:#fff;
-      box-shadow:0 8px 24px rgba(71,85,105,.06);
-    }
-
-    #inicio > .card:not(#daily-note-card) h3{
-      margin-top:0;
-      color:#172033;
-    }
-
-    #inicio > .card:not(#daily-note-card) p{
-      color:#718096;
-      line-height:1.55;
-    }
-
-    #daily-summary-pills{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:14px;
-    }
-
-    @media(max-width:1050px){
-      #inicio{
-        grid-template-columns:1fr;
-      }
-
-      #inicio .home-welcome,
-      #inicio .home-metrics,
-      #inicio #live-class-panel,
-      #inicio #daily-note-card,
-      #inicio > .card:not(#daily-note-card){
-        grid-column:1;
-        grid-row:auto;
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.1 ===== */
-
-    #inicio{
-      display:block;
-    }
-
-    #inicio .home-shell{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(340px,.72fr);
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-column:1 / -1;
-      min-height:104px;
-      padding:22px 28px;
-    }
-
-    #inicio .home-welcome h2{
-      font-size:28px;
-    }
-
-    #inicio #live-class-panel{
-      grid-column:1;
-      min-height:180px;
-      border-radius:24px;
-      padding:26px 28px;
-    }
-
-    #inicio #live-class-panel h3{
-      font-size:24px;
-    }
-
-    #inicio .home-next-strip{
-      grid-column:1;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    #inicio .home-mini-card{
-      min-height:92px;
-      padding:17px 18px;
-      border:1px solid #e7ebf0;
-      border-radius:19px;
-      background:#fff;
-      box-shadow:0 7px 20px rgba(71,85,105,.055);
-    }
-
-    #inicio .home-mini-kicker{
-      margin-bottom:8px;
-      color:#728195;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:.09em;
-      text-transform:uppercase;
-    }
-
-    #inicio .home-mini-card strong{
-      display:block;
-      margin-bottom:5px;
-      color:#172033;
-      font-size:15px;
-    }
-
-    #inicio .home-mini-card span{
-      color:#8492a5;
-      font-size:12.5px;
-      line-height:1.4;
-    }
-
-    #inicio .home-today-schedule{
-      grid-column:1;
-      margin:0 !important;
-      padding:22px 24px;
-      border-radius:22px;
-    }
-
-    #inicio .home-section-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:18px;
-      margin-bottom:14px;
-    }
-
-    #inicio .home-section-head h3{
-      margin:3px 0 0;
-    }
-
-    #inicio .home-soft-icon{
-      width:38px;
-      height:38px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:12px;
-      background:#edf6f4;
-      color:#458d82;
-      font-size:18px;
-    }
-
-    #inicio .home-schedule-list{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    #inicio .home-schedule-row{
-      display:grid;
-      grid-template-columns:90px 1fr;
-      gap:14px;
-      align-items:center;
-      padding:11px 13px;
-      border-radius:13px;
-      background:#f8fafb;
-      border:1px solid #edf1f4;
-    }
-
-    #inicio .home-schedule-row strong{
-      color:#397f75;
-      font-size:12px;
-    }
-
-    #inicio .home-schedule-row span{
-      color:#4f5f72;
-      font-size:13px;
-    }
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:3 / span 4;
-      margin:0 !important;
-      position:sticky;
-      top:18px;
-    }
-
-    #inicio #daily-summary-card{
-      grid-column:2 !important;
-      margin:0 !important;
-      padding:18px 20px !important;
-      background:#fbfcfd !important;
-      box-shadow:none !important;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      order:20;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-    }
-
-    #inicio .home-metrics .dashboard-card{
-      min-height:auto;
-      padding:14px 16px;
-      border-radius:17px;
-    }
-
-    #inicio .home-metrics .dashboard-card h3{
-      margin-bottom:7px;
-      font-size:11px;
-    }
-
-    #inicio .home-metrics .dashboard-card .metric strong{
-      font-size:24px;
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-columns:1fr;
-      }
-
-      #inicio .home-welcome,
-      #inicio #live-class-panel,
-      #inicio .home-next-strip,
-      #inicio .home-today-schedule,
-      #inicio #daily-note-card,
-      #inicio #daily-summary-card,
-      #inicio .home-metrics{
-        grid-column:1 !important;
-        grid-row:auto !important;
-      }
-
-      #inicio #daily-note-card{
-        position:static;
-      }
-    }
-
-    @media(max-width:720px){
-      #inicio .home-next-strip,
-      #inicio .home-metrics{
-        grid-template-columns:1fr;
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.2 · Ajuste composición ===== */
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:2 / span 3;
-      align-self:start;
-    }
-
-    #inicio #daily-summary-card{
-      grid-column:2 !important;
-      grid-row:5;
-      align-self:start;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      order:initial;
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.2b · Grid estable ===== */
-
-    #inicio .home-shell{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(340px,.72fr);
-      grid-template-areas:
-        "welcome welcome"
-        "now note"
-        "next note"
-        "schedule summary"
-        "metrics metrics";
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-area:welcome;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio #live-class-panel{
-      grid-area:now;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio .home-next-strip{
-      grid-area:next;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio .home-today-schedule{
-      grid-area:schedule;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio #daily-note-card{
-      grid-area:note;
-      grid-column:auto;
-      grid-row:auto;
-      align-self:stretch;
-      position:static;
-    }
-
-    #inicio #daily-summary-card{
-      grid-area:summary !important;
-      grid-column:auto !important;
-      grid-row:auto !important;
-      align-self:start;
-    }
-
-    #inicio .home-metrics{
-      grid-area:metrics;
-      grid-column:auto;
-      grid-row:auto;
-      order:initial;
-      margin:0;
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-columns:1fr;
-        grid-template-areas:
-          "welcome"
-          "now"
-          "next"
-          "note"
-          "schedule"
-          "summary"
-          "metrics";
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.3 · Sin métricas ===== */
-
-    #inicio .home-shell{
-      grid-template-areas:
-        "welcome welcome"
-        "now note"
-        "next note"
-        "schedule note";
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-areas:
-          "welcome"
-          "now"
-          "next"
-          "note"
-          "schedule"
-          "summary";
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Topbar contextual ===== */
-    .topbar .actions:has(button:not(.hidden)){
-      display:flex;
-    }
-
-    .topbar .actions:not(:has(button:not(.hidden))){
-      display:none;
-    }
-
-
-    /* ===== MiCuadernoDigital · Fix visibilidad Inicio ===== */
-    #inicio.section:not(.active){
-      display:none !important;
-    }
-
-    #inicio.section.active{
-      display:block;
-    }
-
-
-/* v0.4.1 · Inicio compacto + horario horizontal */
-
-/*
-   Inicio funciona ahora como una composición explícita:
-   - Mi día + Ahora arriba
-   - Siguiente / Después
-   - Horario horizontal
-   - Para hoy
-*/
-#inicio .home-shell{
-  display:grid !important;
-  grid-template-columns:minmax(0,2fr) minmax(330px,.95fr) !important;
-  grid-template-areas:
-    "welcome live"
-    "next next"
-    "schedule schedule"
-    "note note" !important;
-  gap:18px !important;
-  align-items:start !important;
-}
-
-#inicio .home-welcome{
-  grid-area:welcome !important;
-  margin:0 !important;
-}
-
-#inicio #live-class-panel{
-  grid-area:live !important;
-  margin:0 !important;
-  height:100%;
-  box-sizing:border-box;
-}
-
-#inicio .home-next-strip{
-  grid-area:next !important;
-  margin:0 !important;
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-}
-
-#inicio .home-today-schedule{
-  grid-area:schedule !important;
-  margin:0 !important;
-}
-
-#inicio #daily-note-card{
-  grid-area:note !important;
-  margin-top:0 !important;
-}
-
-/* El horario deja de ser una columna vertical */
-#inicio .home-schedule-list{
-  display:grid !important;
-  grid-template-columns:repeat(auto-fit,minmax(145px,1fr)) !important;
-  gap:10px !important;
-  align-items:stretch !important;
-  margin-top:14px !important;
-}
-
-/* Compatible con el HTML que ya genere el render actual */
-#inicio .home-schedule-list > *{
-  min-width:0 !important;
-  margin:0 !important;
-  border-radius:15px !important;
-  transition:
-    transform .16s ease,
-    border-color .16s ease,
-    background .16s ease,
-    opacity .16s ease;
-}
-
-/* Estados calculados según la hora real */
-#inicio .home-schedule-list > *.home-slot-past{
-  opacity:.55;
-}
-
-#inicio .home-schedule-list > *.home-slot-current{
-  opacity:1;
-  border-color:#35b6a4 !important;
-  background:linear-gradient(180deg,#ecfdf8,#f7fffc) !important;
-  box-shadow:0 0 0 2px rgba(53,182,164,.09);
-  transform:translateY(-2px);
-}
-
-#inicio .home-schedule-list > *.home-slot-next{
-  opacity:1;
-  border-color:#b9c8ff !important;
-  background:linear-gradient(180deg,#f4f7ff,#fff) !important;
-}
-
-#inicio .home-schedule-list > *.home-slot-current::after{
-  content:"AHORA";
-  display:inline-flex;
-  margin-top:7px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#d9f7ef;
-  color:#167c6c;
-  font-size:10px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-
-#inicio .home-schedule-list > *.home-slot-next::after{
-  content:"SIGUIENTE";
-  display:inline-flex;
-  margin-top:7px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#eaf0ff;
-  color:#526ac5;
-  font-size:10px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-
-/* En pantallas estrechas volvemos a una columna limpia */
-@media(max-width:980px){
-  #inicio .home-shell{
-    grid-template-columns:1fr !important;
-    grid-template-areas:
-      "welcome"
-      "live"
-      "next"
-      "schedule"
-      "note" !important;
-  }
-
-  #inicio .home-schedule-list{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-}
-
-@media(max-width:620px){
-  #inicio .home-next-strip,
-  #inicio .home-schedule-list{
-    grid-template-columns:1fr !important;
-  }
-}
-
 </style>
 </head>
 
 <body>
 <div class="app">
-  <div class="sidebar-handle no-print" id="sidebar-handle" title="Abrir menú">
-    <span>MENÚ</span>
-  </div>
-
   <aside>
-    <button class="sidebar-pin no-print" id="sidebar-pin" title="Fijar menú" aria-label="Fijar menú">📌</button>
-
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.4.1 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.3.5 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -1864,47 +853,22 @@
     <div class="mode-badge" id="mode-label">Modo Diario</div>
 
     <nav>
-      <div class="nav-home">
-        <button class="active" data-section="inicio">
-          <span class="nav-icon">⌂</span><span>Inicio</span>
-        </button>
-      </div>
-
-      <div class="nav-group nav-group-org">
-        <div class="nav-group-title">Organización</div>
-        <button data-section="agenda"><span class="nav-icon">◷</span><span>Mi agenda</span></button>
-        <button data-section="reuniones"><span class="nav-icon">◌</span><span>Reuniones</span></button>
-        <button data-section="actuaciones"><span class="nav-icon">✓</span><span>Actuaciones</span></button>
-      </div>
-
-      <div class="nav-group nav-group-aula">
-        <div class="nav-group-title">Aula</div>
-        <button data-section="alumnado"><span class="nav-icon">♙</span><span>Alumnado</span></button>
-        <button data-section="aula"><span class="nav-icon">▦</span><span>Plano del aula</span></button>
-        <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
-        <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
-      </div>
-
-      <div class="nav-group nav-group-eval">
-        <div class="nav-group-title">Evaluación</div>
-        <button data-section="cuaderno"><span class="nav-icon">▤</span><span>Cuaderno de notas</span></button>
-        <button data-section="instrumentos"><span class="nav-icon">◇</span><span>Instrumentos</span></button>
-        <button data-section="perfil"><span class="nav-icon">◎</span><span>Perfil competencial</span></button>
-        <button data-section="mapa"><span class="nav-icon">⌁</span><span>Mapa aprendizaje</span></button>
-        <button data-section="desarrollo"><span class="nav-icon">✦</span><span>Inteligencia pedagógica</span></button>
-      </div>
-
-      <div class="nav-group nav-group-plan">
-        <div class="nav-group-title">Planificación</div>
-        <button data-section="planificacion"><span class="nav-icon">▣</span><span>UP / Situaciones</span></button>
-        <button data-section="aportaciones"><span class="nav-icon">€</span><span>Aportaciones</span></button>
-      </div>
-
-      <div class="nav-group nav-group-system">
-        <div class="nav-group-title">Sistema</div>
-        <button data-section="configuracion"><span class="nav-icon">⚙</span><span>Configuración</span></button>
-        <button data-section="pdf"><span class="nav-icon">⇩</span><span>PDF oficial</span></button>
-      </div>
+      <button class="active" data-section="inicio">Inicio</button>
+      <button data-section="agenda">Mi agenda</button>
+      <button data-section="reuniones">Reuniones</button>
+      <button data-section="actuaciones">Actuaciones</button>
+      <button data-section="aportaciones">💶 Aportaciones</button>
+      <button data-section="instrumentos">🧰 Instrumentos</button>
+      <button data-section="cuaderno">Cuaderno de notas</button>
+      <button data-section="alumnado">Alumnado</button>
+      <button data-section="diario">Diario</button>
+      <button data-section="asistencia">Asistencia</button>
+      <button data-section="planificacion">UP / Situaciones</button>
+      <button data-section="perfil">Perfil competencial</button>
+      <button data-section="mapa">Mapa aprendizaje</button>
+      <button data-section="desarrollo">Inteligencia pedagógica</button>
+      <button data-section="configuracion">Configuración</button>
+      <button data-section="pdf">PDF oficial</button>
     </nav>
 
     <div class="sidebar-note">
@@ -1927,15 +891,23 @@
     </header>
 
     <section id="inicio" class="section active">
-      <div class="home-shell">
-
-      <div class="home-welcome">
-        <div>
-          <div class="home-eyebrow">Mi día</div>
-          <h2 id="home-date-title">Hoy</h2>
-          <p>Todo lo importante de tu jornada, de un vistazo.</p>
+      <div class="grid cols-4">
+        <div class="card dashboard-card" data-dashboard="sessions" tabindex="0">
+          <h3>Sesiones de hoy</h3>
+          <div class="metric"><div><strong id="dash-sessions-count">0</strong><br><span>vinculadas para hoy</span></div><span>☀️</span></div>
         </div>
-        <div class="home-welcome-badge">☀️</div>
+        <div class="card dashboard-card" data-dashboard="absent" tabindex="0">
+          <h3>Alumnado ausente</h3>
+          <div class="metric"><div><strong id="dash-absent-count">0</strong><br><span>faltas registradas hoy</span></div><span>🟡</span></div>
+        </div>
+        <div class="card dashboard-card" data-dashboard="evidence" tabindex="0">
+          <h3>Evidencias pendientes</h3>
+          <div class="metric"><div><strong id="dash-evidence-count">0</strong><br><span>registros sin completar</span></div><span>📌</span></div>
+        </div>
+        <div class="card dashboard-card" data-dashboard="alerts" tabindex="0">
+          <h3>Alertas</h3>
+          <div class="metric"><div><strong id="dash-alert-count">0</strong><br><span>requieren una mirada</span></div><span>⚠️</span></div>
+        </div>
       </div>
 
       <div id="live-class-panel" class="live-class">
@@ -1946,31 +918,6 @@
         </div>
         <button class="primary hidden" id="live-class-open">Abrir sesión</button>
       </div>
-      <div class="home-next-strip">
-        <div class="home-mini-card">
-          <div class="home-mini-kicker">Siguiente</div>
-          <strong id="home-next-title">Sin siguiente sesión</strong>
-          <span id="home-next-detail">No hay otra sesión programada.</span>
-        </div>
-
-        <div class="home-mini-card">
-          <div class="home-mini-kicker">Después</div>
-          <strong id="home-after-title">Sin sesión posterior</strong>
-          <span id="home-after-detail">No hay más sesiones programadas.</span>
-        </div>
-      </div>
-
-      <div class="home-today-schedule card">
-        <div class="home-section-head">
-          <div>
-            <div class="home-eyebrow">Organización</div>
-            <h3>Horario de hoy</h3>
-          </div>
-          <span class="home-soft-icon">◷</span>
-        </div>
-        <div id="home-teacher-schedule" class="home-schedule-list"></div>
-      </div>
-
 
       <div class="card" id="daily-note-card" style="margin-top:18px">
         <div class="notebook-title-row" style="align-items:flex-start">
@@ -2016,6 +963,11 @@
           Se guarda automáticamente.
         </div>
       </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Resumen pedagógico del día</h3>
+        <p id="daily-summary">El resumen se actualiza con la asistencia, las evidencias y el seguimiento registrado.</p>
+        <div id="daily-summary-pills"></div>
       </div>
     </section>
 
@@ -2168,9 +1120,6 @@
                 <div><strong>Asistencia</strong><span class="small">Retraso justificado.</span></div>
               </div>
             </div>
-            <button class="secondary no-print" id="student-open-diary" type="button" style="margin-top:12px">
-              Ver todas sus observaciones en Diario
-            </button>
           </div>
         </div>
       </div>
@@ -2303,13 +1252,6 @@
             <label>Categoría<select id="diario-categoria"><option>General</option><option>Participación</option><option>Convivencia</option><option>Autonomía</option><option>Oralidad</option><option>Matemáticas</option><option>Atención</option><option>DUA</option></select></label>
           </div>
           <button class="primary" id="guardar-diario" style="margin-top:12px">Guardar observación</button>
-          <div class="toolbar no-print" style="margin-top:18px">
-            <strong>Historial</strong>
-            <div>
-              <button class="secondary active" id="diario-vista-dias" type="button">Por días</button>
-              <button class="ghost" id="diario-vista-alumnos" type="button">Por alumno</button>
-            </div>
-          </div>
           <div id="diario-historial" class="mini-list"></div>
         </div>
         <div class="card">
@@ -2326,24 +1268,6 @@
           </div>
           <div id="bank-suggestions" style="margin-top:12px"><div class="empty">Selecciona una categoría para ver sugerencias.</div></div>
         </div>
-      </div>
-    </section>
-
-    <section id="aula" class="section">
-      <div class="card">
-        <div class="section-head">
-          <div>
-            <h3>Plano del aula</h3>
-            <p class="small">Organiza el espacio y coloca al alumnado como está realmente en clase.</p>
-          </div>
-        </div>
-
-        <div class="toolbar no-print" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="primary" id="classroom-add-desk">＋ Añadir mesa</button>
-          <button id="classroom-reset">Vaciar plano</button>
-        </div>
-
-        <div id="classroom-layout"></div>
       </div>
     </section>
 
@@ -2620,10 +1544,17 @@
         </div>
       </div>
 
-      <div id="intelligence-radar" style="margin-bottom:18px"></div>
-
       <div id="tutoring-report" class="tutoring-shell"></div>
 
+      <details style="margin-top:18px">
+        <summary>Lectura pedagógica ampliada del alumno</summary>
+        <div class="card" style="margin-top:14px">
+          <h3 id="development-student-title">Desarrollo del alumno</h3>
+          <p>Lectura individual automática basada en los datos registrados.</p>
+          <button class="primary" id="interpretar-desarrollo">Mostrar / ocultar interpretación</button>
+          <div class="interpretation" id="interpretacion-desarrollo"></div>
+        </div>
+      </details>
     </section>
 
     <section id="riesgo" class="section">
@@ -2656,20 +1587,12 @@
           <div id="custom-days-list" class="mini-list"></div>
         </div>
         <div class="card">
-          <h3>Horario docente</h3>
-          <p>Tu horario semanal completo. Puedes incluir docencia, guardias, coordinaciones, familias, programación, recreos u otras tareas.</p>
-          <div class="timetable-wrap">
-            <table class="timetable">
-              <thead>
-                <tr><th>Franja</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th></tr>
-              </thead>
-              <tbody id="teacher-timetable-body"></tbody>
-            </table>
-          </div>
-          <div class="timetable-actions no-print">
-            <button class="secondary" id="teacher-timetable-add-row">Añadir franja</button>
-            <button class="ghost" id="teacher-timetable-reset">Restablecer horario</button>
-          </div>
+          <h3>Horario personal</h3>
+          <span class="pill purple">Docencia</span>
+          <span class="pill purple">Guardias</span>
+          <span class="pill purple">Coordinaciones</span>
+          <span class="pill purple">Familias</span>
+          <span class="pill purple">Programación</span>
         </div>
       </div>
       <div class="card" style="margin-top:18px">
@@ -2729,7 +1652,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.1</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.3.5</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -2777,7 +1700,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.4.1';
+  const VERSION='0.3.5';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -2824,8 +1747,7 @@
   const GOOGLE_AGENDA_TYPES=['Recordatorio','Reunión','Familias','Tarea','Centro','Personal'];
   function mergeSettings(baseSettings,storedSettings={}){
     const bg=baseSettings.googleCalendar||{},sg=storedSettings.googleCalendar||{};
-    return {...baseSettings,...storedSettings,timetable:Array.isArray(storedSettings?.timetable)?storedSettings.timetable:baseSettings.timetable,
-      teacherTimetable:Array.isArray(storedSettings?.teacherTimetable)?storedSettings.teacherTimetable:baseSettings.teacherTimetable,googleCalendar:{...bg,...sg,colors:{...(bg.colors||{}),...(sg.colors||{})}}};
+    return {...baseSettings,...storedSettings,timetable:Array.isArray(storedSettings?.timetable)?storedSettings.timetable:baseSettings.timetable,googleCalendar:{...bg,...sg,colors:{...(bg.colors||{}),...(sg.colors||{})}}};
   }
 
   const pageInfo={
@@ -2838,7 +1760,6 @@
     cuaderno:['Cuaderno de notas','Alumnado en filas y evidencias en columnas, conectadas a criterios y competencias.'],
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
-    aula:['Plano del aula','Distribución editable del espacio y ubicación del alumnado.'],
     asistencia:['Asistencia','Faltas, retrasos, justificadas y estadísticas persistentes.'],
     planificacion:['UP / Situaciones','Crea rápido, desarrolla currículo, programa sesiones y abre la clase que toca desde Inicio.'],
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
@@ -2850,7 +1771,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -2872,7 +1793,6 @@
       {id:'o1',date:'2026-04-18',studentId:'claudia',category:'Matemáticas',text:'Mejora en participación espontánea durante discusión matemática.'}
     ],
     attendance:{},
-    classroomLayout:{desks:[],placements:{}},
     selectedUnitId:'unit_demo_1',
     units:[
       {id:'unit_demo_1',title:'Feria del pueblo sostenible',areas:'Lengua, Matemáticas, Sociales',challenge:'¿Cómo mejoraríamos nuestro pueblo?',product:'Feria del pueblo sostenible',activities:'Investigación, podcast, estudio estadístico y propuesta urbanística.',group:'',duration:'',context:'',specificCompetences:'',criteria:'',knowledge:'',keyCompetences:'',descriptors:'',objectives:'',ods:'',crosscurricular:'',methodology:'',dua:'',strategies:'',grouping:'',resources:'',spaces:'',diversity:'',transversal:'',evidences:'',instruments:'',assessmentMoments:'',feedback:'',selfAssessment:'',peerAssessment:'',metacognition:'',curricularCriteria:[],products:[],sessions:[{id:'ses_demo_1',title:'Presentación del reto',subject:'',date:'2026-09-01',startTime:'09:00',endTime:'09:45',grouping:'Gran grupo',objective:'Presentar el reto y activar ideas previas.',opening:'Presentación de la pregunta guía.',development:'Lluvia de ideas inicial y primeras hipótesis.',closing:'Recoger preguntas que queremos investigar.',resources:'',evidence:'Participación e ideas previas.',notes:''}]}
@@ -2893,14 +1813,6 @@
       {time:'09:00 - 09:45',days:['','','','','']},
       {time:'09:45 - 10:30',days:['','','','','']},
       {time:'10:30 - 11:15',days:['','','','','']},
-      {time:'11:45 - 12:30',days:['','','','','']},
-      {time:'12:30 - 13:15',days:['','','','','']},
-      {time:'13:15 - 14:00',days:['','','','','']}
-    ],teacherTimetable:[
-      {time:'09:00 - 09:45',days:['','','','','']},
-      {time:'09:45 - 10:30',days:['','','','','']},
-      {time:'10:30 - 11:15',days:['','','','','']},
-      {time:'11:15 - 11:45',days:['Recreo','Recreo','Recreo','Recreo','Recreo']},
       {time:'11:45 - 12:30',days:['','','','','']},
       {time:'12:30 - 13:15',days:['','','','','']},
       {time:'13:15 - 14:00',days:['','','','','']}
@@ -3111,39 +2023,14 @@
   function renderAgenda(){const box=document.querySelector('#agenda-list');if(!box)return;const filter=document.querySelector('#agenda-filter')?.value||'pending';let items=[...(data.agenda||[])].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));if(filter==='pending')items=items.filter(x=>!x.done);if(filter==='done')items=items.filter(x=>x.done);box.innerHTML=items.length?items.map(x=>`<div class="agenda-item ${x.done?'done':''}"><div class="agenda-date">${esc(x.date)}<br><span class="small">${esc(x.time||'Sin hora')}</span></div><div><strong>${esc(x.type)} · ${esc(x.priority)}</strong><div class="agenda-text">${esc(x.text)}</div></div><div class="agenda-actions"><button data-agenda-done="${esc(x.id)}" title="Completar">${x.done?'↩':'✓'}</button><button data-agenda-del="${esc(x.id)}" title="Eliminar">🗑</button></div></div>`).join(''):'<div class="empty">No hay asuntos en esta vista.</div>';box.querySelectorAll('[data-agenda-done]').forEach(b=>b.onclick=()=>{const x=data.agenda.find(a=>a.id===b.dataset.agendaDone);if(x){x.done=!x.done;save('Agenda actualizada');scheduleGoogleAgendaSync()}});box.querySelectorAll('[data-agenda-del]').forEach(b=>b.onclick=()=>{data.agenda=data.agenda.filter(a=>a.id!==b.dataset.agendaDel);save('Asunto eliminado');scheduleGoogleAgendaSync()})}
   function addAgenda(){const date=document.querySelector('#agenda-date').value,text=document.querySelector('#agenda-text').value.trim();if(!date||!text)return toast('Añade fecha y contenido.');data.agenda.push({id:uid('ag'),date,time:document.querySelector('#agenda-time').value,type:document.querySelector('#agenda-type').value,priority:document.querySelector('#agenda-priority').value,text,done:false});document.querySelector('#agenda-text').value='';save('Añadido a tu agenda');scheduleGoogleAgendaSync()}
 
-  function updateTopbarActions(sectionId){
-    const buttons=[...document.querySelectorAll('.topbar .actions button')];
-
-    buttons.forEach(btn=>btn.classList.add('hidden'));
-
-    const showByText=text=>{
-      const btn=buttons.find(b=>b.textContent.includes(text));
-      if(btn)btn.classList.remove('hidden');
-    };
-
-    if(sectionId==='diario')showByText('Nueva observación');
-    if(sectionId==='cuaderno')showByText('Nueva evidencia');
-    if(sectionId==='planificacion')showByText('Crear situación');
-  }
-
   function openSection(id){
-
     if(!document.querySelector('#'+id)) return;
-
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-
     document.querySelector('#'+id).classList.add('active');
-
     document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
-
     document.querySelector('#page-title').textContent=pageInfo[id][0];
-
     document.querySelector('#page-subtitle').textContent=pageInfo[id][1];
-
-    updateTopbarActions(id);
-
     window.scrollTo({top:0,behavior:'smooth'});
-
   }
   function applyMode(mode,goHome=true){
     currentMode=mode; data.settings=data.settings||{}; data.settings.mode=mode; persistState();
@@ -3183,68 +2070,11 @@
       if(cols[2]) cols[2].innerHTML='<h4>Próximos pasos</h4><p>'+esc(st.next||'Recoger nuevas evidencias y revisar la evolución.')+'</p>';
     }
     renderTimeline(st.id);
-
-    const diaryBtn=document.querySelector('#student-open-diary');
-    if(diaryBtn){
-      diaryBtn.onclick=()=>{
-        data.settings=data.settings||{};
-        data.settings.diaryView='students';
-        data.settings.diaryStudentOpen=st.id;
-        persistState();
-        openSection('diario');
-        renderDiary();
-      };
-    }
   }
   function buildInterpretation(st){
-    const cur=studentIntelligenceCurricularSummary(st.id);
-    const parts=[];
-
-    if(!cur.evidenceCount){
-      parts.push('Todavía no hay evidencias curriculares procedentes de instrumentos suficientes para realizar una lectura de su evolución.');
-    }else{
-      parts.push(
-        `${st.name} cuenta con ${cur.evidenceCount} evidencia${cur.evidenceCount===1?'':'s'} curricular${cur.evidenceCount===1?'':'es'} registrada${cur.evidenceCount===1?'':'s'} en ${cur.criteria.length} criterio${cur.criteria.length===1?'':'s'}.`
-      );
-
-      if(cur.improvements.length){
-        parts.push(
-          `Se observa evolución positiva en ${cur.improvements.length} criterio${cur.improvements.length===1?'':'s'}.`
-        );
-      }
-
-      if(cur.changesToConfirm.length){
-        parts.push(
-          `${cur.changesToConfirm.length} cambio${cur.changesToConfirm.length===1?' necesita':'s necesitan'} nuevas evidencias para poder confirmarse.`
-        );
-      }
-
-      if(cur.needs.length){
-        parts.push(
-          `Conviene seguir observando ${cur.needs.length} criterio${cur.needs.length===1?'':'s'} en los que las evidencias recientes difieren del nivel previamente consolidado.`
-        );
-      }
-
-      if(cur.pending.length){
-        parts.push(
-          `${cur.pending.length} criterio${cur.pending.length===1?' todavía no cuenta':'s todavía no cuentan'} con evidencia suficiente para establecer un nivel consolidado.`
-        );
-      }
-    }
-
-    if((st.strengths||[]).length){
-      parts.push(`Como valoración docente, se señalan como fortalezas: ${st.strengths.join(', ')}.`);
-    }
-
-    if((st.difficulties||[]).length){
-      parts.push(`Como aspectos de acompañamiento registrados por el docente: ${st.difficulties.join(', ')}.`);
-    }
-
-    if(st.next){
-      parts.push(`Próximo paso: ${st.next}.`);
-    }
-
-    return parts.join(' ');
+    const ev=data.evidence[st.id]||{}; const vals=Object.values(ev); const low=vals.filter(v=>migrateGradeValue(v)==='INS').length; const high=vals.filter(v=>v==='A').length;
+    const trajectory=high>low?'mantiene una trayectoria global positiva':low>high?'necesita seguimiento cercano':'muestra una evolución estable';
+    return `${st.name} ${trajectory}. Sus fortalezas más visibles son ${st.strengths.join(', ')||'aún por determinar'}. Conviene reforzar ${st.difficulties.join(', ')||'los criterios con menor número de evidencias'}. Próximo paso: ${st.next||'recoger nuevas evidencias variadas.'}`;
   }
   function renderTimeline(studentId){
     const box=document.querySelector('#alumnado .timeline'); if(!box)return;
@@ -4016,131 +2846,9 @@
 
   function renderDiary(){
     const box=document.querySelector('#diario-historial'); if(!box)return;
-
-    data.settings=data.settings||{};
-    const view=data.settings.diaryView==='students'?'students':'days';
-    const observations=[...(data.observations||[])].sort((a,b)=>b.date.localeCompare(a.date));
-
-    const daysBtn=document.querySelector('#diario-vista-dias');
-    const studentsBtn=document.querySelector('#diario-vista-alumnos');
-
-    if(daysBtn){
-      daysBtn.className=view==='days'?'secondary active':'ghost';
-      daysBtn.onclick=()=>{
-        data.settings.diaryView='days';
-        persistState();
-        renderDiary();
-      };
-    }
-
-    if(studentsBtn){
-      studentsBtn.className=view==='students'?'secondary active':'ghost';
-      studentsBtn.onclick=()=>{
-        data.settings.diaryView='students';
-        persistState();
-        renderDiary();
-      };
-    }
-
-    if(!observations.length){
-      box.innerHTML='<div class="empty">Aún no hay observaciones guardadas.</div>';
-      return;
-    }
-
-    const studentName=sid=>{
-      if(!sid)return 'Grupo / general';
-      return data.students.find(s=>s.id===sid)?.name||'Alumno/a';
-    };
-
-    const openStudent=sid=>{
-      if(!sid)return;
-      data.selectedStudentId=sid;
-      persistState();
-      openSection('alumnado');
-      renderStudents();
-    };
-
-    const observationHtml=o=>{
-      const hasStudent=!!o.studentId;
-      return `<div class="mini-item">
-        <strong>${esc(o.category||'General')}${hasStudent
-          ? ` · <button type="button" class="link-button" data-diary-student="${esc(o.studentId)}">${esc(studentName(o.studentId))}</button>`
-          : ' · Grupo / general'}</strong>
-        ${esc(o.text)}
-      </div>`;
-    };
-
-    if(view==='days'){
-      const groups={};
-      observations.forEach(o=>{
-        (groups[o.date]||(groups[o.date]=[])).push(o);
-      });
-
-      box.innerHTML=Object.entries(groups).map(([date,items])=>{
-        let label=date;
-        const d=new Date(date+'T12:00:00');
-        if(!Number.isNaN(d.getTime())){
-          label=new Intl.DateTimeFormat('es-ES',{
-            weekday:'long',
-            day:'numeric',
-            month:'long',
-            year:'numeric'
-          }).format(d);
-          label=label.charAt(0).toUpperCase()+label.slice(1);
-        }
-
-        return `<details class="diary-group">
-          <summary><strong>${esc(label)}</strong> · ${items.length} observación${items.length===1?'':'es'}</summary>
-          <div class="mini-list" style="margin-top:10px">
-            ${items.map(observationHtml).join('')}
-          </div>
-        </details>`;
-      }).join('');
-    }else{
-      const groups=new Map();
-
-      observations.forEach(o=>{
-        const key=o.studentId||'__general__';
-        if(!groups.has(key))groups.set(key,[]);
-        groups.get(key).push(o);
-      });
-
-      const ordered=[...groups.entries()].sort(([a],[b])=>{
-        if(a==='__general__')return -1;
-        if(b==='__general__')return 1;
-        return studentName(a).localeCompare(studentName(b),'es');
-      });
-
-      box.innerHTML=ordered.map(([sid,items])=>{
-        const general=sid==='__general__';
-        const name=general?'Grupo / general':studentName(sid);
-
-        const shouldOpen=!general && data.settings.diaryStudentOpen===sid;
-
-        return `<details class="diary-group" ${shouldOpen?'open':''}>
-          <summary>
-            <strong>${esc(name)}</strong> · ${items.length} observación${items.length===1?'':'es'}
-          </summary>
-          <div class="mini-list" style="margin-top:10px">
-            ${items.map(o=>`<div class="mini-item">
-              <strong>${esc(o.date)} · ${esc(o.category||'General')}</strong>
-              ${esc(o.text)}
-            </div>`).join('')}
-            ${general?'':`<button type="button" class="secondary" data-diary-student="${esc(sid)}" style="margin-top:8px">Abrir ficha de ${esc(name)}</button>`}
-          </div>
-        </details>`;
-      }).join('');
-    }
-
-    box.querySelectorAll('[data-diary-student]').forEach(btn=>{
-      btn.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        openStudent(btn.dataset.diaryStudent);
-      };
-    });
+    const sorted=[...data.observations].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+    box.innerHTML=sorted.length?sorted.map(o=>{const st=data.students.find(s=>s.id===o.studentId);return `<div class="mini-item"><strong>${esc(o.date)} · ${esc(o.category)}${st?' · '+esc(st.name):''}</strong>${esc(o.text)}</div>`}).join(''):'<div class="empty">Aún no hay observaciones guardadas.</div>';
   }
-
   function addObservation(){const text=document.querySelector('#diario-text').value.trim();if(!text)return toast('Escribe una observación antes de guardar.');data.observations.push({id:uid('obs'),date:today(),studentId:document.querySelector('#diario-alumno').value||'',category:document.querySelector('#diario-categoria').value,text});document.querySelector('#diario-text').value='';save('Observación guardada');}
 
   function renderAttendance(){
@@ -4234,92 +2942,7 @@
   function showDaySessions(date,items){const html=items.map(x=>`<div class="mini-item"><strong>${esc((x.session.startTime?x.session.startTime+' · ':'')+x.unit.title)}</strong>${esc(x.session.title)}${x.session.objective?'<br><span class="small">'+esc(x.session.objective)+'</span>':''}<br><button class="secondary" style="margin-top:8px" data-day-session="${esc(x.unit.id)}|${esc(x.session.id)}">Abrir sesión</button></div>`).join('');modal('Sesiones · '+date,html,()=>true);document.querySelector('#modal-save').classList.add('hidden');document.querySelectorAll('[data-day-session]').forEach(b=>b.onclick=()=>{document.querySelector('#modal-backdrop').classList.remove('show');document.querySelector('#modal-save').classList.remove('hidden');const [uid,sid]=b.dataset.daySession.split('|');showSessionClass(uid,sid)});const oldCancel=document.querySelector('#modal-cancel').onclick;document.querySelector('#modal-cancel').onclick=()=>{document.querySelector('#modal-save').classList.remove('hidden');document.querySelector('#modal-backdrop').classList.remove('show');document.querySelector('#modal-cancel').onclick=oldCancel}}
   function timeToMinutes(v=''){const m=v.match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
   function livePlannedSession(){const ss=scheduledSessionsForDate(today()).filter(x=>x.session.startTime).sort((a,b)=>a.session.startTime.localeCompare(b.session.startTime));const n=new Date(),m=n.getHours()*60+n.getMinutes();let current=null,next=null;for(const x of ss){const a=timeToMinutes(x.session.startTime),b=x.session.endTime?timeToMinutes(x.session.endTime):a+55;if(m>=a&&m<b){current=x;break}if(m<a&&!next)next=x}return {current,next,all:ss}}
-  function renderLiveClass(){
-    const panel=document.querySelector('#live-class-panel');
-    const title=document.querySelector('#live-class-title');
-    const detail=document.querySelector('#live-class-detail');
-    const btn=document.querySelector('#live-class-open');
-
-    if(!panel||!title||!detail||!btn)return;
-
-    /* 1. Las sesiones programadas desde UP tienen prioridad */
-    const {current,next}=livePlannedSession();
-    const x=current||next;
-
-    panel.classList.toggle('now',!!current);
-
-    if(x){
-      title.textContent=
-        (current?'Ahora · ':'A continuación · ')+
-        x.unit.title+' — '+x.session.title;
-
-      detail.textContent=
-        `${x.session.startTime||''}`+
-        `${x.session.endTime?'–'+x.session.endTime:''}`+
-        `${x.session.subject?' · '+x.session.subject:''}`+
-        `${x.session.objective?' · '+x.session.objective:''}`;
-
-      btn.classList.remove('hidden');
-      btn.textContent=current?'Abrir clase ahora':'Ver próxima sesión';
-      btn.onclick=()=>showSessionClass(x.unit.id,x.session.id);
-      return;
-    }
-
-    /* 2. Si UP no aporta nada, usamos el horario docente */
-    const rows=todaysTeacherTimetable();
-    const now=new Date();
-    const m=now.getHours()*60+now.getMinutes();
-
-    const parsed=rows.map(r=>{
-      const match=String(r.time||'').match(
-        /(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/i
-      );
-
-      if(!match)return null;
-
-      return {
-        ...r,
-        start:Number(match[1])*60+Number(match[2]),
-        end:Number(match[3])*60+Number(match[4])
-      };
-    }).filter(Boolean);
-
-    const currentTT=parsed.find(r=>m>=r.start&&m<r.end);
-    const nextTT=parsed.find(r=>r.start>m);
-
-    btn.classList.add('hidden');
-    btn.onclick=null;
-
-    if(currentTT){
-      panel.classList.add('now');
-      title.textContent='Ahora · '+currentTT.text;
-      detail.textContent=currentTT.time+' · Según tu horario docente.';
-      return;
-    }
-
-    panel.classList.remove('now');
-
-    if(nextTT){
-      const mins=Math.max(0,nextTT.start-m);
-      title.textContent='A continuación · '+nextTT.text;
-      detail.textContent=
-        nextTT.time+
-        (mins?` · Empieza en ${mins} min.`:'');
-      return;
-    }
-
-    if(parsed.length && m>=parsed[parsed.length-1].end){
-      title.textContent='Jornada lectiva finalizada';
-      detail.textContent='No quedan más franjas en tu horario docente de hoy.';
-      return;
-    }
-
-    title.textContent='Sin sesión programada en este momento';
-    detail.textContent=
-      parsed.length
-        ? 'No hay una franja activa en tu horario docente.'
-        : 'Configura tu horario docente para ver aquí tu jornada automáticamente.';
-  }
+  function renderLiveClass(){const panel=document.querySelector('#live-class-panel'),title=document.querySelector('#live-class-title'),detail=document.querySelector('#live-class-detail'),btn=document.querySelector('#live-class-open');if(!panel||!title||!detail||!btn)return;const {current,next}=livePlannedSession(),x=current||next;panel.classList.toggle('now',!!current);if(x){title.textContent=(current?'Ahora · ':'A continuación · ')+x.unit.title+' — '+x.session.title;detail.textContent=`${x.session.startTime||''}${x.session.endTime?'–'+x.session.endTime:''}${x.session.subject?' · '+x.session.subject:''}${x.session.objective?' · '+x.session.objective:''}`;btn.classList.remove('hidden');btn.textContent=current?'Abrir clase ahora':'Ver próxima sesión';btn.onclick=()=>showSessionClass(x.unit.id,x.session.id)}else{title.textContent='Sin sesión programada en este momento';detail.textContent='Programa fecha y hora dentro de una situación para verla aquí automáticamente.';btn.classList.add('hidden')}}
 
   function pendingEvidenceItems(){
     const out=[];
@@ -4338,178 +2961,6 @@
   }
   function todaysUnits(){return scheduledSessionsForDate(today())}
   function todaysTimetable(){const d=new Date(),idx=d.getDay()-1;if(idx<0||idx>4)return [];return (data.settings.timetable||[]).map(r=>({time:r.time||'',text:(r.days||[])[idx]||''})).filter(x=>x.text.trim())}
-
-  function todaysTeacherTimetable(){
-    const d=new Date(),idx=d.getDay()-1;
-    if(idx<0||idx>4)return [];
-    return (data.settings.teacherTimetable||[])
-      .map(r=>({time:r.time||'',text:(r.days||[])[idx]||''}))
-      .filter(x=>x.text.trim());
-  }
-
-  function renderHomeTimeline(){
-
-    const now=new Date();
-    const nowMinutes=now.getHours()*60+now.getMinutes();
-
-    const fill=(prefix,titleText,detailText)=>{
-      const title=document.querySelector('#'+prefix+'-title');
-      const detail=document.querySelector('#'+prefix+'-detail');
-      if(title)title.textContent=titleText;
-      if(detail)detail.textContent=detailText;
-    };
-
-    /* --------------------------------------------------
-       1. Primero buscamos próximas sesiones de UP
-       -------------------------------------------------- */
-    const {current,next,all}=livePlannedSession();
-
-    const futureUP=(all||[]).filter(x=>{
-      const start=timeToMinutes(x.session.startTime||'00:00');
-
-      if(current){
-        return start>timeToMinutes(current.session.startTime||'00:00');
-      }
-
-      return start>nowMinutes;
-    });
-
-    const firstUP=current ? futureUP[0] : next;
-
-    let secondUP=null;
-
-    if(current){
-      secondUP=futureUP[1]||null;
-    }else if(firstUP){
-      secondUP=
-        futureUP.find(x=>x.session.id!==firstUP.session.id)||null;
-    }
-
-    const teacherRows=todaysTeacherTimetable();
-
-    const teacherSlots=teacherRows.map(r=>{
-      const match=String(r.time||'').match(
-        /(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/i
-      );
-
-      if(!match)return null;
-
-      return {
-        ...r,
-        start:Number(match[1])*60+Number(match[2]),
-        end:Number(match[3])*60+Number(match[4])
-      };
-    }).filter(Boolean);
-
-    const futureTT=teacherSlots.filter(r=>r.start>nowMinutes);
-
-    /*
-       Si existen sesiones UP futuras, mandan.
-       Si no, Inicio se apoya en el horario docente.
-    */
-    if(firstUP){
-
-      fill(
-        'home-next',
-        (firstUP.session.startTime
-          ? firstUP.session.startTime+' · '
-          : '')+firstUP.unit.title,
-        firstUP.session.title+
-          (firstUP.session.subject
-            ? ' · '+firstUP.session.subject
-            : '')
-      );
-
-      if(secondUP){
-        fill(
-          'home-after',
-          (secondUP.session.startTime
-            ? secondUP.session.startTime+' · '
-            : '')+secondUP.unit.title,
-          secondUP.session.title+
-            (secondUP.session.subject
-              ? ' · '+secondUP.session.subject
-              : '')
-        );
-      }else if(futureTT[1]){
-        fill('home-after',futureTT[1].text,futureTT[1].time);
-      }else{
-        fill(
-          'home-after',
-          'Sin sesión posterior',
-          'No hay más sesiones programadas.'
-        );
-      }
-
-    }else if(futureTT.length){
-
-      fill('home-next',futureTT[0].text,futureTT[0].time);
-
-      if(futureTT[1]){
-        fill('home-after',futureTT[1].text,futureTT[1].time);
-      }else{
-        fill(
-          'home-after',
-          'Fin de la jornada',
-          'No hay más franjas después.'
-        );
-      }
-
-    }else{
-
-      const finished=
-        teacherSlots.length &&
-        nowMinutes>=teacherSlots[teacherSlots.length-1].end;
-
-      fill(
-        'home-next',
-        finished?'Jornada finalizada':'Sin siguiente sesión',
-        finished
-          ? 'No quedan más franjas en tu horario de hoy.'
-          : 'No hay otra sesión programada.'
-      );
-
-      fill(
-        'home-after',
-        'Sin sesión posterior',
-        'No hay más sesiones programadas.'
-      );
-    }
-
-    /* --------------------------------------------------
-       2. Horario horizontal del día
-       -------------------------------------------------- */
-    const schedule=document.querySelector('#home-teacher-schedule');
-
-    if(schedule){
-
-      schedule.innerHTML=teacherSlots.length
-        ? teacherSlots.map((x,i)=>{
-
-            let state='';
-
-            if(nowMinutes>=x.end){
-              state='home-slot-past';
-            }else if(nowMinutes>=x.start && nowMinutes<x.end){
-              state='home-slot-current';
-            }else{
-              const firstFuture=
-                teacherSlots.findIndex(y=>y.start>nowMinutes);
-
-              if(i===firstFuture)state='home-slot-next';
-            }
-
-            return `
-              <div class="home-schedule-row ${state}">
-                <strong>${esc(x.time)}</strong>
-                <span>${esc(x.text)}</span>
-              </div>
-            `;
-          }).join('')
-        : '<div class="empty">No hay franjas en el horario docente para hoy.</div>';
-    }
-  }
-
   function dashboardDetails(type){
     if(type==='sessions'){
       const sessions=todaysUnits(),tt=todaysTimetable();
@@ -4531,21 +2982,9 @@
     }
   }
   function renderDashboard(){
-
-    const homeDate=document.querySelector('#home-date-title');
-    if(homeDate){
-      const d=new Date();
-      let label=new Intl.DateTimeFormat('es-ES',{
-        weekday:'long',
-        day:'numeric',
-        month:'long'
-      }).format(d);
-      homeDate.textContent=label.charAt(0).toUpperCase()+label.slice(1);
-    }
-const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},absent=data.students.filter(s=>rec[s.id]==='F'),pending=pendingEvidenceItems(),alerts=alertItems();
+    const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},absent=data.students.filter(s=>rec[s.id]==='F'),pending=pendingEvidenceItems(),alerts=alertItems();
     const set=(id,v)=>{const el=document.querySelector(id);if(el)el.textContent=v};
     set('#dash-sessions-count',units.length||tt.length);set('#dash-absent-count',absent.length);set('#dash-evidence-count',pending.length);set('#dash-alert-count',alerts.length);
-    renderHomeTimeline();
     const summary=document.querySelector('#daily-summary'),pills=document.querySelector('#daily-summary-pills');
     if(summary){summary.textContent=(units.length||tt.length)?`Hoy tienes ${units.length} sesión(es) programada(s) desde tus situaciones y ${tt.length} franja(s) en el horario.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:'No quedan evidencias pendientes.'}`:`No hay sesiones programadas desde situaciones para hoy.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:''}`;}
     if(pills)pills.innerHTML=`<span class="pill ${absent.length?'yellow':'green'}">${absent.length?absent.length+' ausente(s)':'Asistencia sin faltas'}</span><span class="pill ${pending.length?'yellow':'green'}">${pending.length?pending.length+' evidencias pendientes':'Evidencias al día'}</span><span class="pill ${alerts.length?'red':'green'}">${alerts.length?alerts.length+' alertas':'Sin alertas'}</span>`;
@@ -4559,36 +2998,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   }
   function addTimetableRow(){data.settings.timetable.push({time:'',days:['','','','','']});save('Franja añadida')}
   function resetTimetable(){if(confirm('¿Restablecer las franjas del horario?')){data.settings.timetable=clone(demo.settings.timetable);save('Horario restablecido')}}
-
-  function renderTeacherTimetable(){
-    const body=document.querySelector('#teacher-timetable-body');if(!body)return;
-    const rows=data.settings.teacherTimetable||[];
-    body.innerHTML=rows.map((r,ri)=>`<tr><td class="time-slot"><input data-teacher-time-row="${ri}" value="${esc(r.time||'')}"></td>${[0,1,2,3,4].map(di=>`<td><input data-teacher-tt="${ri}|${di}" value="${esc((r.days||[])[di]||'')}" placeholder="Docencia / guardia / tarea"></td>`).join('')}</tr>`).join('');
-    body.querySelectorAll('[data-teacher-tt]').forEach(inp=>inp.onchange=()=>{
-      const [ri,di]=inp.dataset.teacherTt.split('|').map(Number);
-      data.settings.teacherTimetable[ri].days[di]=inp.value;
-      persistState();
-      toast('Horario docente guardado');
-    });
-    body.querySelectorAll('[data-teacher-time-row]').forEach(inp=>inp.onchange=()=>{
-      data.settings.teacherTimetable[Number(inp.dataset.teacherTimeRow)].time=inp.value;
-      persistState();
-      toast('Franja docente guardada');
-    });
-  }
-
-  function addTeacherTimetableRow(){
-    data.settings.teacherTimetable=data.settings.teacherTimetable||[];
-    data.settings.teacherTimetable.push({time:'',days:['','','','','']});
-    save('Franja docente añadida');
-  }
-
-  function resetTeacherTimetable(){
-    if(confirm('¿Restablecer las franjas del horario docente?')){
-      data.settings.teacherTimetable=clone(demo.settings.teacherTimetable);
-      save('Horario docente restablecido');
-    }
-  }
 
   function intelligenceStudent(){
     const id=data.intelligenceStudentId||data.students[0]?.id||'';
@@ -4605,6 +3014,36 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     return {total,pct,absences,lates};
   }
 
+  function studentGradeRecords(studentId){
+    return (data.evidenceColumns||[]).map(c=>({
+      column:c,
+      grade:migrateGradeValue(data.evidence?.[studentId]?.[c.id]||'—')
+    })).filter(x=>x.grade!=='—');
+  }
+
+  function gradeRank(v){return {'INS':1,'SUF':2,'BI':3,'NOT':4,'SOBRE':5}[v]||0}
+
+  function studentCurricularSummary(studentId){
+    const records=studentGradeRecords(studentId);
+    const byCriterion={};
+    records.forEach(r=>{
+      const key=r.column.criterion||r.column.label;
+      byCriterion[key]=byCriterion[key]||{label:key,text:r.column.criterionText||'',ce:r.column.specificCompetence||'',descriptors:r.column.descriptors||'',grades:[],products:[]};
+      byCriterion[key].grades.push(r.grade);
+      if(r.column.productName)byCriterion[key].products.push(r.column.productName);
+    });
+    const criteria=Object.values(byCriterion).map(x=>{
+      const latest=x.grades[x.grades.length-1]||'—';
+      const avg=x.grades.length?x.grades.reduce((a,v)=>a+gradeRank(v),0)/x.grades.length:0;
+      return {...x,latest,avg};
+    });
+    return {
+      records,criteria,
+      strengths:[...criteria].sort((a,b)=>b.avg-a.avg).filter(x=>x.avg>=4).slice(0,4),
+      needs:[...criteria].sort((a,b)=>a.avg-b.avg).filter(x=>x.avg>0&&x.avg<=2).slice(0,4)
+    };
+  }
+
   function studentObservations(studentId){
     return (data.observations||[]).filter(o=>o.studentId===studentId).sort((a,b)=>b.date.localeCompare(a.date));
   }
@@ -4619,171 +3058,29 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   }
 
   function tutoringFamilyNarrative(st,cur,att,obs,meetings){
-    const criterionLabel=c=>{
-      const code=c.code?`criterio ${c.code}`:'un criterio';
-      return `${code}${c.area?` de ${c.area}`:''}`;
-    };
-
-    const assessed=cur.criteria.length;
-    const evidenceCount=cur.evidenceCount;
-    const strong=cur.strengths.map(criterionLabel).slice(0,2);
-    const needs=cur.needs.map(criterionLabel).slice(0,2);
-    const changes=cur.changesToConfirm.map(criterionLabel).slice(0,2);
-    const pending=cur.pending.length;
-
+    const assessed=cur.records.length;
+    const strong=cur.strengths.map(x=>x.label).slice(0,2);
+    const needs=cur.needs.map(x=>x.label).slice(0,2);
     const parts=[];
-
-    if(evidenceCount){
-      parts.push(
-        `${st.name} cuenta actualmente con ${evidenceCount} evidencia${evidenceCount===1?'':'s'} curricular${evidenceCount===1?'':'es'} registrada${evidenceCount===1?'':'s'} en ${assessed} criterio${assessed===1?'':'s'}.`
-      );
-    }else{
-      parts.push(
-        `Todavía no hay evidencias curriculares procedentes de instrumentos registradas para ${st.name}.`
-      );
-    }
-
-    if(strong.length){
-      parts.push(`Se observan fortalezas consolidadas en ${strong.join(' y ')}.`);
-    }
-
-    if(needs.length){
-      parts.push(`Conviene observar la evolución en ${needs.join(' y ')}, sin considerar todavía una variación puntual como un cambio de nivel.`);
-    }
-
-    if(changes.length){
-      parts.push(`Hay cambios que todavía necesitan confirmarse con nuevas evidencias en ${changes.join(' y ')}.`);
-    }
-
-    if(pending){
-      parts.push(
-        `${pending} criterio${pending===1?' todavía no cuenta':'s todavía no cuentan'} con evidencia suficiente para establecer un nivel consolidado.`
-      );
-    }
-
-    if(obs.length){
-      parts.push(`Hay ${obs.length} observación${obs.length===1?'':'es'} individual${obs.length===1?'':'es'} registrada${obs.length===1?'':'s'}; la más reciente es del ${obs[0].date}.`);
-    }
-
-    if(att.total){
-      parts.push(`La asistencia registrada es del ${att.pct}%, con ${att.absences.length} falta${att.absences.length===1?'':'s'} y ${att.lates.length} retraso${att.lates.length===1?'':'s'}.`);
-    }
-
-    if(meetings.length){
-      parts.push(`Constan ${meetings.length} reunión${meetings.length===1?'':'es'} relacionada${meetings.length===1?'':'s'} en el historial.`);
-    }
-
+    parts.push(`${st.name} cuenta actualmente con ${assessed} valoración${assessed===1?'':'es'} registrada${assessed===1?'':'s'} en el cuaderno.`);
+    if(strong.length)parts.push(`Los resultados más sólidos aparecen en ${strong.join(' y ')}.`);
+    if(needs.length)parts.push(`Conviene seguir acompañando especialmente ${needs.join(' y ')}.`);
+    if(obs.length)parts.push(`Hay ${obs.length} observación${obs.length===1?'':'es'} individual${obs.length===1?'':'es'} registrada${obs.length===1?'':'s'}; la más reciente es del ${obs[0].date}.`);
+    if(att.total)parts.push(`La asistencia registrada es del ${att.pct}%, con ${att.absences.length} falta${att.absences.length===1?'':'s'} y ${att.lates.length} retraso${att.lates.length===1?'':'s'}.`);
+    if(meetings.length)parts.push(`Constan ${meetings.length} reunión${meetings.length===1?'':'es'} relacionada${meetings.length===1?'':'s'} en el historial.`);
     return parts.join(' ');
-  }
-
-  function renderIntelligenceRadar(){
-    const box=document.querySelector('#intelligence-radar');
-    const st=intelligenceStudent();
-    if(!box||!st)return;
-
-    const cur=studentIntelligenceCurricularSummary(st.id);
-
-    const criterionName=c=>{
-      const code=c.code?`Criterio ${c.code}`:'Criterio';
-      return `${code}${c.area?` · ${c.area}`:''}`;
-    };
-
-    const signalCard=(title,text,items,tone='blue')=>`
-      <div class="notice ${tone}" style="margin:0">
-        <strong>${title}</strong>
-        <div class="small" style="margin-top:5px">${text}</div>
-        ${items.length?`
-          <div style="display:grid;gap:7px;margin-top:10px">
-            ${items.map(c=>`
-              <div style="padding-top:7px;border-top:1px solid var(--border)">
-                <strong>${esc(criterionName(c))}</strong>
-                ${c.text?`<div class="small">${esc(c.text)}</div>`:''}
-              </div>
-            `).join('')}
-          </div>
-        `:'<div class="small" style="margin-top:10px">No hay señales en este apartado.</div>'}
-      </div>
-    `;
-
-    const improvements=cur.improvements;
-    const changes=cur.changesToConfirm;
-    const needs=cur.needs;
-    const pending=cur.pending;
-
-    box.innerHTML=`
-      <div class="card">
-        <div class="notebook-title-row">
-          <div>
-            <h3>Radar docente · ${esc(st.name)}</h3>
-            <p>
-              Señales construidas a partir de las evidencias registradas.
-              Orientan dónde mirar; no sustituyen tu valoración profesional.
-            </p>
-          </div>
-          <span class="pill blue">${cur.evidenceCount} evidencia${cur.evidenceCount===1?'':'s'}</span>
-        </div>
-
-        ${!cur.criteria.length?`
-          <div class="empty">
-            Todavía no hay evidencias curriculares procedentes de instrumentos
-            para construir una lectura pedagógica.
-          </div>
-        `:`
-          <div class="grid cols-2" style="gap:12px;margin-top:14px">
-            ${signalCard(
-              '↗ Evolución positiva',
-              'Cambios ascendentes respaldados por la trayectoria de evidencias.',
-              improvements,
-              'green'
-            )}
-            ${signalCard(
-              '◌ Cambios por confirmar',
-              'Dos evidencias recientes apuntan a un nivel distinto. Una evidencia más permitiría confirmar el cambio.',
-              changes,
-              'yellow'
-            )}
-            ${signalCard(
-              '◇ Conviene observar',
-              'La evidencia más reciente está por debajo de un nivel previamente consolidado. No implica por sí sola un cambio de nivel.',
-              needs,
-              'blue'
-            )}
-            ${signalCard(
-              '○ Necesitamos más información',
-              'Estos criterios todavía no cuentan con tres evidencias coherentes para establecer un nivel consolidado.',
-              pending,
-              'yellow'
-            )}
-          </div>
-        `}
-      </div>
-    `;
   }
 
   function renderTutoringReport(){
     const box=document.querySelector('#tutoring-report'),st=intelligenceStudent();
     if(!box||!st)return;
-    const cur=studentIntelligenceCurricularSummary(st.id),att=studentAttendanceSummary(st.id),obs=studentObservations(st.id),meetings=studentMeetings(st);
+    const cur=studentCurricularSummary(st.id),att=studentAttendanceSummary(st.id),obs=studentObservations(st.id),meetings=studentMeetings(st);
     const recentObs=obs.slice(0,5), recentMeetings=meetings.slice(0,3);
     const lastMeeting=recentMeetings[0];
-
-    const criterionLabel=c=>{
-      const code=c.code?`Criterio ${c.code}`:'Criterio';
-      return `${code}${c.area?` · ${c.area}`:''}`;
-    };
-
-    const strengths=[
-      ...(st.strengths||[]),
-      ...cur.strengths.map(criterionLabel)
-    ].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
-
-    const difficulties=[
-      ...(st.difficulties||[]),
-      ...cur.needs.map(criterionLabel)
-    ].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
-
+    const strengths=[...(st.strengths||[]),...cur.strengths.map(x=>x.label)].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
+    const difficulties=[...(st.difficulties||[]),...cur.needs.map(x=>x.label)].filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,6);
     const assessedCriteria=cur.criteria.length;
-    const pending=cur.pending.length;
+    const pending=data.evidenceColumns.filter(c=>!data.evidence?.[st.id]?.[c.id]||migrateGradeValue(data.evidence[st.id][c.id])==='—').length;
 
     box.innerHTML=`
       <div class="tutoring-hero">
@@ -4822,41 +3119,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
       <div class="tutor-section">
         <h4>📚 Evolución curricular</h4>
-        ${cur.criteria.length?cur.criteria.map(c=>{
-          const i=c.interpretation;
-          const consolidated=i.consolidated!==null
-            ?evidenceLevelName(i.consolidated)
-            :'Aún no consolidado';
-          const latest=i.observed!==null
-            ?evidenceLevelName(i.observed)
-            :'Sin evidencia';
-          const reading=
-            i.consolidated===null
-              ?(i.support===2?'Consolidación en progreso':'Necesitamos más evidencias')
-              :(i.observed!==i.consolidated
-                ?(i.support===2?'Cambio por confirmar':'Variación puntual')
-                :(i.previousConsolidated!==null && i.consolidated>i.previousConsolidated
-                  ?'Mejora consolidada'
-                  :'Nivel consolidado'));
-
-          return `
-            <div class="tutor-grade-row">
-              <div>
-                <strong>${esc(criterionLabel(c))}</strong>
-                ${c.text?`<div class="small">${esc(c.text)}</div>`:''}
-                <div class="small">
-                  ${esc(c.specificCompetence||'')}
-                  ${c.evidence.length?` · ${c.evidence.length} evidencia${c.evidence.length===1?'':'s'}`:''}
-                </div>
-              </div>
-              <div style="text-align:right">
-                <strong>${esc(consolidated)}</strong>
-                <div class="small">Última: ${esc(latest)}</div>
-                <div class="small">${esc(reading)}</div>
-              </div>
-            </div>
-          `;
-        }).join(''):'<div class="empty">Todavía no hay evidencias curriculares procedentes de instrumentos para este alumno.</div>'}
+        ${cur.criteria.length?cur.criteria.map(c=>`<div class="tutor-grade-row"><div><strong>${esc(c.label)}</strong><div class="small">${esc(c.ce||'')}${c.products.length?' · '+esc([...new Set(c.products)].join(', ')):''}</div></div><span class="tutor-grade ${gradeClass(c.latest)}">${esc(c.latest)}</span></div>`).join(''):'<div class="empty">Todavía no hay criterios evaluados para este alumno.</div>'}
       </div>
 
       <div class="tutoring-two">
@@ -4907,7 +3170,11 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       sel.innerHTML=data.students.map(s=>`<option value="${esc(s.id)}" ${s.id===data.intelligenceStudentId?'selected':''}>${esc(s.name)}</option>`).join('');
       sel.onchange=()=>{data.intelligenceStudentId=sel.value;persistState();renderIntelligence()};
     }
-    renderIntelligenceRadar();
+    const st=intelligenceStudent();
+    const dev=document.querySelector('#interpretacion-desarrollo');
+    if(dev&&st)dev.textContent=buildInterpretation(st);
+    const title=document.querySelector('#development-student-title');
+    if(title&&st)title.textContent=`Desarrollo de ${st.name}`;
     renderTutoringReport();
   }
 
@@ -5588,97 +3855,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     };
   }
 
-  function studentInstrumentCriterionSummary(studentId){
-    const evidence=(data.instrumentEvidence||[])
-      .filter(ev=>ev.studentId===studentId)
-      .sort((a,b)=>{
-        const byDate=(a.date||'').localeCompare(b.date||'');
-        if(byDate!==0) return byDate;
-        return (a.createdAt||a.updatedAt||'').localeCompare(
-          b.createdAt||b.updatedAt||''
-        );
-      });
-
-    const criteria=new Map();
-
-    evidence.forEach(ev=>{
-      const area=ev.areaLabel||ev.area||'Área sin especificar';
-      const ce=ev.specificCompetence||'CE sin especificar';
-      const criterionKey=ev.criterionKey||`${ce}|${ev.criterionCode||''}|${ev.criterionText||''}`;
-      const key=`${area}|${criterionKey}`;
-
-      if(!criteria.has(key)){
-        criteria.set(key,{
-          key:criterionKey,
-          area,
-          specificCompetence:ce,
-          specificCompetenceText:ev.specificCompetenceText||'',
-          code:ev.criterionCode||'',
-          text:ev.criterionText||'',
-          evidence:[]
-        });
-      }
-
-      criteria.get(key).evidence.push(ev);
-    });
-
-    return [...criteria.values()].map(criterion=>({
-      ...criterion,
-      interpretation:interpretEvidenceSequence(
-        criterion.evidence.map(ev=>ev.value)
-      )
-    }));
-  }
-
-  function studentIntelligenceCurricularSummary(studentId){
-    const criteria=studentInstrumentCriterionSummary(studentId);
-
-    const strengths=criteria.filter(c=>
-      c.interpretation.consolidated===4 ||
-      (
-        c.interpretation.status==='Consolidado' &&
-        c.interpretation.trend==='up'
-      )
-    );
-
-    const needs=criteria.filter(c=>{
-      const i=c.interpretation;
-      return (
-        i.consolidated!==null &&
-        i.observed!==null &&
-        i.observed<i.consolidated
-      );
-    });
-
-    const pending=criteria.filter(c=>
-      c.interpretation.consolidated===null
-    );
-
-    const changesToConfirm=criteria.filter(c=>
-      c.interpretation.consolidated!==null &&
-      c.interpretation.observed!==c.interpretation.consolidated &&
-      c.interpretation.support===2
-    );
-
-    const improvements=criteria.filter(c=>
-      c.interpretation.consolidated!==null &&
-      c.interpretation.trend==='up'
-    );
-
-    return {
-      criteria,
-      evidenceCount:criteria.reduce(
-        (total,c)=>total+c.evidence.length,
-        0
-      ),
-      strengths,
-      needs,
-      pending,
-      changesToConfirm,
-      improvements
-    };
-  }
-
   function renderCompetencyProfile(){
     const box=document.querySelector('#competency-profile-content');
     if(!box) return;
@@ -6284,347 +4460,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     };
   }
 
-  function applySidebarState(){
-    const pinned=!!data.settings?.sidebarPinned;
-    document.body.classList.toggle('sidebar-pinned',pinned);
-
-    const pin=document.querySelector('#sidebar-pin');
-    if(pin){
-      pin.textContent=pinned?'📍':'📌';
-      pin.title=pinned?'Soltar menú':'Fijar menú';
-      pin.setAttribute('aria-label',pinned?'Soltar menú':'Fijar menú');
-    }
-  }
-
-  function bindSidebar(){
-    const pin=document.querySelector('#sidebar-pin');
-    const handle=document.querySelector('#sidebar-handle');
-    const aside=document.querySelector('aside');
-
-    if(pin && !pin.dataset.bound){
-      pin.dataset.bound='1';
-      pin.onclick=()=>{
-        data.settings=data.settings||{};
-        data.settings.sidebarPinned=!data.settings.sidebarPinned;
-        applySidebarState();
-        persistState();
-      };
-    }
-
-    if(handle && aside && !handle.dataset.bound){
-      handle.dataset.bound='1';
-
-      handle.addEventListener('mouseenter',()=>{
-        if(!data.settings?.sidebarPinned){
-          aside.style.transform='translateX(0)';
-          aside.style.transitionDelay='0s';
-        }
-      });
-
-      aside.addEventListener('mouseleave',()=>{
-        if(!data.settings?.sidebarPinned){
-          aside.style.transform='';
-          aside.style.transitionDelay='';
-        }
-      });
-    }
-
-    applySidebarState();
-  }
-
-  function ensureClassroomLayout(){
-    if(!data.classroomLayout || typeof data.classroomLayout!=='object'){
-      data.classroomLayout={desks:[],placements:{}};
-    }
-    if(!Array.isArray(data.classroomLayout.desks)){
-      data.classroomLayout.desks=[];
-    }
-    if(!data.classroomLayout.placements || typeof data.classroomLayout.placements!=='object'){
-      data.classroomLayout.placements={};
-    }
-
-    data.classroomLayout.desks.forEach((desk,index)=>{
-      if(!Number.isFinite(desk.x)) desk.x=40+(index%4)*190;
-      if(!Number.isFinite(desk.y)) desk.y=90+Math.floor(index/4)*125;
-    });
-  }
-
-  function addClassroomDesk(){
-    ensureClassroomLayout();
-
-    const index=data.classroomLayout.desks.length;
-    const id=uid('desk');
-
-    data.classroomLayout.desks.push({
-      id,
-      label:`Mesa ${index+1}`,
-      x:40+(index%4)*190,
-      y:90+Math.floor(index/4)*125
-    });
-
-    save('Mesa añadida');
-  }
-
-  function removeClassroomDesk(deskId){
-    ensureClassroomLayout();
-
-    data.classroomLayout.desks=data.classroomLayout.desks.filter(d=>d.id!==deskId);
-    delete data.classroomLayout.placements[deskId];
-
-    save('Mesa eliminada');
-  }
-
-  function setClassroomStudent(deskId,studentId){
-    ensureClassroomLayout();
-
-    if(studentId){
-      Object.keys(data.classroomLayout.placements).forEach(id=>{
-        if(data.classroomLayout.placements[id]===studentId){
-          delete data.classroomLayout.placements[id];
-        }
-      });
-
-      data.classroomLayout.placements[deskId]=studentId;
-    }else{
-      delete data.classroomLayout.placements[deskId];
-    }
-
-    save();
-  }
-
-  function bindClassroomDragging(canvas){
-    canvas.querySelectorAll('[data-classroom-drag]').forEach(handle=>{
-      handle.onpointerdown=e=>{
-        if(e.button!==0)return;
-
-        const deskEl=handle.closest('[data-classroom-desk-card]');
-        const deskId=deskEl?.dataset.classroomDeskCard;
-        const desk=data.classroomLayout.desks.find(d=>d.id===deskId);
-
-        if(!deskEl||!desk)return;
-
-        e.preventDefault();
-
-        const canvasRect=canvas.getBoundingClientRect();
-        const deskRect=deskEl.getBoundingClientRect();
-
-        const offsetX=e.clientX-deskRect.left;
-        const offsetY=e.clientY-deskRect.top;
-
-        deskEl.style.zIndex='20';
-        deskEl.style.cursor='grabbing';
-        handle.setPointerCapture(e.pointerId);
-
-        const move=ev=>{
-          const maxX=Math.max(0,canvas.clientWidth-deskEl.offsetWidth);
-
-          const x=Math.max(0,Math.min(maxX,ev.clientX-canvasRect.left-offsetX));
-          const y=Math.max(58,ev.clientY-canvasRect.top-offsetY);
-
-          desk.x=Math.round(x);
-          desk.y=Math.round(y);
-
-          deskEl.style.left=`${desk.x}px`;
-          deskEl.style.top=`${desk.y}px`;
-
-          const neededHeight=Math.max(
-            520,
-            ...data.classroomLayout.desks.map(d=>
-              d.id===desk.id
-                ? desk.y+deskEl.offsetHeight+40
-                : (Number(d.y)||0)+150
-            )
-          );
-
-          canvas.style.minHeight=`${neededHeight}px`;
-        };
-
-        const finish=ev=>{
-          handle.releasePointerCapture?.(ev.pointerId);
-          handle.onpointermove=null;
-          handle.onpointerup=null;
-          handle.onpointercancel=null;
-
-          deskEl.style.zIndex='';
-          deskEl.style.cursor='';
-
-          persistState();
-        };
-
-        handle.onpointermove=move;
-        handle.onpointerup=finish;
-        handle.onpointercancel=finish;
-      };
-    });
-  }
-
-  function renderClassroom(){
-    const box=document.querySelector('#classroom-layout');
-    if(!box)return;
-
-    ensureClassroomLayout();
-
-    const desks=data.classroomLayout.desks;
-    const placements=data.classroomLayout.placements;
-
-    if(!desks.length){
-      box.innerHTML=`
-        <div class="empty">
-          Todavía no hay mesas en el plano.<br>
-          Añade la primera para empezar a construir tu aula.
-        </div>
-      `;
-    }else{
-      const neededHeight=Math.max(
-        520,
-        ...desks.map(d=>(Number(d.y)||0)+150)
-      );
-
-      box.innerHTML=`
-        <div
-          id="classroom-canvas"
-          style="
-            position:relative;
-            width:100%;
-            min-height:${neededHeight}px;
-            border:1px solid #dbe3ec;
-            border-radius:16px;
-            background:#f8fafc;
-            overflow:hidden;
-          "
-        >
-          <div style="
-            position:absolute;
-            top:16px;
-            left:50%;
-            transform:translateX(-50%);
-            width:min(280px,45%);
-            padding:9px 16px;
-            text-align:center;
-            border:2px solid #94a3b8;
-            border-radius:8px;
-            background:white;
-            font-weight:700;
-            box-sizing:border-box;
-          ">PIZARRA</div>
-
-          ${desks.map((desk,index)=>{
-            const selected=placements[desk.id]||'';
-
-            return `
-              <div
-                data-classroom-desk-card="${esc(desk.id)}"
-                style="
-                  position:absolute;
-                  left:${Number(desk.x)||0}px;
-                  top:${Number(desk.y)||90}px;
-                  width:170px;
-                  box-sizing:border-box;
-                  background:white;
-                  border:1px solid #cbd5e1;
-                  border-radius:12px;
-                  padding:10px;
-                  box-shadow:0 2px 6px rgba(15,23,42,.08);
-                "
-              >
-                <div
-                  data-classroom-drag
-                  title="Arrastrar mesa"
-                  style="
-                    display:flex;
-                    align-items:center;
-                    justify-content:space-between;
-                    gap:8px;
-                    margin:-10px -10px 10px;
-                    padding:8px 10px;
-                    border-radius:12px 12px 0 0;
-                    background:#eef2f7;
-                    cursor:grab;
-                    user-select:none;
-                    touch-action:none;
-                  "
-                >
-                  <span style="
-                    font-size:11px;
-                    font-weight:700;
-                    color:#64748b;
-                    letter-spacing:.02em;
-                  ">⠿ ${esc(desk.label||`Mesa ${index+1}`)}</span>
-
-                  <button
-                    class="no-print"
-                    data-classroom-remove="${esc(desk.id)}"
-                    title="Eliminar mesa"
-                    style="padding:3px 7px"
-                  >×</button>
-                </div>
-
-                <div style="
-                  margin-bottom:8px;
-                  min-height:34px;
-                  display:flex;
-                  align-items:center;
-                ">
-                  ${
-                    selected
-                      ? `<strong style="
-                          font-size:16px;
-                          line-height:1.15;
-                          color:#0f172a;
-                        ">${esc(data.students.find(st=>st.id===selected)?.name||'Alumno')}</strong>`
-                      : `<span style="
-                          font-size:14px;
-                          color:#94a3b8;
-                          font-style:italic;
-                        ">Sin asignar</span>`
-                  }
-                </div>
-
-                <select data-classroom-desk="${esc(desk.id)}" style="width:100%">
-                  <option value="">Sin asignar</option>
-                  ${data.students.map(st=>`
-                    <option
-                      value="${esc(st.id)}"
-                      ${selected===st.id?'selected':''}
-                    >${esc(st.name)}</option>
-                  `).join('')}
-                </select>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
-
-      box.querySelectorAll('[data-classroom-desk]').forEach(sel=>{
-        sel.onchange=()=>setClassroomStudent(sel.dataset.classroomDesk,sel.value);
-      });
-
-      box.querySelectorAll('[data-classroom-remove]').forEach(btn=>{
-        btn.onclick=e=>{
-          e.stopPropagation();
-          removeClassroomDesk(btn.dataset.classroomRemove);
-        };
-        btn.onpointerdown=e=>e.stopPropagation();
-      });
-
-      const canvas=document.querySelector('#classroom-canvas');
-      if(canvas)bindClassroomDragging(canvas);
-    }
-
-    const add=document.querySelector('#classroom-add-desk');
-    if(add)add.onclick=addClassroomDesk;
-
-    const reset=document.querySelector('#classroom-reset');
-    if(reset){
-      reset.onclick=()=>{
-        if(!data.classroomLayout.desks.length)return;
-        data.classroomLayout={desks:[],placements:{}};
-        save('Plano vaciado');
-      };
-    }
-  }
-
-  function renderAll(){renderStudents();renderClassroom();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
+  function renderAll(){renderStudents();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();}
 
 
   let pendingUpdateVersion='';
@@ -6632,7 +4468,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.1'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.3.5'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
@@ -7178,6 +5014,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>openSection(btn.dataset.section)));
   document.querySelectorAll('.mode-switch button').forEach(btn=>btn.addEventListener('click',()=>applyMode(btn.dataset.mode,true)));
   document.querySelector('#interpretar-alumno').onclick=()=>document.querySelector('#interpretacion-alumno').classList.toggle('show');
+  document.querySelector('#interpretar-desarrollo').onclick=()=>document.querySelector('#interpretacion-desarrollo').classList.toggle('show');
   document.querySelector('#guardar-diario').onclick=addObservation;
   document.querySelectorAll('.bank-category').forEach(b=>b.onclick=()=>renderBank(b.dataset.bank));
   document.querySelector('#agenda-save').onclick=addAgenda;
@@ -7404,8 +5241,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelectorAll('[data-dashboard]').forEach(card=>{card.onclick=()=>dashboardDetails(card.dataset.dashboard);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();dashboardDetails(card.dataset.dashboard)}}});
   document.querySelector('#timetable-add-row').onclick=addTimetableRow;
   document.querySelector('#timetable-reset').onclick=resetTimetable;
-  document.querySelector('#teacher-timetable-add-row').onclick=addTeacherTimetableRow;
-  document.querySelector('#teacher-timetable-reset').onclick=resetTeacherTimetable;
   document.querySelector('#issue-add').onclick=addIssue;
   document.querySelector('#issue-filter').onchange=renderIssues;
   document.querySelector('#google-connect').onclick=connectGoogle;
@@ -7425,9 +5260,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   updateDbStatus(nativeMode,nativeMode?'Base de datos local preparada.':'La app empaquetada usará SQLite local.');
   setInterval(()=>{renderLiveClass();renderDashboard();const u=selectedUnit();if(u)renderSessions(u)},30000);
 })();
-
-
-
 </script>
 </body>
 </html>

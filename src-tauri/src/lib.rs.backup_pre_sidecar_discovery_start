@@ -935,15 +935,6 @@ fn generate_aportacion_pdf(
 pub fn run(){
     tauri::Builder::default()
       .plugin(tauri_plugin_updater::Builder::new().build())
-      .setup(|app| {
-          let mdns = sidecar::discovery::start_discovery()
-              .map_err(std::io::Error::other)?;
-
-          app.manage(mdns);
-
-          println!("Sidecar: servicio Bonjour publicado");
-          Ok(())
-      })
       .invoke_handler(tauri::generate_handler![load_state,save_state,create_backup,database_status,google_connect,google_status,google_disconnect,google_sync_agenda,check_for_update,install_update,generate_aportacion_pdf,generate_aportacion_csv])
       .run(tauri::generate_context!())
       .expect("error while running MiCuadernoDigital");

@@ -1,0 +1,6 @@
+use mdns_sd::ServiceDaemon;
+
+pub fn create_daemon() -> Result<ServiceDaemon, String> {
+    ServiceDaemon::new()
+        .map_err(|e| format!("No se pudo iniciar el servicio mDNS de Sidecar: {e}"))
+}

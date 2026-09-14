@@ -907,939 +907,6 @@
     .update-notes{white-space:pre-wrap;font-size:13px;color:var(--muted);margin-top:10px}
     @media(max-width:900px){.actuation-grid{grid-template-columns:1fr}}
 
-
-    /* ===== MiCuadernoDigital · Visual 2.0 · Sidebar ===== */
-
-    aside{
-      background:#fbfdff;
-      color:#172033;
-      border-right:1px solid #e7edf4;
-      box-shadow:none;
-    }
-
-    aside:hover,
-    aside:focus-within{
-      box-shadow:14px 0 38px rgba(71,85,105,.12);
-    }
-
-    aside::after{
-      background:#dff4f1;
-    }
-
-    .sidebar-handle{
-      background:#55b8ac;
-      box-shadow:3px 0 12px rgba(71,85,105,.18);
-    }
-
-    .sidebar-pin{
-      border:1px solid #dbe4ec;
-      background:#ffffff;
-      color:#64748b;
-      box-shadow:0 2px 8px rgba(15,23,42,.06);
-    }
-
-    .sidebar-pin:hover{
-      background:#f0fdfa;
-      color:#0f766e;
-    }
-
-    .brand{
-      margin-bottom:22px;
-    }
-
-    .brand h1{
-      color:#172033;
-    }
-
-    .brand p{
-      color:#8090a3;
-    }
-
-    .mode-switch{
-      background:#edf3f7;
-      padding:5px;
-      border-radius:14px;
-      margin-bottom:10px;
-    }
-
-    .mode-switch button{
-      color:#718096;
-    }
-
-    .mode-switch button.active{
-      background:#ffffff;
-      color:#172033;
-      box-shadow:0 3px 10px rgba(15,23,42,.08);
-    }
-
-    .mode-badge{
-      color:#8a98a9;
-    }
-
-    nav{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      margin-top:8px;
-    }
-
-    .nav-home{
-      margin-bottom:4px;
-    }
-
-    .nav-group{
-      margin-top:10px;
-      padding-top:6px;
-      border-top:1px solid #edf1f5;
-    }
-
-    .nav-group-title{
-      padding:5px 12px 5px;
-      color:#9aa8b7;
-      font-size:10px;
-      line-height:1;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.10em;
-    }
-
-    nav button{
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      border:0;
-      background:transparent;
-      color:#536277;
-      text-align:left;
-      padding:9px 11px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:13.5px;
-      font-weight:650;
-      transition:background .16s ease,color .16s ease,transform .16s ease;
-    }
-
-    nav button .nav-icon{
-      width:22px;
-      min-width:22px;
-      height:22px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:7px;
-      background:#f0f4f8;
-      color:#728195;
-      font-size:14px;
-      font-weight:800;
-    }
-
-    nav button:hover{
-      background:#f4f7fa;
-      color:#172033;
-      transform:translateX(2px);
-    }
-
-    nav button.active{
-      background:#e8f7f4;
-      color:#167c70;
-      box-shadow:none;
-    }
-
-    nav button.active .nav-icon{
-      background:#cdeee8;
-      color:#167c70;
-    }
-
-    .nav-group-org .nav-icon{
-      background:#eaf2ff;
-      color:#5279b8;
-    }
-
-    .nav-group-aula .nav-icon{
-      background:#e4f7f1;
-      color:#398c7d;
-    }
-
-    .nav-group-eval .nav-icon{
-      background:#f0eafa;
-      color:#8061ac;
-    }
-
-    .nav-group-plan .nav-icon{
-      background:#fff5d9;
-      color:#a47a28;
-    }
-
-    .nav-group-system .nav-icon{
-      background:#eef2f6;
-      color:#758397;
-    }
-
-    .sidebar-note{
-      margin-top:18px;
-      border:1px solid #e3eaef;
-      background:#f8fafc;
-      color:#718096;
-      box-shadow:none;
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.0 ===== */
-
-    #inicio{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-column:1 / -1;
-      position:relative;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      min-height:118px;
-      padding:26px 30px;
-      border:1px solid #dfece9;
-      border-radius:26px;
-      background:
-        radial-gradient(circle at 85% 18%,rgba(255,255,255,.75),transparent 24%),
-        linear-gradient(135deg,#eefaf7 0%,#f4f8ff 58%,#fffaf0 100%);
-      box-shadow:0 10px 28px rgba(71,85,105,.08);
-    }
-
-    #inicio .home-welcome::after{
-      content:"";
-      position:absolute;
-      width:190px;
-      height:190px;
-      right:-45px;
-      bottom:-115px;
-      border-radius:50%;
-      background:rgba(89,184,172,.13);
-    }
-
-    #inicio .home-eyebrow{
-      margin-bottom:6px;
-      color:#2e8f82;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-    }
-
-    #inicio .home-welcome h2{
-      margin:0;
-      color:#172033;
-      font-size:30px;
-      line-height:1.08;
-      letter-spacing:-.035em;
-    }
-
-    #inicio .home-welcome p{
-      margin:8px 0 0;
-      color:#718096;
-      font-size:14px;
-    }
-
-    #inicio .home-welcome-badge{
-      position:relative;
-      z-index:1;
-      width:58px;
-      height:58px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 58px;
-      border-radius:18px;
-      background:rgba(255,255,255,.78);
-      box-shadow:0 8px 22px rgba(71,85,105,.10);
-      font-size:28px;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      gap:14px;
-      margin:0;
-    }
-
-    #inicio .dashboard-card{
-      min-height:112px;
-      padding:17px 18px;
-      border:1px solid #e8edf2;
-      border-radius:20px;
-      background:#fff;
-      box-shadow:0 7px 22px rgba(71,85,105,.055);
-      transition:transform .18s ease,box-shadow .18s ease;
-    }
-
-    #inicio .dashboard-card:hover{
-      transform:translateY(-2px);
-      box-shadow:0 12px 28px rgba(71,85,105,.09);
-    }
-
-    #inicio .dashboard-card h3{
-      margin:0 0 12px;
-      color:#718096;
-      font-size:12px;
-      font-weight:800;
-    }
-
-    #inicio .dashboard-card .metric{
-      align-items:flex-end;
-    }
-
-    #inicio .dashboard-card .metric strong{
-      color:#172033;
-      font-size:28px;
-      line-height:1;
-    }
-
-    #inicio .dashboard-card .metric span{
-      color:#8a98a9;
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(1){
-      background:linear-gradient(145deg,#f0faf8,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(2){
-      background:linear-gradient(145deg,#fff9e9,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(3){
-      background:linear-gradient(145deg,#f5f0fc,#ffffff);
-    }
-
-    #inicio .home-metrics .dashboard-card:nth-child(4){
-      background:linear-gradient(145deg,#fff1f2,#ffffff);
-    }
-
-    #inicio #live-class-panel{
-      grid-column:1;
-      margin:0;
-      min-height:205px;
-      padding:28px 30px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      align-items:flex-start;
-      border:0;
-      border-radius:26px;
-      background:
-        radial-gradient(circle at 92% 20%,rgba(255,255,255,.20),transparent 22%),
-        linear-gradient(135deg,#279d8f,#50b8aa);
-      color:#fff;
-      box-shadow:0 14px 32px rgba(39,157,143,.20);
-    }
-
-    #inicio #live-class-panel.now{
-      background:
-        radial-gradient(circle at 92% 20%,rgba(255,255,255,.20),transparent 22%),
-        linear-gradient(135deg,#168c7e,#45b9a9);
-    }
-
-    #inicio #live-class-panel .live-label{
-      display:inline-flex;
-      align-items:center;
-      width:max-content;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.16);
-      color:#eafffb;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:.1em;
-      text-transform:uppercase;
-    }
-
-    #inicio #live-class-panel h3{
-      margin:16px 0 8px;
-      max-width:720px;
-      color:#fff;
-      font-size:26px;
-      line-height:1.15;
-      letter-spacing:-.025em;
-    }
-
-    #inicio #live-class-panel p{
-      margin:0;
-      max-width:720px;
-      color:rgba(255,255,255,.82);
-      line-height:1.55;
-    }
-
-    #inicio #live-class-panel .primary{
-      margin-top:22px;
-      border:1px solid rgba(255,255,255,.32);
-      background:#fff;
-      color:#167c70;
-      box-shadow:0 7px 18px rgba(15,118,110,.18);
-    }
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:3 / span 2;
-      margin:0 !important;
-      padding:22px;
-      border:1px solid #e7ebf0;
-      border-radius:24px;
-      background:#fff;
-      box-shadow:0 9px 28px rgba(71,85,105,.07);
-    }
-
-    #inicio #daily-note-card h3{
-      color:#172033;
-    }
-
-    #inicio #daily-note-card p{
-      color:#718096;
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    #inicio #daily-note-card .rich-editor{
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid #e6ebf0;
-      background:#fbfcfd;
-    }
-
-    #inicio #daily-note-card .rich-toolbar{
-      background:#f6f8fa;
-      border-bottom:1px solid #e6ebf0;
-    }
-
-    #inicio #daily-note-card .rich-area{
-      min-height:180px !important;
-      background:#fff;
-    }
-
-    #inicio > .card:not(#daily-note-card){
-      grid-column:1;
-      margin:0 !important;
-      padding:22px 24px;
-      border:1px solid #e7ebf0;
-      border-radius:24px;
-      background:#fff;
-      box-shadow:0 8px 24px rgba(71,85,105,.06);
-    }
-
-    #inicio > .card:not(#daily-note-card) h3{
-      margin-top:0;
-      color:#172033;
-    }
-
-    #inicio > .card:not(#daily-note-card) p{
-      color:#718096;
-      line-height:1.55;
-    }
-
-    #daily-summary-pills{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:14px;
-    }
-
-    @media(max-width:1050px){
-      #inicio{
-        grid-template-columns:1fr;
-      }
-
-      #inicio .home-welcome,
-      #inicio .home-metrics,
-      #inicio #live-class-panel,
-      #inicio #daily-note-card,
-      #inicio > .card:not(#daily-note-card){
-        grid-column:1;
-        grid-row:auto;
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.1 ===== */
-
-    #inicio{
-      display:block;
-    }
-
-    #inicio .home-shell{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(340px,.72fr);
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-column:1 / -1;
-      min-height:104px;
-      padding:22px 28px;
-    }
-
-    #inicio .home-welcome h2{
-      font-size:28px;
-    }
-
-    #inicio #live-class-panel{
-      grid-column:1;
-      min-height:180px;
-      border-radius:24px;
-      padding:26px 28px;
-    }
-
-    #inicio #live-class-panel h3{
-      font-size:24px;
-    }
-
-    #inicio .home-next-strip{
-      grid-column:1;
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    #inicio .home-mini-card{
-      min-height:92px;
-      padding:17px 18px;
-      border:1px solid #e7ebf0;
-      border-radius:19px;
-      background:#fff;
-      box-shadow:0 7px 20px rgba(71,85,105,.055);
-    }
-
-    #inicio .home-mini-kicker{
-      margin-bottom:8px;
-      color:#728195;
-      font-size:10px;
-      font-weight:900;
-      letter-spacing:.09em;
-      text-transform:uppercase;
-    }
-
-    #inicio .home-mini-card strong{
-      display:block;
-      margin-bottom:5px;
-      color:#172033;
-      font-size:15px;
-    }
-
-    #inicio .home-mini-card span{
-      color:#8492a5;
-      font-size:12.5px;
-      line-height:1.4;
-    }
-
-    #inicio .home-today-schedule{
-      grid-column:1;
-      margin:0 !important;
-      padding:22px 24px;
-      border-radius:22px;
-    }
-
-    #inicio .home-section-head{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:18px;
-      margin-bottom:14px;
-    }
-
-    #inicio .home-section-head h3{
-      margin:3px 0 0;
-    }
-
-    #inicio .home-soft-icon{
-      width:38px;
-      height:38px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:12px;
-      background:#edf6f4;
-      color:#458d82;
-      font-size:18px;
-    }
-
-    #inicio .home-schedule-list{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    #inicio .home-schedule-row{
-      display:grid;
-      grid-template-columns:90px 1fr;
-      gap:14px;
-      align-items:center;
-      padding:11px 13px;
-      border-radius:13px;
-      background:#f8fafb;
-      border:1px solid #edf1f4;
-    }
-
-    #inicio .home-schedule-row strong{
-      color:#397f75;
-      font-size:12px;
-    }
-
-    #inicio .home-schedule-row span{
-      color:#4f5f72;
-      font-size:13px;
-    }
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:3 / span 4;
-      margin:0 !important;
-      position:sticky;
-      top:18px;
-    }
-
-    #inicio #daily-summary-card{
-      grid-column:2 !important;
-      margin:0 !important;
-      padding:18px 20px !important;
-      background:#fbfcfd !important;
-      box-shadow:none !important;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      order:20;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-    }
-
-    #inicio .home-metrics .dashboard-card{
-      min-height:auto;
-      padding:14px 16px;
-      border-radius:17px;
-    }
-
-    #inicio .home-metrics .dashboard-card h3{
-      margin-bottom:7px;
-      font-size:11px;
-    }
-
-    #inicio .home-metrics .dashboard-card .metric strong{
-      font-size:24px;
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-columns:1fr;
-      }
-
-      #inicio .home-welcome,
-      #inicio #live-class-panel,
-      #inicio .home-next-strip,
-      #inicio .home-today-schedule,
-      #inicio #daily-note-card,
-      #inicio #daily-summary-card,
-      #inicio .home-metrics{
-        grid-column:1 !important;
-        grid-row:auto !important;
-      }
-
-      #inicio #daily-note-card{
-        position:static;
-      }
-    }
-
-    @media(max-width:720px){
-      #inicio .home-next-strip,
-      #inicio .home-metrics{
-        grid-template-columns:1fr;
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.2 · Ajuste composición ===== */
-
-    #inicio #daily-note-card{
-      grid-column:2;
-      grid-row:2 / span 3;
-      align-self:start;
-    }
-
-    #inicio #daily-summary-card{
-      grid-column:2 !important;
-      grid-row:5;
-      align-self:start;
-    }
-
-    #inicio .home-metrics{
-      grid-column:1 / -1;
-      order:initial;
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.2b · Grid estable ===== */
-
-    #inicio .home-shell{
-      display:grid;
-      grid-template-columns:minmax(0,1.55fr) minmax(340px,.72fr);
-      grid-template-areas:
-        "welcome welcome"
-        "now note"
-        "next note"
-        "schedule summary"
-        "metrics metrics";
-      gap:18px;
-      align-items:start;
-    }
-
-    #inicio .home-welcome{
-      grid-area:welcome;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio #live-class-panel{
-      grid-area:now;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio .home-next-strip{
-      grid-area:next;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio .home-today-schedule{
-      grid-area:schedule;
-      grid-column:auto;
-      grid-row:auto;
-    }
-
-    #inicio #daily-note-card{
-      grid-area:note;
-      grid-column:auto;
-      grid-row:auto;
-      align-self:stretch;
-      position:static;
-    }
-
-    #inicio #daily-summary-card{
-      grid-area:summary !important;
-      grid-column:auto !important;
-      grid-row:auto !important;
-      align-self:start;
-    }
-
-    #inicio .home-metrics{
-      grid-area:metrics;
-      grid-column:auto;
-      grid-row:auto;
-      order:initial;
-      margin:0;
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-columns:1fr;
-        grid-template-areas:
-          "welcome"
-          "now"
-          "next"
-          "note"
-          "schedule"
-          "summary"
-          "metrics";
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Inicio 2.3 · Sin métricas ===== */
-
-    #inicio .home-shell{
-      grid-template-areas:
-        "welcome welcome"
-        "now note"
-        "next note"
-        "schedule note";
-    }
-
-    @media(max-width:1050px){
-      #inicio .home-shell{
-        grid-template-areas:
-          "welcome"
-          "now"
-          "next"
-          "note"
-          "schedule"
-          "summary";
-      }
-    }
-
-
-    /* ===== MiCuadernoDigital · Topbar contextual ===== */
-    .topbar .actions:has(button:not(.hidden)){
-      display:flex;
-    }
-
-    .topbar .actions:not(:has(button:not(.hidden))){
-      display:none;
-    }
-
-
-    /* ===== MiCuadernoDigital · Fix visibilidad Inicio ===== */
-    #inicio.section:not(.active){
-      display:none !important;
-    }
-
-    #inicio.section.active{
-      display:block;
-    }
-
-
-/* v0.4.1 · Inicio compacto + horario horizontal */
-
-/*
-   Inicio funciona ahora como una composición explícita:
-   - Mi día + Ahora arriba
-   - Siguiente / Después
-   - Horario horizontal
-   - Para hoy
-*/
-#inicio .home-shell{
-  display:grid !important;
-  grid-template-columns:minmax(0,2fr) minmax(330px,.95fr) !important;
-  grid-template-areas:
-    "welcome live"
-    "next next"
-    "schedule schedule"
-    "note note" !important;
-  gap:18px !important;
-  align-items:start !important;
-}
-
-#inicio .home-welcome{
-  grid-area:welcome !important;
-  margin:0 !important;
-}
-
-#inicio #live-class-panel{
-  grid-area:live !important;
-  margin:0 !important;
-  height:100%;
-  box-sizing:border-box;
-}
-
-#inicio .home-next-strip{
-  grid-area:next !important;
-  margin:0 !important;
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-}
-
-#inicio .home-today-schedule{
-  grid-area:schedule !important;
-  margin:0 !important;
-}
-
-#inicio #daily-note-card{
-  grid-area:note !important;
-  margin-top:0 !important;
-}
-
-/* El horario deja de ser una columna vertical */
-#inicio .home-schedule-list{
-  display:grid !important;
-  grid-template-columns:repeat(auto-fit,minmax(145px,1fr)) !important;
-  gap:10px !important;
-  align-items:stretch !important;
-  margin-top:14px !important;
-}
-
-/* Compatible con el HTML que ya genere el render actual */
-#inicio .home-schedule-list > *{
-  min-width:0 !important;
-  margin:0 !important;
-  border-radius:15px !important;
-  transition:
-    transform .16s ease,
-    border-color .16s ease,
-    background .16s ease,
-    opacity .16s ease;
-}
-
-/* Estados calculados según la hora real */
-#inicio .home-schedule-list > *.home-slot-past{
-  opacity:.55;
-}
-
-#inicio .home-schedule-list > *.home-slot-current{
-  opacity:1;
-  border-color:#35b6a4 !important;
-  background:linear-gradient(180deg,#ecfdf8,#f7fffc) !important;
-  box-shadow:0 0 0 2px rgba(53,182,164,.09);
-  transform:translateY(-2px);
-}
-
-#inicio .home-schedule-list > *.home-slot-next{
-  opacity:1;
-  border-color:#b9c8ff !important;
-  background:linear-gradient(180deg,#f4f7ff,#fff) !important;
-}
-
-#inicio .home-schedule-list > *.home-slot-current::after{
-  content:"AHORA";
-  display:inline-flex;
-  margin-top:7px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#d9f7ef;
-  color:#167c6c;
-  font-size:10px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-
-#inicio .home-schedule-list > *.home-slot-next::after{
-  content:"SIGUIENTE";
-  display:inline-flex;
-  margin-top:7px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#eaf0ff;
-  color:#526ac5;
-  font-size:10px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:.08em;
-}
-
-/* En pantallas estrechas volvemos a una columna limpia */
-@media(max-width:980px){
-  #inicio .home-shell{
-    grid-template-columns:1fr !important;
-    grid-template-areas:
-      "welcome"
-      "live"
-      "next"
-      "schedule"
-      "note" !important;
-  }
-
-  #inicio .home-schedule-list{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-}
-
-@media(max-width:620px){
-  #inicio .home-next-strip,
-  #inicio .home-schedule-list{
-    grid-template-columns:1fr !important;
-  }
-}
-
 </style>
 </head>
 
@@ -1854,7 +921,7 @@
 
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.4.1 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.4.0 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -1864,47 +931,23 @@
     <div class="mode-badge" id="mode-label">Modo Diario</div>
 
     <nav>
-      <div class="nav-home">
-        <button class="active" data-section="inicio">
-          <span class="nav-icon">⌂</span><span>Inicio</span>
-        </button>
-      </div>
-
-      <div class="nav-group nav-group-org">
-        <div class="nav-group-title">Organización</div>
-        <button data-section="agenda"><span class="nav-icon">◷</span><span>Mi agenda</span></button>
-        <button data-section="reuniones"><span class="nav-icon">◌</span><span>Reuniones</span></button>
-        <button data-section="actuaciones"><span class="nav-icon">✓</span><span>Actuaciones</span></button>
-      </div>
-
-      <div class="nav-group nav-group-aula">
-        <div class="nav-group-title">Aula</div>
-        <button data-section="alumnado"><span class="nav-icon">♙</span><span>Alumnado</span></button>
-        <button data-section="aula"><span class="nav-icon">▦</span><span>Plano del aula</span></button>
-        <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
-        <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
-      </div>
-
-      <div class="nav-group nav-group-eval">
-        <div class="nav-group-title">Evaluación</div>
-        <button data-section="cuaderno"><span class="nav-icon">▤</span><span>Cuaderno de notas</span></button>
-        <button data-section="instrumentos"><span class="nav-icon">◇</span><span>Instrumentos</span></button>
-        <button data-section="perfil"><span class="nav-icon">◎</span><span>Perfil competencial</span></button>
-        <button data-section="mapa"><span class="nav-icon">⌁</span><span>Mapa aprendizaje</span></button>
-        <button data-section="desarrollo"><span class="nav-icon">✦</span><span>Inteligencia pedagógica</span></button>
-      </div>
-
-      <div class="nav-group nav-group-plan">
-        <div class="nav-group-title">Planificación</div>
-        <button data-section="planificacion"><span class="nav-icon">▣</span><span>UP / Situaciones</span></button>
-        <button data-section="aportaciones"><span class="nav-icon">€</span><span>Aportaciones</span></button>
-      </div>
-
-      <div class="nav-group nav-group-system">
-        <div class="nav-group-title">Sistema</div>
-        <button data-section="configuracion"><span class="nav-icon">⚙</span><span>Configuración</span></button>
-        <button data-section="pdf"><span class="nav-icon">⇩</span><span>PDF oficial</span></button>
-      </div>
+      <button class="active" data-section="inicio">Inicio</button>
+      <button data-section="agenda">Mi agenda</button>
+      <button data-section="reuniones">Reuniones</button>
+      <button data-section="actuaciones">Actuaciones</button>
+      <button data-section="aportaciones">💶 Aportaciones</button>
+      <button data-section="instrumentos">🧰 Instrumentos</button>
+      <button data-section="cuaderno">Cuaderno de notas</button>
+      <button data-section="alumnado">Alumnado</button>
+      <button data-section="diario">Diario</button>
+      <button data-section="aula">🪑 Aula</button>
+      <button data-section="asistencia">Asistencia</button>
+      <button data-section="planificacion">UP / Situaciones</button>
+      <button data-section="perfil">Perfil competencial</button>
+      <button data-section="mapa">Mapa aprendizaje</button>
+      <button data-section="desarrollo">Inteligencia pedagógica</button>
+      <button data-section="configuracion">Configuración</button>
+      <button data-section="pdf">PDF oficial</button>
     </nav>
 
     <div class="sidebar-note">
@@ -1927,15 +970,23 @@
     </header>
 
     <section id="inicio" class="section active">
-      <div class="home-shell">
-
-      <div class="home-welcome">
-        <div>
-          <div class="home-eyebrow">Mi día</div>
-          <h2 id="home-date-title">Hoy</h2>
-          <p>Todo lo importante de tu jornada, de un vistazo.</p>
+      <div class="grid cols-4">
+        <div class="card dashboard-card" data-dashboard="sessions" tabindex="0">
+          <h3>Sesiones de hoy</h3>
+          <div class="metric"><div><strong id="dash-sessions-count">0</strong><br><span>vinculadas para hoy</span></div><span>☀️</span></div>
         </div>
-        <div class="home-welcome-badge">☀️</div>
+        <div class="card dashboard-card" data-dashboard="absent" tabindex="0">
+          <h3>Alumnado ausente</h3>
+          <div class="metric"><div><strong id="dash-absent-count">0</strong><br><span>faltas registradas hoy</span></div><span>🟡</span></div>
+        </div>
+        <div class="card dashboard-card" data-dashboard="evidence" tabindex="0">
+          <h3>Evidencias pendientes</h3>
+          <div class="metric"><div><strong id="dash-evidence-count">0</strong><br><span>registros sin completar</span></div><span>📌</span></div>
+        </div>
+        <div class="card dashboard-card" data-dashboard="alerts" tabindex="0">
+          <h3>Alertas</h3>
+          <div class="metric"><div><strong id="dash-alert-count">0</strong><br><span>requieren una mirada</span></div><span>⚠️</span></div>
+        </div>
       </div>
 
       <div id="live-class-panel" class="live-class">
@@ -1946,31 +997,6 @@
         </div>
         <button class="primary hidden" id="live-class-open">Abrir sesión</button>
       </div>
-      <div class="home-next-strip">
-        <div class="home-mini-card">
-          <div class="home-mini-kicker">Siguiente</div>
-          <strong id="home-next-title">Sin siguiente sesión</strong>
-          <span id="home-next-detail">No hay otra sesión programada.</span>
-        </div>
-
-        <div class="home-mini-card">
-          <div class="home-mini-kicker">Después</div>
-          <strong id="home-after-title">Sin sesión posterior</strong>
-          <span id="home-after-detail">No hay más sesiones programadas.</span>
-        </div>
-      </div>
-
-      <div class="home-today-schedule card">
-        <div class="home-section-head">
-          <div>
-            <div class="home-eyebrow">Organización</div>
-            <h3>Horario de hoy</h3>
-          </div>
-          <span class="home-soft-icon">◷</span>
-        </div>
-        <div id="home-teacher-schedule" class="home-schedule-list"></div>
-      </div>
-
 
       <div class="card" id="daily-note-card" style="margin-top:18px">
         <div class="notebook-title-row" style="align-items:flex-start">
@@ -2016,6 +1042,11 @@
           Se guarda automáticamente.
         </div>
       </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Resumen pedagógico del día</h3>
+        <p id="daily-summary">El resumen se actualiza con la asistencia, las evidencias y el seguimiento registrado.</p>
+        <div id="daily-summary-pills"></div>
       </div>
     </section>
 
@@ -2729,7 +1760,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.1</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.0</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -2777,7 +1808,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.4.1';
+  const VERSION='0.4.0';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -3111,39 +2142,14 @@
   function renderAgenda(){const box=document.querySelector('#agenda-list');if(!box)return;const filter=document.querySelector('#agenda-filter')?.value||'pending';let items=[...(data.agenda||[])].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));if(filter==='pending')items=items.filter(x=>!x.done);if(filter==='done')items=items.filter(x=>x.done);box.innerHTML=items.length?items.map(x=>`<div class="agenda-item ${x.done?'done':''}"><div class="agenda-date">${esc(x.date)}<br><span class="small">${esc(x.time||'Sin hora')}</span></div><div><strong>${esc(x.type)} · ${esc(x.priority)}</strong><div class="agenda-text">${esc(x.text)}</div></div><div class="agenda-actions"><button data-agenda-done="${esc(x.id)}" title="Completar">${x.done?'↩':'✓'}</button><button data-agenda-del="${esc(x.id)}" title="Eliminar">🗑</button></div></div>`).join(''):'<div class="empty">No hay asuntos en esta vista.</div>';box.querySelectorAll('[data-agenda-done]').forEach(b=>b.onclick=()=>{const x=data.agenda.find(a=>a.id===b.dataset.agendaDone);if(x){x.done=!x.done;save('Agenda actualizada');scheduleGoogleAgendaSync()}});box.querySelectorAll('[data-agenda-del]').forEach(b=>b.onclick=()=>{data.agenda=data.agenda.filter(a=>a.id!==b.dataset.agendaDel);save('Asunto eliminado');scheduleGoogleAgendaSync()})}
   function addAgenda(){const date=document.querySelector('#agenda-date').value,text=document.querySelector('#agenda-text').value.trim();if(!date||!text)return toast('Añade fecha y contenido.');data.agenda.push({id:uid('ag'),date,time:document.querySelector('#agenda-time').value,type:document.querySelector('#agenda-type').value,priority:document.querySelector('#agenda-priority').value,text,done:false});document.querySelector('#agenda-text').value='';save('Añadido a tu agenda');scheduleGoogleAgendaSync()}
 
-  function updateTopbarActions(sectionId){
-    const buttons=[...document.querySelectorAll('.topbar .actions button')];
-
-    buttons.forEach(btn=>btn.classList.add('hidden'));
-
-    const showByText=text=>{
-      const btn=buttons.find(b=>b.textContent.includes(text));
-      if(btn)btn.classList.remove('hidden');
-    };
-
-    if(sectionId==='diario')showByText('Nueva observación');
-    if(sectionId==='cuaderno')showByText('Nueva evidencia');
-    if(sectionId==='planificacion')showByText('Crear situación');
-  }
-
   function openSection(id){
-
     if(!document.querySelector('#'+id)) return;
-
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-
     document.querySelector('#'+id).classList.add('active');
-
     document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
-
     document.querySelector('#page-title').textContent=pageInfo[id][0];
-
     document.querySelector('#page-subtitle').textContent=pageInfo[id][1];
-
-    updateTopbarActions(id);
-
     window.scrollTo({top:0,behavior:'smooth'});
-
   }
   function applyMode(mode,goHome=true){
     currentMode=mode; data.settings=data.settings||{}; data.settings.mode=mode; persistState();
@@ -4234,92 +3240,7 @@
   function showDaySessions(date,items){const html=items.map(x=>`<div class="mini-item"><strong>${esc((x.session.startTime?x.session.startTime+' · ':'')+x.unit.title)}</strong>${esc(x.session.title)}${x.session.objective?'<br><span class="small">'+esc(x.session.objective)+'</span>':''}<br><button class="secondary" style="margin-top:8px" data-day-session="${esc(x.unit.id)}|${esc(x.session.id)}">Abrir sesión</button></div>`).join('');modal('Sesiones · '+date,html,()=>true);document.querySelector('#modal-save').classList.add('hidden');document.querySelectorAll('[data-day-session]').forEach(b=>b.onclick=()=>{document.querySelector('#modal-backdrop').classList.remove('show');document.querySelector('#modal-save').classList.remove('hidden');const [uid,sid]=b.dataset.daySession.split('|');showSessionClass(uid,sid)});const oldCancel=document.querySelector('#modal-cancel').onclick;document.querySelector('#modal-cancel').onclick=()=>{document.querySelector('#modal-save').classList.remove('hidden');document.querySelector('#modal-backdrop').classList.remove('show');document.querySelector('#modal-cancel').onclick=oldCancel}}
   function timeToMinutes(v=''){const m=v.match(/(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):9999}
   function livePlannedSession(){const ss=scheduledSessionsForDate(today()).filter(x=>x.session.startTime).sort((a,b)=>a.session.startTime.localeCompare(b.session.startTime));const n=new Date(),m=n.getHours()*60+n.getMinutes();let current=null,next=null;for(const x of ss){const a=timeToMinutes(x.session.startTime),b=x.session.endTime?timeToMinutes(x.session.endTime):a+55;if(m>=a&&m<b){current=x;break}if(m<a&&!next)next=x}return {current,next,all:ss}}
-  function renderLiveClass(){
-    const panel=document.querySelector('#live-class-panel');
-    const title=document.querySelector('#live-class-title');
-    const detail=document.querySelector('#live-class-detail');
-    const btn=document.querySelector('#live-class-open');
-
-    if(!panel||!title||!detail||!btn)return;
-
-    /* 1. Las sesiones programadas desde UP tienen prioridad */
-    const {current,next}=livePlannedSession();
-    const x=current||next;
-
-    panel.classList.toggle('now',!!current);
-
-    if(x){
-      title.textContent=
-        (current?'Ahora · ':'A continuación · ')+
-        x.unit.title+' — '+x.session.title;
-
-      detail.textContent=
-        `${x.session.startTime||''}`+
-        `${x.session.endTime?'–'+x.session.endTime:''}`+
-        `${x.session.subject?' · '+x.session.subject:''}`+
-        `${x.session.objective?' · '+x.session.objective:''}`;
-
-      btn.classList.remove('hidden');
-      btn.textContent=current?'Abrir clase ahora':'Ver próxima sesión';
-      btn.onclick=()=>showSessionClass(x.unit.id,x.session.id);
-      return;
-    }
-
-    /* 2. Si UP no aporta nada, usamos el horario docente */
-    const rows=todaysTeacherTimetable();
-    const now=new Date();
-    const m=now.getHours()*60+now.getMinutes();
-
-    const parsed=rows.map(r=>{
-      const match=String(r.time||'').match(
-        /(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/i
-      );
-
-      if(!match)return null;
-
-      return {
-        ...r,
-        start:Number(match[1])*60+Number(match[2]),
-        end:Number(match[3])*60+Number(match[4])
-      };
-    }).filter(Boolean);
-
-    const currentTT=parsed.find(r=>m>=r.start&&m<r.end);
-    const nextTT=parsed.find(r=>r.start>m);
-
-    btn.classList.add('hidden');
-    btn.onclick=null;
-
-    if(currentTT){
-      panel.classList.add('now');
-      title.textContent='Ahora · '+currentTT.text;
-      detail.textContent=currentTT.time+' · Según tu horario docente.';
-      return;
-    }
-
-    panel.classList.remove('now');
-
-    if(nextTT){
-      const mins=Math.max(0,nextTT.start-m);
-      title.textContent='A continuación · '+nextTT.text;
-      detail.textContent=
-        nextTT.time+
-        (mins?` · Empieza en ${mins} min.`:'');
-      return;
-    }
-
-    if(parsed.length && m>=parsed[parsed.length-1].end){
-      title.textContent='Jornada lectiva finalizada';
-      detail.textContent='No quedan más franjas en tu horario docente de hoy.';
-      return;
-    }
-
-    title.textContent='Sin sesión programada en este momento';
-    detail.textContent=
-      parsed.length
-        ? 'No hay una franja activa en tu horario docente.'
-        : 'Configura tu horario docente para ver aquí tu jornada automáticamente.';
-  }
+  function renderLiveClass(){const panel=document.querySelector('#live-class-panel'),title=document.querySelector('#live-class-title'),detail=document.querySelector('#live-class-detail'),btn=document.querySelector('#live-class-open');if(!panel||!title||!detail||!btn)return;const {current,next}=livePlannedSession(),x=current||next;panel.classList.toggle('now',!!current);if(x){title.textContent=(current?'Ahora · ':'A continuación · ')+x.unit.title+' — '+x.session.title;detail.textContent=`${x.session.startTime||''}${x.session.endTime?'–'+x.session.endTime:''}${x.session.subject?' · '+x.session.subject:''}${x.session.objective?' · '+x.session.objective:''}`;btn.classList.remove('hidden');btn.textContent=current?'Abrir clase ahora':'Ver próxima sesión';btn.onclick=()=>showSessionClass(x.unit.id,x.session.id)}else{title.textContent='Sin sesión programada en este momento';detail.textContent='Programa fecha y hora dentro de una situación para verla aquí automáticamente.';btn.classList.add('hidden')}}
 
   function pendingEvidenceItems(){
     const out=[];
@@ -4338,178 +3259,6 @@
   }
   function todaysUnits(){return scheduledSessionsForDate(today())}
   function todaysTimetable(){const d=new Date(),idx=d.getDay()-1;if(idx<0||idx>4)return [];return (data.settings.timetable||[]).map(r=>({time:r.time||'',text:(r.days||[])[idx]||''})).filter(x=>x.text.trim())}
-
-  function todaysTeacherTimetable(){
-    const d=new Date(),idx=d.getDay()-1;
-    if(idx<0||idx>4)return [];
-    return (data.settings.teacherTimetable||[])
-      .map(r=>({time:r.time||'',text:(r.days||[])[idx]||''}))
-      .filter(x=>x.text.trim());
-  }
-
-  function renderHomeTimeline(){
-
-    const now=new Date();
-    const nowMinutes=now.getHours()*60+now.getMinutes();
-
-    const fill=(prefix,titleText,detailText)=>{
-      const title=document.querySelector('#'+prefix+'-title');
-      const detail=document.querySelector('#'+prefix+'-detail');
-      if(title)title.textContent=titleText;
-      if(detail)detail.textContent=detailText;
-    };
-
-    /* --------------------------------------------------
-       1. Primero buscamos próximas sesiones de UP
-       -------------------------------------------------- */
-    const {current,next,all}=livePlannedSession();
-
-    const futureUP=(all||[]).filter(x=>{
-      const start=timeToMinutes(x.session.startTime||'00:00');
-
-      if(current){
-        return start>timeToMinutes(current.session.startTime||'00:00');
-      }
-
-      return start>nowMinutes;
-    });
-
-    const firstUP=current ? futureUP[0] : next;
-
-    let secondUP=null;
-
-    if(current){
-      secondUP=futureUP[1]||null;
-    }else if(firstUP){
-      secondUP=
-        futureUP.find(x=>x.session.id!==firstUP.session.id)||null;
-    }
-
-    const teacherRows=todaysTeacherTimetable();
-
-    const teacherSlots=teacherRows.map(r=>{
-      const match=String(r.time||'').match(
-        /(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/i
-      );
-
-      if(!match)return null;
-
-      return {
-        ...r,
-        start:Number(match[1])*60+Number(match[2]),
-        end:Number(match[3])*60+Number(match[4])
-      };
-    }).filter(Boolean);
-
-    const futureTT=teacherSlots.filter(r=>r.start>nowMinutes);
-
-    /*
-       Si existen sesiones UP futuras, mandan.
-       Si no, Inicio se apoya en el horario docente.
-    */
-    if(firstUP){
-
-      fill(
-        'home-next',
-        (firstUP.session.startTime
-          ? firstUP.session.startTime+' · '
-          : '')+firstUP.unit.title,
-        firstUP.session.title+
-          (firstUP.session.subject
-            ? ' · '+firstUP.session.subject
-            : '')
-      );
-
-      if(secondUP){
-        fill(
-          'home-after',
-          (secondUP.session.startTime
-            ? secondUP.session.startTime+' · '
-            : '')+secondUP.unit.title,
-          secondUP.session.title+
-            (secondUP.session.subject
-              ? ' · '+secondUP.session.subject
-              : '')
-        );
-      }else if(futureTT[1]){
-        fill('home-after',futureTT[1].text,futureTT[1].time);
-      }else{
-        fill(
-          'home-after',
-          'Sin sesión posterior',
-          'No hay más sesiones programadas.'
-        );
-      }
-
-    }else if(futureTT.length){
-
-      fill('home-next',futureTT[0].text,futureTT[0].time);
-
-      if(futureTT[1]){
-        fill('home-after',futureTT[1].text,futureTT[1].time);
-      }else{
-        fill(
-          'home-after',
-          'Fin de la jornada',
-          'No hay más franjas después.'
-        );
-      }
-
-    }else{
-
-      const finished=
-        teacherSlots.length &&
-        nowMinutes>=teacherSlots[teacherSlots.length-1].end;
-
-      fill(
-        'home-next',
-        finished?'Jornada finalizada':'Sin siguiente sesión',
-        finished
-          ? 'No quedan más franjas en tu horario de hoy.'
-          : 'No hay otra sesión programada.'
-      );
-
-      fill(
-        'home-after',
-        'Sin sesión posterior',
-        'No hay más sesiones programadas.'
-      );
-    }
-
-    /* --------------------------------------------------
-       2. Horario horizontal del día
-       -------------------------------------------------- */
-    const schedule=document.querySelector('#home-teacher-schedule');
-
-    if(schedule){
-
-      schedule.innerHTML=teacherSlots.length
-        ? teacherSlots.map((x,i)=>{
-
-            let state='';
-
-            if(nowMinutes>=x.end){
-              state='home-slot-past';
-            }else if(nowMinutes>=x.start && nowMinutes<x.end){
-              state='home-slot-current';
-            }else{
-              const firstFuture=
-                teacherSlots.findIndex(y=>y.start>nowMinutes);
-
-              if(i===firstFuture)state='home-slot-next';
-            }
-
-            return `
-              <div class="home-schedule-row ${state}">
-                <strong>${esc(x.time)}</strong>
-                <span>${esc(x.text)}</span>
-              </div>
-            `;
-          }).join('')
-        : '<div class="empty">No hay franjas en el horario docente para hoy.</div>';
-    }
-  }
-
   function dashboardDetails(type){
     if(type==='sessions'){
       const sessions=todaysUnits(),tt=todaysTimetable();
@@ -4531,21 +3280,9 @@
     }
   }
   function renderDashboard(){
-
-    const homeDate=document.querySelector('#home-date-title');
-    if(homeDate){
-      const d=new Date();
-      let label=new Intl.DateTimeFormat('es-ES',{
-        weekday:'long',
-        day:'numeric',
-        month:'long'
-      }).format(d);
-      homeDate.textContent=label.charAt(0).toUpperCase()+label.slice(1);
-    }
-const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},absent=data.students.filter(s=>rec[s.id]==='F'),pending=pendingEvidenceItems(),alerts=alertItems();
+    const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},absent=data.students.filter(s=>rec[s.id]==='F'),pending=pendingEvidenceItems(),alerts=alertItems();
     const set=(id,v)=>{const el=document.querySelector(id);if(el)el.textContent=v};
     set('#dash-sessions-count',units.length||tt.length);set('#dash-absent-count',absent.length);set('#dash-evidence-count',pending.length);set('#dash-alert-count',alerts.length);
-    renderHomeTimeline();
     const summary=document.querySelector('#daily-summary'),pills=document.querySelector('#daily-summary-pills');
     if(summary){summary.textContent=(units.length||tt.length)?`Hoy tienes ${units.length} sesión(es) programada(s) desde tus situaciones y ${tt.length} franja(s) en el horario.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:'No quedan evidencias pendientes.'}`:`No hay sesiones programadas desde situaciones para hoy.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:''}`;}
     if(pills)pills.innerHTML=`<span class="pill ${absent.length?'yellow':'green'}">${absent.length?absent.length+' ausente(s)':'Asistencia sin faltas'}</span><span class="pill ${pending.length?'yellow':'green'}">${pending.length?pending.length+' evidencias pendientes':'Evidencias al día'}</span><span class="pill ${alerts.length?'red':'green'}">${alerts.length?alerts.length+' alertas':'Sin alertas'}</span>`;
@@ -6632,7 +5369,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.1'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.0'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
@@ -7425,9 +6162,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   updateDbStatus(nativeMode,nativeMode?'Base de datos local preparada.':'La app empaquetada usará SQLite local.');
   setInterval(()=>{renderLiveClass();renderDashboard();const u=selectedUnit();if(u)renderSessions(u)},30000);
 })();
-
-
-
 </script>
 </body>
 </html>

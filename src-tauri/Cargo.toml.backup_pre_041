@@ -1,6 +1,6 @@
 [package]
 name="micuadernodigital"
-version="0.4.1"
+version="0.4.0"
 description="MiCuadernoDigital para macOS"
 authors= ["MiCuadernoDigital"]
 edition="2021"
@@ -31,4 +31,3 @@ tauri-plugin-updater="2"
 keyring= {version="3",features= ["apple-native", "windows-native"] }
 open="5"
 printpdf="0.7"
-mdns-sd="0.13"
