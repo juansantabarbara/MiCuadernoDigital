@@ -1,6 +1,6 @@
 [package]
 name="micuadernodigital"
-version="0.4.1"
+version="0.4.2"
 description="MiCuadernoDigital para macOS"
 authors= ["MiCuadernoDigital"]
 edition="2021"

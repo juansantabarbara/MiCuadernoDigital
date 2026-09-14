@@ -1,8 +1,8 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
 pub fn start_discovery() -> Result<ServiceDaemon, String> {
-    let mdns = ServiceDaemon::new()
-        .map_err(|e| format!("No se pudo iniciar mDNS de Sidecar: {e}"))?;
+    let mdns =
+        ServiceDaemon::new().map_err(|e| format!("No se pudo iniciar mDNS de Sidecar: {e}"))?;
 
     let service_type = "_micuaderno._tcp.local.";
     let instance_name = "MiCuadernoDigital";

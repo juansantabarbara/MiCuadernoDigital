@@ -1697,7 +1697,7 @@
     }
 
 
-/* v0.4.1 · Inicio compacto + horario horizontal */
+/* v0.4.2 · Inicio compacto + horario horizontal */
 
 /*
    Inicio funciona ahora como una composición explícita:
@@ -1841,7 +1841,7 @@
 }
 
 
-/* v0.4.1 · Equipos cooperativos */
+/* v0.4.2 · Equipos cooperativos */
 
 .teams-top{
   display:flex;
@@ -2145,7 +2145,7 @@
 }
 
 
-/* v0.4.1 · Cooperativo · observación rápida */
+/* v0.4.2 · Cooperativo · observación rápida */
 
 .coop-fast-table{
   width:100%;
@@ -2318,7 +2318,7 @@
 
     <div class="brand">
       <h1>MiCuadernoDigital</h1>
-      <p>v0.4.1 · Diario + Evaluación + Calendario + Actuaciones</p>
+      <p>v0.4.2 · Diario + Evaluación + Calendario + Actuaciones</p>
     </div>
 
     <div class="mode-switch">
@@ -3257,7 +3257,7 @@
       <div class="card update-card no-print" style="margin-top:18px" id="update-card">
         <div class="update-head">
           <div><h3 style="margin-bottom:6px">Actualizaciones</h3><p style="margin:0">MiCuadernoDigital puede comprobar e instalar nuevas versiones firmadas sin volver a compilar a mano.</p></div>
-          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.1</span></span>
+          <span class="update-state" id="update-state">Versión <span id="update-current">0.4.2</span></span>
         </div>
         <div class="actions" style="justify-content:flex-start;margin-top:12px">
           <button class="secondary" id="update-check">Buscar actualizaciones</button>
@@ -3305,7 +3305,7 @@
 
 <script>
 (async () => {
-  const VERSION='0.4.1';
+  const VERSION='0.4.2';
   const STORAGE_KEY='micuadernodigital_v34_data';
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
@@ -6992,7 +6992,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   }
 
 
-  /* v0.4.1 · Equipos cooperativos */
+  /* v0.4.2 · Equipos cooperativos */
 
   const TEAM_COLORS=[
     '#27a894',
@@ -8779,7 +8779,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     const state=document.querySelector('#update-state'),msg=document.querySelector('#update-message'),notes=document.querySelector('#update-notes'),btn=document.querySelector('#update-install');
     if(!nativeMode){state.className='update-state warn';msg.textContent='Las actualizaciones automáticas solo están disponibles en la aplicación de escritorio.';return}
     state.className='update-state';msg.textContent='Buscando actualizaciones…';notes.textContent='';btn.classList.add('hidden');
-    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.1'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
+    try{const r=await nativeInvoke('check_for_update');pendingUpdateVersion=r.version||'';if(r.available){state.className='update-state warn';state.textContent=`Nueva versión ${r.version}`;msg.textContent='Hay una actualización firmada disponible.';notes.textContent=r.notes||'';btn.classList.remove('hidden')}else{state.className='update-state ok';state.textContent=`Versión ${r.current_version||'0.4.2'}`;msg.textContent='MiCuadernoDigital está actualizado.'}}
     catch(err){state.className='update-state error';state.textContent='No se pudo comprobar';msg.textContent=String(err)}
   }
   async function installAppUpdate(){
