@@ -1840,6 +1840,470 @@
   }
 }
 
+
+/* v0.4.1 · Equipos cooperativos */
+
+.teams-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.teams-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:16px;
+  margin-top:18px;
+}
+
+.team-card{
+  border:1px solid #dce5ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(15,23,42,.045);
+}
+
+.team-card-head{
+  padding:16px 17px 14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid #edf2f5;
+}
+
+.team-title-wrap{
+  display:flex;
+  gap:11px;
+  align-items:center;
+  min-width:0;
+}
+
+.team-color{
+  width:13px;
+  height:42px;
+  border-radius:999px;
+  flex:0 0 auto;
+}
+
+.team-card h3{
+  margin:0 0 3px;
+  font-size:18px;
+}
+
+.team-members{
+  padding:8px 16px 14px;
+}
+
+.team-member{
+  display:grid;
+  grid-template-columns:minmax(120px,1fr) minmax(120px,.9fr);
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid #f0f3f6;
+}
+
+.team-member:last-child{
+  border-bottom:0;
+}
+
+.team-member-name{
+  font-weight:800;
+  color:#1e293b;
+}
+
+.team-role-input{
+  width:100%;
+  box-sizing:border-box;
+  padding:8px 10px !important;
+  min-height:auto !important;
+  font-size:13px;
+}
+
+.team-card-footer{
+  padding:13px 16px 15px;
+  border-top:1px solid #edf2f5;
+  background:#fafcfd;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.team-today-count{
+  font-size:12px;
+  color:#64748b;
+  font-weight:700;
+}
+
+.team-history{
+  margin-top:14px;
+}
+
+.team-history-item{
+  display:grid;
+  grid-template-columns:90px minmax(130px,.8fr) 1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:11px 0;
+  border-bottom:1px solid #edf1f5;
+}
+
+.team-history-item:last-child{
+  border-bottom:0;
+}
+
+.team-score{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#e7f7f3;
+  color:#177d70;
+  font-weight:900;
+  font-size:12px;
+}
+
+.team-unassigned{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px;
+}
+
+.team-student-pill{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#475569;
+  font-size:12px;
+  font-weight:800;
+}
+
+.team-empty{
+  padding:28px;
+  text-align:center;
+  border:1px dashed #cad5df;
+  border-radius:18px;
+  background:#fbfcfd;
+  color:#64748b;
+}
+
+.team-modal-students{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+
+.team-modal-student{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  gap:8px !important;
+  padding:9px 10px;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  background:#fff;
+}
+
+.team-modal-student input{
+  width:auto !important;
+  margin:0 !important;
+}
+
+/* Registro individual */
+
+.coop-register-shell{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.coop-context{
+  padding:12px 14px;
+  border-radius:14px;
+  background:#eef9f6;
+  border:1px solid #d8eee9;
+}
+
+.coop-team-block{
+  border:1px solid #dfe7ed;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.coop-team-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  background:#f8fafc;
+  border-bottom:1px solid #e7edf2;
+}
+
+.coop-team-dot{
+  width:10px;
+  height:34px;
+  border-radius:999px;
+}
+
+.coop-table-wrap{
+  overflow-x:auto;
+}
+
+.coop-table{
+  width:100%;
+  min-width:840px;
+  border-collapse:collapse;
+}
+
+.coop-table th{
+  padding:9px 8px;
+  text-align:left;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:#64748b;
+  background:#fbfcfd;
+  border-bottom:1px solid #edf1f5;
+}
+
+.coop-table td{
+  padding:9px 8px;
+  border-bottom:1px solid #edf1f5;
+  vertical-align:middle;
+}
+
+.coop-table tr:last-child td{
+  border-bottom:0;
+}
+
+.coop-student-name{
+  font-weight:800;
+  color:#1e293b;
+}
+
+.coop-role{
+  display:block;
+  margin-top:2px;
+  font-size:11px;
+  color:#64748b;
+}
+
+.coop-table select{
+  min-width:92px;
+  padding:7px 8px;
+}
+
+.coop-table input[type="text"]{
+  min-width:185px;
+  padding:7px 9px;
+}
+
+.coop-help{
+  padding:10px 12px;
+  border-radius:12px;
+  background:#fff9e9;
+  border:1px solid #f2e4b4;
+  font-size:12px;
+  color:#755b15;
+}
+
+/* Acción en Inicio */
+
+#home-coop-open{
+  white-space:nowrap;
+}
+
+.home-coop-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:999px;
+  margin-left:5px;
+  background:rgba(255,255,255,.18);
+  font-size:11px;
+  font-weight:900;
+}
+
+@media(max-width:760px){
+  .team-modal-students{grid-template-columns:1fr}
+  .team-member{grid-template-columns:1fr}
+  .team-history-item{grid-template-columns:1fr}
+}
+
+
+/* v0.4.1 · Cooperativo · observación rápida */
+
+.coop-fast-table{
+  width:100%;
+  min-width:1030px;
+  border-collapse:collapse;
+}
+
+.coop-fast-table th{
+  padding:8px 7px;
+  text-align:left;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:#64748b;
+  background:#f8fafc;
+  border-bottom:1px solid #e7edf2;
+}
+
+.coop-fast-table td{
+  padding:8px 7px;
+  border-bottom:1px solid #edf1f5;
+  vertical-align:middle;
+}
+
+.coop-fast-table tr:last-child td{
+  border-bottom:0;
+}
+
+.coop-fast-name{
+  min-width:135px;
+}
+
+.coop-fast-role{
+  display:block;
+  margin-top:2px;
+  font-size:10px;
+  color:#64748b;
+}
+
+.coop-rate-group{
+  display:flex;
+  align-items:center;
+  gap:3px;
+  white-space:nowrap;
+}
+
+.coop-rate-btn{
+  width:27px;
+  height:27px;
+  min-width:27px;
+  padding:0 !important;
+  border:1px solid #d8e1e8 !important;
+  border-radius:7px !important;
+  background:#fff !important;
+  color:#475569 !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  box-shadow:none !important;
+}
+
+.coop-rate-btn:hover{
+  border-color:#8abdb5 !important;
+  background:#f0faf7 !important;
+}
+
+.coop-rate-btn.active{
+  background:var(--primary) !important;
+  border-color:var(--primary) !important;
+  color:white !important;
+}
+
+.coop-quick-actions{
+  display:flex;
+  gap:5px;
+  white-space:nowrap;
+}
+
+.coop-quick-btn{
+  padding:6px 8px !important;
+  min-height:27px !important;
+  font-size:10px !important;
+  font-weight:800 !important;
+  border-radius:8px !important;
+}
+
+.coop-note-wrap{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-width:155px;
+}
+
+.coop-fast-note{
+  width:145px !important;
+  min-width:145px !important;
+  padding:6px 8px !important;
+  font-size:11px !important;
+}
+
+.coop-row-saved{
+  background:#fbfefd;
+}
+
+.coop-row-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  border-radius:999px;
+  font-size:10px;
+  color:#188475;
+  background:#e3f5f1;
+  opacity:0;
+  transition:opacity .15s ease;
+}
+
+.coop-row-saved .coop-row-status{
+  opacity:1;
+}
+
+.coop-autosave-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:10px 12px;
+  border-radius:12px;
+  background:#eef9f6;
+  border:1px solid #d6ece7;
+}
+
+.coop-autosave-status{
+  font-size:12px;
+  font-weight:800;
+  color:#237e72;
+}
+
+.coop-fast-legend{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  font-size:11px;
+  color:#64748b;
+}
+
+.coop-fast-legend strong{
+  color:#334155;
+}
+
+@media(max-width:760px){
+  .coop-fast-table{
+    min-width:980px;
+  }
+}
+
 </style>
 </head>
 
@@ -1881,6 +2345,7 @@
         <div class="nav-group-title">Aula</div>
         <button data-section="alumnado"><span class="nav-icon">♙</span><span>Alumnado</span></button>
         <button data-section="aula"><span class="nav-icon">▦</span><span>Plano del aula</span></button>
+        <button data-section="equipos"><span class="nav-icon">◫</span><span>Equipos cooperativos</span></button>
         <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
         <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
       </div>
@@ -1944,7 +2409,13 @@
           <h3 id="live-class-title">Sin sesión programada en este momento</h3>
           <p id="live-class-detail">Cuando programes fecha y hora en una sesión, aparecerá aquí automáticamente.</p>
         </div>
-        <button class="primary hidden" id="live-class-open">Abrir sesión</button>
+        <div class="actions no-print" style="margin:0">
+          <button class="primary hidden" id="live-class-open">Abrir sesión</button>
+          <button class="secondary" id="home-coop-open">
+            🤝 Cooperativo
+            <span class="home-coop-badge" id="home-coop-count">0</span>
+          </button>
+        </div>
       </div>
       <div class="home-next-strip">
         <div class="home-mini-card">
@@ -2346,6 +2817,63 @@
         <div id="classroom-layout"></div>
       </div>
     </section>
+
+
+    <section id="equipos" class="section">
+
+      <div class="card">
+        <div class="teams-top">
+          <div>
+            <div class="home-eyebrow">Trabajo cooperativo</div>
+            <h3 style="margin:5px 0 4px">Equipos cooperativos</h3>
+            <p style="margin:0">
+              Equipos estables, roles y registro individual de la cooperación en el aula.
+            </p>
+          </div>
+
+          <div class="actions no-print" style="margin:0">
+            <button class="secondary" id="coop-register-all">
+              🤝 Registrar cooperación
+            </button>
+            <button class="primary" id="team-new">
+              ＋ Nuevo equipo
+            </button>
+          </div>
+        </div>
+
+        <div id="teams-list" class="teams-grid"></div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:18px">
+
+        <div class="card">
+          <h3>Alumnado sin equipo</h3>
+          <p class="small">
+            Un alumno o alumna solo puede pertenecer a un equipo cooperativo activo.
+          </p>
+          <div id="teams-unassigned" class="team-unassigned"></div>
+        </div>
+
+        <div class="card">
+          <h3>Actividad cooperativa de hoy</h3>
+          <p class="small">
+            Puedes registrar varias observaciones del mismo alumno durante una misma jornada.
+          </p>
+          <div id="coop-today-summary"></div>
+        </div>
+
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Últimos registros individuales</h3>
+        <p>
+          Histórico de observaciones cooperativas por alumno, equipo, fecha y hora.
+        </p>
+        <div id="teams-history" class="team-history"></div>
+      </div>
+
+    </section>
+
 
     <section id="asistencia" class="section">
       <div class="card no-print" style="margin-bottom:18px">
@@ -2839,6 +3367,7 @@
     alumnado:['Alumnado','Expediente pedagógico vivo con desarrollo individual, timeline e interpretación.'],
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
     aula:['Plano del aula','Distribución editable del espacio y ubicación del alumnado.'],
+    equipos:['Equipos cooperativos','Agrupamientos, roles y seguimiento del trabajo cooperativo.'],
     asistencia:['Asistencia','Faltas, retrasos, justificadas y estadísticas persistentes.'],
     planificacion:['UP / Situaciones','Crea rápido, desarrolla currículo, programa sesiones y abre la clase que toca desde Inicio.'],
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
@@ -2850,7 +3379,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','equipos','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -2873,6 +3402,10 @@
     ],
     attendance:{},
     classroomLayout:{desks:[],placements:{}},
+    cooperativeTeams:[],
+    cooperativeTeamEvaluations:[],
+    cooperativeRecords:[],
+    cooperativeMoments:[],
     selectedUnitId:'unit_demo_1',
     units:[
       {id:'unit_demo_1',title:'Feria del pueblo sostenible',areas:'Lengua, Matemáticas, Sociales',challenge:'¿Cómo mejoraríamos nuestro pueblo?',product:'Feria del pueblo sostenible',activities:'Investigación, podcast, estudio estadístico y propuesta urbanística.',group:'',duration:'',context:'',specificCompetences:'',criteria:'',knowledge:'',keyCompetences:'',descriptors:'',objectives:'',ods:'',crosscurricular:'',methodology:'',dua:'',strategies:'',grouping:'',resources:'',spaces:'',diversity:'',transversal:'',evidences:'',instruments:'',assessmentMoments:'',feedback:'',selfAssessment:'',peerAssessment:'',metacognition:'',curricularCriteria:[],products:[],sessions:[{id:'ses_demo_1',title:'Presentación del reto',subject:'',date:'2026-09-01',startTime:'09:00',endTime:'09:45',grouping:'Gran grupo',objective:'Presentar el reto y activar ideas previas.',opening:'Presentación de la pregunta guía.',development:'Lluvia de ideas inicial y primeras hipótesis.',closing:'Recoger preguntas que queremos investigar.',resources:'',evidence:'Participación e ideas previas.',notes:''}]}
@@ -6458,6 +6991,1620 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     });
   }
 
+
+  /* v0.4.1 · Equipos cooperativos */
+
+  const TEAM_COLORS=[
+    '#27a894',
+    '#6488e5',
+    '#e6a33c',
+    '#b477d6',
+    '#de6f7d',
+    '#5fa7c9',
+    '#7cab68',
+    '#d28a59'
+  ];
+
+  function ensureCooperativeTeams(){
+
+    if(!Array.isArray(data.cooperativeTeams)){
+      data.cooperativeTeams=[];
+    }
+
+    /*
+       Conservamos cooperativeTeamEvaluations por compatibilidad
+       con cualquier prueba anterior, pero ya no se utiliza para
+       registrar cooperación.
+    */
+    if(!Array.isArray(data.cooperativeTeamEvaluations)){
+      data.cooperativeTeamEvaluations=[];
+    }
+
+    if(!Array.isArray(data.cooperativeRecords)){
+      data.cooperativeRecords=[];
+    }
+
+    if(!Array.isArray(data.cooperativeMoments)){
+      data.cooperativeMoments=[];
+    }
+
+    data.cooperativeTeams.forEach((team,index)=>{
+
+      if(!team.id)team.id=uid('team');
+      if(!team.name)team.name='Equipo '+(index+1);
+
+      if(!team.color){
+        team.color=TEAM_COLORS[index%TEAM_COLORS.length];
+      }
+
+      if(!Array.isArray(team.members)){
+        team.members=[];
+      }
+
+      team.members=team.members
+        .map(m=>
+          typeof m==='string'
+            ? {studentId:m,role:''}
+            : m
+        )
+        .filter(m=>
+          m &&
+          data.students.some(st=>st.id===m.studentId)
+        );
+
+      team.members.forEach(m=>{
+        if(typeof m.role!=='string')m.role='';
+      });
+    });
+  }
+
+
+  function cooperativeTeamForStudent(studentId){
+
+    ensureCooperativeTeams();
+
+    return data.cooperativeTeams.find(team=>
+      team.members.some(m=>m.studentId===studentId)
+    )||null;
+  }
+
+
+  function teamStudentName(studentId){
+    return data.students.find(st=>st.id===studentId)?.name||'Alumno/a';
+  }
+
+
+  function cooperativeTeamModal(team=null){
+
+    ensureCooperativeTeams();
+
+    const editing=!!team;
+
+    const currentIds=new Set(
+      (team?.members||[]).map(m=>m.studentId)
+    );
+
+    const html=`
+      <div class="form-grid">
+
+        <label>
+          Nombre del equipo
+          <input
+            id="team-modal-name"
+            value="${esc(team?.name||'')}"
+            placeholder="Ej.: Equipo Océano">
+        </label>
+
+        <label>
+          Color
+          <input
+            id="team-modal-color"
+            type="color"
+            value="${esc(
+              team?.color||
+              TEAM_COLORS[
+                data.cooperativeTeams.length%TEAM_COLORS.length
+              ]
+            )}">
+        </label>
+
+      </div>
+
+      <div style="margin-top:16px">
+
+        <strong>Alumnado del equipo</strong>
+
+        <p class="small">
+          Si seleccionas a alguien que ya pertenece a otro equipo,
+          se moverá automáticamente a este.
+        </p>
+
+        <div class="team-modal-students">
+
+          ${data.students.map(st=>{
+
+            const other=cooperativeTeamForStudent(st.id);
+            const checked=currentIds.has(st.id);
+
+            return `
+              <label class="team-modal-student">
+
+                <input
+                  type="checkbox"
+                  data-team-modal-student="${esc(st.id)}"
+                  ${checked?'checked':''}>
+
+                <span>
+                  <strong>${esc(st.name)}</strong>
+
+                  ${
+                    other && other.id!==team?.id
+                      ? `
+                        <span class="small" style="display:block">
+                          Ahora en ${esc(other.name)}
+                        </span>
+                      `
+                      : ''
+                  }
+
+                </span>
+
+              </label>
+            `;
+          }).join('')}
+
+        </div>
+
+      </div>
+    `;
+
+    modal(
+      editing?'Editar equipo':'Nuevo equipo',
+      html,
+      ()=>{
+
+        const name=
+          document.querySelector('#team-modal-name').value.trim();
+
+        if(!name){
+          toast('Pon un nombre al equipo.');
+          return false;
+        }
+
+        const selected=[
+          ...document.querySelectorAll(
+            '[data-team-modal-student]:checked'
+          )
+        ].map(el=>el.dataset.teamModalStudent);
+
+        if(!selected.length){
+          toast('Selecciona al menos un alumno o alumna.');
+          return false;
+        }
+
+        const selectedSet=new Set(selected);
+
+        /*
+           Un alumno solo puede pertenecer
+           a un equipo cooperativo activo.
+        */
+        data.cooperativeTeams.forEach(t=>{
+
+          if(editing && t.id===team.id)return;
+
+          t.members=t.members.filter(
+            m=>!selectedSet.has(m.studentId)
+          );
+        });
+
+        const previousRoles=new Map(
+          (team?.members||[]).map(
+            m=>[m.studentId,m.role||'']
+          )
+        );
+
+        const obj=team||{
+          id:uid('team'),
+          name:'',
+          color:'',
+          members:[]
+        };
+
+        obj.name=name;
+        obj.color=
+          document.querySelector('#team-modal-color').value;
+
+        obj.members=selected.map(studentId=>({
+          studentId,
+          role:previousRoles.get(studentId)||''
+        }));
+
+        if(!editing){
+          data.cooperativeTeams.push(obj);
+        }
+
+        save(editing?'Equipo actualizado':'Equipo creado');
+
+        return true;
+      }
+    );
+  }
+
+
+  function deleteCooperativeTeam(teamId){
+
+    const team=
+      data.cooperativeTeams.find(t=>t.id===teamId);
+
+    if(!team)return;
+
+    if(!confirm(
+      `¿Eliminar ${team.name}? `+
+      `El alumnado quedará sin equipo. `+
+      `Los registros históricos se conservarán.`
+    )){
+      return;
+    }
+
+    data.cooperativeTeams=
+      data.cooperativeTeams.filter(t=>t.id!==teamId);
+
+    persistState();
+    renderTeams();
+    renderClassroom();
+    renderHomeCooperativeAction();
+
+    toast('Equipo eliminado');
+  }
+
+
+  function saveTeamRole(teamId,studentId,value){
+
+    const team=
+      data.cooperativeTeams.find(t=>t.id===teamId);
+
+    const member=
+      team?.members.find(m=>m.studentId===studentId);
+
+    if(!member)return;
+
+    member.role=value.trim();
+
+    persistState();
+  }
+
+
+  function cooperativeNowTime(){
+
+    const d=new Date();
+
+    return (
+      String(d.getHours()).padStart(2,'0')+
+      ':'+
+      String(d.getMinutes()).padStart(2,'0')
+    );
+  }
+
+
+  function parseTeacherSlot(row){
+
+    const match=String(row?.time||'').match(
+      /(\d{1,2}):(\d{2})\s*(?:-|–|—|a)\s*(\d{1,2}):(\d{2})/i
+    );
+
+    if(!match)return null;
+
+    return {
+      ...row,
+      start:Number(match[1])*60+Number(match[2]),
+      end:Number(match[3])*60+Number(match[4])
+    };
+  }
+
+
+  function currentCooperativeContext(){
+
+    /*
+       1. Si existe una sesión UP ocurriendo ahora,
+          usamos toda esa información.
+    */
+    const live=livePlannedSession();
+
+    if(live.current){
+
+      const x=live.current;
+
+      return {
+        source:'unit',
+        unitId:x.unit.id,
+        sessionId:x.session.id,
+        subject:x.session.subject||'',
+        label:
+          x.unit.title+
+          ' · '+
+          x.session.title
+      };
+    }
+
+    /*
+       2. Si no, buscamos la franja actual
+          del horario docente.
+    */
+    const now=new Date();
+    const minutes=
+      now.getHours()*60+
+      now.getMinutes();
+
+    const slot=todaysTeacherTimetable()
+      .map(parseTeacherSlot)
+      .filter(Boolean)
+      .find(x=>
+        minutes>=x.start &&
+        minutes<x.end
+      );
+
+    if(slot){
+      return {
+        source:'timetable',
+        unitId:'',
+        sessionId:'',
+        subject:slot.text||'',
+        label:
+          (slot.text||'Horario docente')+
+          ' · '+
+          slot.time
+      };
+    }
+
+    return {
+      source:'manual',
+      unitId:'',
+      sessionId:'',
+      subject:'',
+      label:'Registro cooperativo libre'
+    };
+  }
+
+
+  function cooperativeMoment(momentId){
+    ensureCooperativeTeams();
+
+    return data.cooperativeMoments.find(
+      m=>m.id===momentId
+    )||null;
+  }
+
+
+  function ensureCooperativeMoment(momentId,ctx,date,time){
+
+    ensureCooperativeTeams();
+
+    let moment=cooperativeMoment(momentId);
+
+    if(moment)return moment;
+
+    moment={
+      id:momentId,
+
+      date,
+      time,
+
+      source:ctx.source||'manual',
+      unitId:ctx.unitId||'',
+      sessionId:ctx.sessionId||'',
+      subject:ctx.subject||'',
+      contextLabel:ctx.label||'',
+
+      /*
+        Descripción docente del trabajo que estaba realizando
+        el alumnado en ese momento.
+      */
+      activity:'',
+
+      /*
+        Preparado para la futura vista del secretario/a.
+        Todavía no se usa desde esta versión.
+      */
+      secretaryStudentId:'',
+      secretaryText:'',
+      secretaryUpdatedAt:'',
+
+      createdAt:new Date().toISOString()
+    };
+
+    data.cooperativeMoments.push(moment);
+
+    return moment;
+  }
+
+
+  function cleanupEmptyCooperativeMoment(momentId){
+
+    const moment=cooperativeMoment(momentId);
+
+    if(!moment)return;
+
+    const hasRecords=data.cooperativeRecords.some(
+      r=>r.momentId===momentId
+    );
+
+    const hasActivity=!!String(
+      moment.activity||''
+    ).trim();
+
+    const hasSecretaryText=!!String(
+      moment.secretaryText||''
+    ).trim();
+
+    if(!hasRecords && !hasActivity && !hasSecretaryText){
+      data.cooperativeMoments=
+        data.cooperativeMoments.filter(
+          m=>m.id!==momentId
+        );
+    }
+  }
+
+
+  function cooperativeMomentRecord(momentId,team,member,ctx,date,time){
+
+    ensureCooperativeTeams();
+
+    ensureCooperativeMoment(
+      momentId,
+      ctx,
+      date,
+      time
+    );
+
+    let record=data.cooperativeRecords.find(r=>
+      r.momentId===momentId &&
+      r.studentId===member.studentId
+    );
+
+    if(record)return record;
+
+    record={
+      id:uid('coop'),
+      momentId,
+      date,
+      time,
+
+      studentId:member.studentId,
+
+      /*
+        Fotografía histórica:
+        aunque luego cambie de equipo o de rol,
+        el registro conserva cómo estaba en ese momento.
+      */
+      teamId:team.id,
+      teamName:team.name,
+      teamColor:team.color,
+      role:member.role||'',
+
+      source:ctx.source||'manual',
+      unitId:ctx.unitId||'',
+      sessionId:ctx.sessionId||'',
+      subject:ctx.subject||'',
+      contextLabel:ctx.label||'',
+
+      participation:null,
+      listening:null,
+      rolePerformance:null,
+      cooperation:null,
+      note:''
+    };
+
+    data.cooperativeRecords.push(record);
+
+    return record;
+  }
+
+
+  function cooperativeRecordHasContent(record){
+
+    return !!(
+      record.participation ||
+      record.listening ||
+      record.rolePerformance ||
+      record.cooperation ||
+      String(record.note||'').trim()
+    );
+  }
+
+
+  function cleanupEmptyCooperativeRecord(record){
+
+    if(cooperativeRecordHasContent(record))return;
+
+    data.cooperativeRecords=
+      data.cooperativeRecords.filter(r=>r.id!==record.id);
+  }
+
+
+  function cooperativeRowRefresh(row,record){
+
+    if(!row||!record)return;
+
+    row.querySelectorAll('[data-coop-rate]').forEach(btn=>{
+
+      const [field,value]=btn.dataset.coopRate.split('|');
+
+      btn.classList.toggle(
+        'active',
+        Number(record[field])===Number(value)
+      );
+    });
+
+    row.classList.toggle(
+      'coop-row-saved',
+      cooperativeRecordHasContent(record)
+    );
+  }
+
+
+  function cooperativeRegisterModal(teamId=null,context=null){
+
+    ensureCooperativeTeams();
+
+    if(!data.cooperativeTeams.length){
+      toast('Primero crea al menos un equipo cooperativo.');
+      return;
+    }
+
+    const ctx=context||currentCooperativeContext();
+
+    const teams=teamId
+      ? data.cooperativeTeams.filter(t=>t.id===teamId)
+      : data.cooperativeTeams;
+
+    const momentId=uid('coopmoment');
+    const momentDate=today();
+    const momentTime=cooperativeNowTime();
+
+    const ratingButtons=field=>
+      [1,2,3,4].map(n=>`
+        <button
+          type="button"
+          class="coop-rate-btn"
+          data-coop-rate="${field}|${n}">
+          ${n}
+        </button>
+      `).join('');
+
+    const html=`
+      <div class="coop-register-shell">
+
+        <div class="coop-autosave-bar">
+
+          <div>
+            <strong>
+              ${esc(momentDate)} · ${esc(momentTime)}
+            </strong>
+
+            <span class="small" style="display:block">
+              ${esc(ctx.label)}
+            </span>
+          </div>
+
+          <div
+            class="coop-autosave-status"
+            id="coop-autosave-status">
+            ✓ Guardado automático
+          </div>
+
+        </div>
+
+        <div class="card" style="box-shadow:none;padding:14px">
+
+          <label style="font-weight:800">
+            Qué estábamos haciendo
+
+            <textarea
+              id="coop-moment-activity"
+              rows="2"
+              placeholder="Ej.: Lectura compartida del texto y elaboración conjunta de tres preguntas inferenciales."
+              style="margin-top:6px;min-height:68px"></textarea>
+          </label>
+
+          <span class="small">
+            Esta descripción pertenece al momento cooperativo completo,
+            no a un alumno concreto. Se guardará junto a todas las
+            observaciones de esta sesión.
+          </span>
+
+        </div>
+
+        <div class="coop-fast-legend">
+          <span><strong>1</strong> necesita apoyo</span>
+          <span><strong>2</strong> en proceso</span>
+          <span><strong>3</strong> adecuado</span>
+          <span><strong>4</strong> muy bien</span>
+          <span>· Solo marca lo que hayas observado.</span>
+        </div>
+
+        ${teams.map(team=>`
+
+          <div
+            class="coop-team-block"
+            data-coop-register-team="${esc(team.id)}">
+
+            <div class="coop-team-head">
+
+              <span
+                class="coop-team-dot"
+                style="background:${esc(team.color)}">
+              </span>
+
+              <div>
+                <strong>${esc(team.name)}</strong>
+
+                <span class="small" style="display:block">
+                  ${team.members.length}
+                  ${team.members.length===1?'miembro':'miembros'}
+                </span>
+              </div>
+
+            </div>
+
+            <div class="coop-table-wrap">
+
+              <table class="coop-fast-table">
+
+                <thead>
+                  <tr>
+                    <th>Alumno/a</th>
+                    <th>Participa</th>
+                    <th>Escucha</th>
+                    <th>Rol</th>
+                    <th>Coopera</th>
+                    <th>Rápido</th>
+                    <th>Nota</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  ${team.members.map(member=>`
+
+                    <tr
+                      data-coop-fast-row
+                      data-team-id="${esc(team.id)}"
+                      data-student-id="${esc(member.studentId)}">
+
+                      <td class="coop-fast-name">
+
+                        <span class="coop-student-name">
+                          ${esc(teamStudentName(member.studentId))}
+                        </span>
+
+                        ${
+                          member.role
+                            ? `
+                              <span class="coop-fast-role">
+                                ${esc(member.role)}
+                              </span>
+                            `
+                            : ''
+                        }
+
+                      </td>
+
+                      <td>
+                        <div class="coop-rate-group">
+                          ${ratingButtons('participation')}
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="coop-rate-group">
+                          ${ratingButtons('listening')}
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="coop-rate-group">
+                          ${ratingButtons('rolePerformance')}
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="coop-rate-group">
+                          ${ratingButtons('cooperation')}
+                        </div>
+                      </td>
+
+                      <td>
+
+                        <div class="coop-quick-actions">
+
+                          <button
+                            type="button"
+                            class="ghost coop-quick-btn"
+                            data-coop-all="3">
+                            Todo 3
+                          </button>
+
+                          <button
+                            type="button"
+                            class="ghost coop-quick-btn"
+                            data-coop-all="4">
+                            Todo 4
+                          </button>
+
+                          <button
+                            type="button"
+                            class="ghost coop-quick-btn"
+                            data-coop-clear
+                            title="Limpiar esta fila">
+                            ×
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                      <td>
+
+                        <div class="coop-note-wrap">
+
+                          <input
+                            class="coop-fast-note"
+                            data-coop-note
+                            placeholder="Nota breve…">
+
+                          <span
+                            class="coop-row-status"
+                            title="Guardado">
+                            ✓
+                          </span>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  `).join('')}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        `).join('')}
+
+      </div>
+    `;
+
+
+    /*
+      No hay ya un botón Guardar:
+      modal() se usa solamente para construir
+      el contenedor y luego convertimos Guardar → Cerrar.
+    */
+    modal(
+      '🤝 Observación cooperativa rápida',
+      html,
+      ()=>true
+    );
+
+
+    const saveBtn=
+      document.querySelector('#modal-save');
+
+    const cancelBtn=
+      document.querySelector('#modal-cancel');
+
+    const backdrop=
+      document.querySelector('#modal-backdrop');
+
+    if(saveBtn){
+
+      saveBtn.textContent='Cerrar';
+
+      saveBtn.onclick=()=>{
+        backdrop?.classList.remove('show');
+        renderTeams();
+        renderHomeCooperativeAction();
+      };
+    }
+
+    /*
+      "Cancelar" no tendría sentido porque
+      cada toque ya se guarda.
+    */
+    if(cancelBtn){
+      cancelBtn.classList.add('hidden');
+    }
+
+
+    const status=
+      document.querySelector('#coop-autosave-status');
+
+    let statusTimer=null;
+
+    const activityInput=
+      document.querySelector('#coop-moment-activity');
+
+    if(activityInput){
+
+      const existingMoment=
+        cooperativeMoment(momentId);
+
+      if(existingMoment){
+        activityInput.value=
+          existingMoment.activity||'';
+      }
+
+      let activityTimer=null;
+
+      activityInput.oninput=()=>{
+
+        clearTimeout(activityTimer);
+
+        activityTimer=setTimeout(()=>{
+
+          const value=
+            activityInput.value.trim();
+
+          let moment=
+            cooperativeMoment(momentId);
+
+          if(!moment && value){
+            moment=ensureCooperativeMoment(
+              momentId,
+              ctx,
+              momentDate,
+              momentTime
+            );
+          }
+
+          if(moment){
+            moment.activity=value;
+
+            cleanupEmptyCooperativeMoment(
+              momentId
+            );
+
+            persistState();
+
+            renderHomeCooperativeAction();
+
+            if(status){
+              status.textContent=
+                '✓ Actividad guardada';
+            }
+
+            clearTimeout(statusTimer);
+
+            statusTimer=setTimeout(()=>{
+              if(status){
+                status.textContent=
+                  '✓ Guardado automático';
+              }
+            },800);
+          }
+
+        },250);
+      };
+    }
+
+
+    const pulseSaved=()=>{
+
+      if(!status)return;
+
+      status.textContent='✓ Guardado';
+
+      clearTimeout(statusTimer);
+
+      statusTimer=setTimeout(()=>{
+        status.textContent='✓ Guardado automático';
+      },800);
+    };
+
+
+    document
+      .querySelectorAll('[data-coop-fast-row]')
+      .forEach(row=>{
+
+        const teamId=row.dataset.teamId;
+        const studentId=row.dataset.studentId;
+
+        const team=
+          teams.find(t=>t.id===teamId);
+
+        const member=
+          team?.members.find(
+            m=>m.studentId===studentId
+          );
+
+        if(!team||!member)return;
+
+
+        /*
+          Obtenemos el registro del momento solo
+          cuando realmente hay algo que guardar.
+        */
+        const getRecord=()=>{
+
+          return cooperativeMomentRecord(
+            momentId,
+            team,
+            member,
+            ctx,
+            momentDate,
+            momentTime
+          );
+        };
+
+
+        /*
+          Puntuación individual:
+          un segundo clic sobre el mismo valor lo desmarca.
+        */
+        row.querySelectorAll('[data-coop-rate]')
+          .forEach(btn=>{
+
+            btn.onclick=()=>{
+
+              const [field,valueRaw]=
+                btn.dataset.coopRate.split('|');
+
+              const value=Number(valueRaw);
+
+              const record=getRecord();
+
+              record[field]=
+                Number(record[field])===value
+                  ? null
+                  : value;
+
+              cleanupEmptyCooperativeRecord(record);
+
+              const current=
+                data.cooperativeRecords.find(
+                  r=>r.id===record.id
+                );
+
+              if(current){
+                cooperativeRowRefresh(row,current);
+              }else{
+                row.querySelectorAll('[data-coop-rate]')
+                  .forEach(x=>x.classList.remove('active'));
+
+                row.classList.remove('coop-row-saved');
+              }
+
+              persistState();
+              renderHomeCooperativeAction();
+              pulseSaved();
+            };
+          });
+
+
+        /*
+          Todo 3 / Todo 4:
+          cuatro dimensiones en un solo clic.
+        */
+        row.querySelectorAll('[data-coop-all]')
+          .forEach(btn=>{
+
+            btn.onclick=()=>{
+
+              const value=
+                Number(btn.dataset.coopAll);
+
+              const record=getRecord();
+
+              record.participation=value;
+              record.listening=value;
+              record.rolePerformance=value;
+              record.cooperation=value;
+
+              cooperativeRowRefresh(row,record);
+
+              persistState();
+              renderHomeCooperativeAction();
+              pulseSaved();
+            };
+          });
+
+
+        /*
+          Limpiar fila.
+          Si tiene nota también la borra.
+        */
+        const clearBtn=
+          row.querySelector('[data-coop-clear]');
+
+        if(clearBtn){
+
+          clearBtn.onclick=()=>{
+
+            const record=
+              data.cooperativeRecords.find(r=>
+                r.momentId===momentId &&
+                r.studentId===studentId
+              );
+
+            if(record){
+
+              data.cooperativeRecords=
+                data.cooperativeRecords.filter(
+                  r=>r.id!==record.id
+                );
+            }
+
+            row.querySelectorAll('[data-coop-rate]')
+              .forEach(
+                b=>b.classList.remove('active')
+              );
+
+            const note=
+              row.querySelector('[data-coop-note]');
+
+            if(note)note.value='';
+
+            row.classList.remove('coop-row-saved');
+
+            cleanupEmptyCooperativeMoment(
+              momentId
+            );
+
+            persistState();
+            renderHomeCooperativeAction();
+            pulseSaved();
+          };
+        }
+
+
+        /*
+          Nota rápida:
+          se actualiza mientras escribes.
+          persistState ya lleva debounce para SQLite.
+        */
+        const note=
+          row.querySelector('[data-coop-note]');
+
+        if(note){
+
+          note.oninput=()=>{
+
+            const value=note.value.trim();
+
+            let record=
+              data.cooperativeRecords.find(r=>
+                r.momentId===momentId &&
+                r.studentId===studentId
+              );
+
+            if(!record && value){
+              record=getRecord();
+            }
+
+            if(!record)return;
+
+            record.note=value;
+
+            cleanupEmptyCooperativeRecord(record);
+
+            const current=
+              data.cooperativeRecords.find(
+                r=>r.id===record.id
+              );
+
+            row.classList.toggle(
+              'coop-row-saved',
+              !!current
+            );
+
+            persistState();
+            renderHomeCooperativeAction();
+            pulseSaved();
+          };
+        }
+
+      });
+  }
+
+
+  function cooperativeRecordAverage(record){
+
+    const vals=[
+      record.participation,
+      record.listening,
+      record.rolePerformance,
+      record.cooperation
+    ]
+      .filter(v=>v!==null && v!==undefined && v!=='')
+      .map(Number);
+
+    if(!vals.length)return '';
+
+    return (
+      vals.reduce((a,b)=>a+b,0)/
+      vals.length
+    )
+      .toFixed(1)
+      .replace('.',',');
+  }
+
+
+  function cooperativeRecordsToday(){
+
+    ensureCooperativeTeams();
+
+    return data.cooperativeRecords.filter(
+      r=>r.date===today()
+    );
+  }
+
+
+  function renderHomeCooperativeAction(){
+
+    const btn=document.querySelector('#home-coop-open');
+    const count=document.querySelector('#home-coop-count');
+
+    if(!btn||!count)return;
+
+    ensureCooperativeTeams();
+
+    count.textContent=
+      cooperativeRecordsToday().length;
+
+    btn.disabled=!data.cooperativeTeams.length;
+
+    btn.title=data.cooperativeTeams.length
+      ? 'Registrar cooperación de esta sesión'
+      : 'Crea primero tus equipos cooperativos';
+
+    btn.onclick=()=>{
+
+      if(!data.cooperativeTeams.length){
+        openSection('equipos');
+        toast('Crea primero tus equipos cooperativos.');
+        return;
+      }
+
+      cooperativeRegisterModal(
+        null,
+        currentCooperativeContext()
+      );
+    };
+  }
+
+
+  function renderTeams(){
+
+    const list=document.querySelector('#teams-list');
+
+    if(!list)return;
+
+    ensureCooperativeTeams();
+
+    const teams=data.cooperativeTeams;
+    const todayRecords=cooperativeRecordsToday();
+
+    list.innerHTML=teams.length
+      ? teams.map(team=>{
+
+          const count=todayRecords.filter(
+            r=>r.teamId===team.id
+          ).length;
+
+          return `
+            <article
+              class="team-card"
+              data-team-card="${esc(team.id)}">
+
+              <div class="team-card-head">
+
+                <div class="team-title-wrap">
+
+                  <span
+                    class="team-color"
+                    style="background:${esc(team.color)}">
+                  </span>
+
+                  <div>
+                    <h3>${esc(team.name)}</h3>
+
+                    <span class="small">
+                      ${team.members.length}
+                      ${team.members.length===1
+                        ? 'miembro'
+                        : 'miembros'}
+                    </span>
+                  </div>
+
+                </div>
+
+                <div class="actions no-print" style="margin:0">
+
+                  <button
+                    class="ghost"
+                    data-team-edit="${esc(team.id)}">
+                    Editar
+                  </button>
+
+                  <button
+                    class="ghost danger"
+                    data-team-delete="${esc(team.id)}"
+                    title="Eliminar equipo">
+                    ×
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div class="team-members">
+
+                ${team.members.map(member=>`
+
+                  <div class="team-member">
+
+                    <div class="team-member-name">
+                      ${esc(teamStudentName(member.studentId))}
+                    </div>
+
+                    <input
+                      class="team-role-input"
+                      data-team-role="${esc(team.id)}|${esc(member.studentId)}"
+                      value="${esc(member.role||'')}"
+                      placeholder="Rol: portavoz, coordinación...">
+
+                  </div>
+
+                `).join('')}
+
+              </div>
+
+              <div class="team-card-footer">
+
+                <span class="team-today-count">
+                  ${
+                    count
+                      ? count+
+                        ' registro'+
+                        (count===1?'':'s')+
+                        ' hoy'
+                      : 'Sin registros hoy'
+                  }
+                </span>
+
+                <button
+                  class="secondary no-print"
+                  data-team-register="${esc(team.id)}">
+                  🤝 Registrar
+                </button>
+
+              </div>
+
+            </article>
+          `;
+        }).join('')
+
+      : `
+          <div class="team-empty" style="grid-column:1/-1">
+
+            <strong>
+              Todavía no hay equipos cooperativos.
+            </strong>
+
+            <br>
+
+            Crea el primero y selecciona quién forma parte de él.
+
+          </div>
+        `;
+
+
+    /* Alumnado sin equipo */
+
+    const assigned=new Set(
+      teams.flatMap(
+        t=>t.members.map(m=>m.studentId)
+      )
+    );
+
+    const unassigned=
+      data.students.filter(
+        st=>!assigned.has(st.id)
+      );
+
+    const unBox=
+      document.querySelector('#teams-unassigned');
+
+    if(unBox){
+
+      unBox.innerHTML=unassigned.length
+        ? unassigned.map(st=>
+            `
+              <span class="team-student-pill">
+                ${esc(st.name)}
+              </span>
+            `
+          ).join('')
+
+        : `
+            <span class="small">
+              Todo el alumnado tiene equipo.
+            </span>
+          `;
+    }
+
+
+    /* Resumen de hoy */
+
+    const summary=
+      document.querySelector('#coop-today-summary');
+
+    if(summary){
+
+      const students=
+        new Set(todayRecords.map(r=>r.studentId)).size;
+
+      const moments=
+        new Set(
+          todayRecords.map(
+            r=>r.time+'|'+r.contextLabel
+          )
+        ).size;
+
+      summary.innerHTML=todayRecords.length
+        ? `
+            <div class="metric">
+
+              <div>
+                <strong>${todayRecords.length}</strong>
+                <br>
+                <span>registros individuales</span>
+              </div>
+
+              <div>
+                <strong>${students}</strong>
+                <br>
+                <span>alumnos observados</span>
+              </div>
+
+              <div>
+                <strong>${moments}</strong>
+                <br>
+                <span>momentos registrados</span>
+              </div>
+
+            </div>
+          `
+
+        : `
+            <div class="empty">
+              Todavía no has registrado cooperación hoy.
+            </div>
+          `;
+    }
+
+
+    /* Histórico individual */
+
+    const history=
+      document.querySelector('#teams-history');
+
+    if(history){
+
+      const rows=[
+        ...data.cooperativeRecords
+      ]
+        .sort((a,b)=>
+          (
+            (b.date||'')+
+            (b.time||'')
+          ).localeCompare(
+            (a.date||'')+
+            (a.time||'')
+          )
+        )
+        .slice(0,30);
+
+      history.innerHTML=rows.length
+        ? rows.map(record=>{
+
+            const avg=
+              cooperativeRecordAverage(record);
+
+            const values=[];
+
+            const moment=
+              cooperativeMoment(
+                record.momentId
+              );
+
+            if(record.participation)
+              values.push(
+                'Participación '+
+                record.participation
+              );
+
+            if(record.listening)
+              values.push(
+                'Escucha '+
+                record.listening
+              );
+
+            if(record.rolePerformance)
+              values.push(
+                'Rol '+
+                record.rolePerformance
+              );
+
+            if(record.cooperation)
+              values.push(
+                'Cooperación '+
+                record.cooperation
+              );
+
+            return `
+              <div class="team-history-item">
+
+                <div>
+                  <strong>${esc(record.date||'')}</strong>
+                  <span class="small" style="display:block">
+                    ${esc(record.time||'')}
+                  </span>
+                </div>
+
+                <div>
+                  <strong>
+                    ${esc(teamStudentName(record.studentId))}
+                  </strong>
+
+                  <span class="small" style="display:block">
+                    ${esc(record.teamName||'Equipo')}
+                    ${
+                      record.role
+                        ? ' · '+esc(record.role)
+                        : ''
+                    }
+                  </span>
+                </div>
+
+                <div class="small">
+
+                  ${
+                    record.contextLabel
+                      ? `
+                        <strong>
+                          ${esc(record.contextLabel)}
+                        </strong>
+                        <br>
+                      `
+                      : ''
+                  }
+
+                  ${
+                    moment?.activity
+                      ? `
+                        <span style="display:block;margin:3px 0">
+                          ${esc(moment.activity)}
+                        </span>
+                      `
+                      : ''
+                  }
+
+                  ${esc(values.join(' · '))}
+
+                  ${
+                    record.note
+                      ? `<br>${esc(record.note)}`
+                      : ''
+                  }
+
+                </div>
+
+                ${
+                  avg
+                    ? `
+                      <span class="team-score">
+                        ${avg}/4
+                      </span>
+                    `
+                    : ''
+                }
+
+              </div>
+            `;
+          }).join('')
+
+        : `
+            <div class="empty">
+              Todavía no hay registros cooperativos.
+            </div>
+          `;
+    }
+
+
+    const add=
+      document.querySelector('#team-new');
+
+    if(add){
+      add.onclick=()=>cooperativeTeamModal();
+    }
+
+
+    const registerAll=
+      document.querySelector('#coop-register-all');
+
+    if(registerAll){
+      registerAll.onclick=()=>
+        cooperativeRegisterModal(
+          null,
+          currentCooperativeContext()
+        );
+    }
+
+
+    list.querySelectorAll('[data-team-edit]')
+      .forEach(btn=>{
+
+        btn.onclick=()=>{
+
+          const team=
+            teams.find(
+              t=>t.id===btn.dataset.teamEdit
+            );
+
+          if(team){
+            cooperativeTeamModal(team);
+          }
+        };
+      });
+
+
+    list.querySelectorAll('[data-team-delete]')
+      .forEach(btn=>{
+
+        btn.onclick=()=>
+          deleteCooperativeTeam(
+            btn.dataset.teamDelete
+          );
+      });
+
+
+    list.querySelectorAll('[data-team-role]')
+      .forEach(input=>{
+
+        input.onchange=()=>{
+
+          const [teamId,studentId]=
+            input.dataset.teamRole.split('|');
+
+          saveTeamRole(
+            teamId,
+            studentId,
+            input.value
+          );
+
+          toast('Rol guardado');
+        };
+      });
+
+
+    list.querySelectorAll('[data-team-register]')
+      .forEach(btn=>{
+
+        btn.onclick=()=>
+          cooperativeRegisterModal(
+            btn.dataset.teamRegister,
+            currentCooperativeContext()
+          );
+      });
+  }
+
+
   function renderClassroom(){
     const box=document.querySelector('#classroom-layout');
     if(!box)return;
@@ -6624,7 +8771,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     }
   }
 
-  function renderAll(){renderStudents();renderClassroom();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
+  function renderAll(){renderStudents();renderClassroom();renderTeams();renderHomeCooperativeAction();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
 
 
   let pendingUpdateVersion='';
@@ -7168,7 +9315,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     };
   }
 
-  function modal(title,html,onSave){const bg=document.querySelector('#modal-backdrop'),saveBtn=document.querySelector('#modal-save');document.querySelector('#modal-title').textContent=title;document.querySelector('#modal-content').innerHTML=html;saveBtn.classList.remove('hidden');saveBtn.textContent='Guardar';bg.classList.add('show');saveBtn.onclick=()=>{if(onSave()!==false)bg.classList.remove('show')}}
+  function modal(title,html,onSave){const bg=document.querySelector('#modal-backdrop'),saveBtn=document.querySelector('#modal-save'),cancelBtn=document.querySelector('#modal-cancel');document.querySelector('#modal-title').textContent=title;document.querySelector('#modal-content').innerHTML=html;saveBtn.classList.remove('hidden');saveBtn.textContent='Guardar';if(cancelBtn){cancelBtn.classList.remove('hidden');cancelBtn.textContent='Cancelar'}bg.classList.add('show');saveBtn.onclick=()=>{if(onSave()!==false)bg.classList.remove('show')}}
   document.querySelector('#modal-cancel').onclick=()=>document.querySelector('#modal-backdrop').classList.remove('show');
   document.querySelector('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')e.currentTarget.classList.remove('show')};
 
