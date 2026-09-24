@@ -2345,6 +2345,7 @@
         <div class="nav-group-title">Aula</div>
         <button data-section="alumnado"><span class="nav-icon">♙</span><span>Alumnado</span></button>
         <button data-section="aula"><span class="nav-icon">▦</span><span>Plano del aula</span></button>
+        <button data-section="grupos-docentes"><span class="nav-icon">◉</span><span>Grupos docentes</span></button>
         <button data-section="equipos"><span class="nav-icon">◫</span><span>Equipos cooperativos</span></button>
         <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
         <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
@@ -2566,6 +2567,19 @@
       <div id="notebook-evidence-focus" class="notebook-view hidden"></div>
     </section>
 
+    <section id="grupos-docentes" class="section">
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Grupos docentes</h3>
+            <p>Crea agrupamientos para materias en las que no trabajas con el aula completa.</p>
+          </div>
+          <button class="primary no-print" id="nuevo-grupo-docente">＋ Nuevo grupo</button>
+        </div>
+        <div id="teaching-groups-list" style="margin-top:18px"></div>
+      </div>
+    </section>
+
     <section id="alumnado" class="section">
       <div class="card no-print" style="margin-bottom:18px">
         <h3>Gestión del alumnado</h3>
@@ -2575,6 +2589,17 @@
           <button class="ghost" id="editar-alumno">Editar seleccionado</button>
           <button class="ghost danger" id="eliminar-alumno" onclick="alert('BOTON BORRAR FUNCIONA')">Eliminar seleccionado</button>
         </div>
+      </div>
+
+      <div class="card no-print" style="margin-bottom:18px">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Alumnado de otros grupos</h3>
+            <p class="small">Alumnado al que das clase pero que no pertenece a tu aula base.</p>
+          </div>
+          <button class="primary" id="nuevo-alumno-externo">＋ Añadir alumnado externo</button>
+        </div>
+        <div id="external-students-list" style="margin-top:14px"></div>
       </div>
       <div class="student-panel">
         <div class="card">
@@ -2832,6 +2857,12 @@
           </div>
 
           <div class="actions no-print" style="margin:0">
+            <button class="ghost" id="coop-import">
+              📥 Importar aportaciones
+            </button>
+            <button class="ghost" id="coop-export-web">
+              🌐 Exportar equipos
+            </button>
             <button class="secondary" id="coop-register-all">
               🤝 Registrar cooperación
             </button>
@@ -2865,9 +2896,9 @@
       </div>
 
       <div class="card" style="margin-top:18px">
-        <h3>Últimos registros individuales</h3>
+        <h3>Histórico cooperativo</h3>
         <p>
-          Histórico de observaciones cooperativas por alumno, equipo, fecha y hora.
+          Momentos de trabajo cooperativo con las observaciones docentes y las aportaciones de los equipos.
         </p>
         <div id="teams-history" class="team-history"></div>
       </div>
@@ -3202,7 +3233,7 @@
       </div>
       <div class="card" style="margin-top:18px">
         <h3>Horario del grupo</h3>
-        <p>Horario semanal editable. Escribe materia, grupo o una nota breve en cada franja.</p>
+        <p>Horario semanal editable. Escribe la materia o sesión y, cuando corresponda, asígnala a un grupo docente.</p>
         <div class="timetable-wrap"><table class="timetable"><thead><tr><th>Franja</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th></tr></thead><tbody id="timetable-body"></tbody></table></div>
         <div class="timetable-actions no-print"><button class="secondary" id="timetable-add-row">Añadir franja</button><button class="ghost" id="timetable-reset">Restablecer horario</button></div>
       </div>
@@ -3330,7 +3361,18 @@
           instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         data=merged;
-        localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+        if(!Array.isArray(data.teachingGroups))data.teachingGroups=[];
+        if(!Array.isArray(data.externalStudents))data.externalStudents=[];
+        if(!data.settings||typeof data.settings!=='object')data.settings={};
+        if(!data.settings.timetableGroups||typeof data.settings.timetableGroups!=='object'||Array.isArray(data.settings.timetableGroups)){
+          data.settings.timetableGroups={};
+        }
+        (data.settings.timetable||[]).forEach(row=>{
+          if(!row.id)row.id=uid('ttrow');
+        });
+        const normalizedPayload=JSON.stringify(data);
+        localStorage.setItem(STORAGE_KEY,normalizedPayload);
+        await nativeInvoke('save_state',{stateJson:normalizedPayload});
       }else{
         await nativeInvoke('save_state',{stateJson:JSON.stringify(data)});
       }
@@ -3379,7 +3421,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','equipos','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','grupos-docentes','equipos','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -3449,6 +3491,15 @@
   }
   const clone=o=>JSON.parse(JSON.stringify(o));
   let data=load();
+  if(!Array.isArray(data.teachingGroups))data.teachingGroups=[];
+  if(!Array.isArray(data.externalStudents))data.externalStudents=[];
+  if(!data.settings||typeof data.settings!=='object')data.settings={};
+  if(!data.settings.timetableGroups||typeof data.settings.timetableGroups!=='object'||Array.isArray(data.settings.timetableGroups)){
+    data.settings.timetableGroups={};
+  }
+  (data.settings.timetable||[]).forEach(row=>{
+    if(!row.id)row.id=uid('ttrow');
+  });
   let currentMode=data.settings?.mode||'diario';
   const currentMonthKey=today().slice(0,7);
   if(monthKeyInCourse(currentMonthKey)) data.settings.calendarMonth=currentMonthKey;
@@ -3684,6 +3735,299 @@
     document.querySelector('#mode-label').textContent=mode==='diario'?'Modo Diario':'Modo Evaluación';
     document.querySelectorAll('nav button[data-section]').forEach(b=>b.classList.toggle('hidden',!modeSections[mode].includes(b.dataset.section)));
     if(goHome) openSection(mode==='diario'?'inicio':'cuaderno');
+  }
+
+  const newTeachingGroupBtn=document.querySelector('#nuevo-grupo-docente');
+  if(newTeachingGroupBtn)newTeachingGroupBtn.onclick=()=>teachingGroupModal();
+
+  const newExternalStudentBtn=document.querySelector('#nuevo-alumno-externo');
+  if(newExternalStudentBtn)newExternalStudentBtn.onclick=()=>externalStudentModal();
+
+  function externalStudent(id){
+    return (data.externalStudents||[]).find(s=>s.id===id);
+  }
+
+  function renderExternalStudents(){
+    const box=document.querySelector('#external-students-list');
+    if(!box)return;
+
+    const students=data.externalStudents||[];
+
+    if(!students.length){
+      box.innerHTML='';
+      return;
+    }
+
+    box.innerHTML=`
+      <div>
+        ${students.map(st=>`
+          <span class="pill blue" style="margin:3px">
+            ${esc(st.name)}${st.referenceGroup?' · '+esc(st.referenceGroup):''}
+            <button type="button"
+              data-delete-external-student="${esc(st.id)}"
+              title="Eliminar"
+              style="border:0;background:none;padding:0 0 0 6px;cursor:pointer">×</button>
+          </span>
+        `).join('')}
+      </div>`;
+
+    box.querySelectorAll('[data-delete-external-student]').forEach(btn=>{
+      btn.onclick=()=>{
+        const st=externalStudent(btn.dataset.deleteExternalStudent);
+        if(!st)return;
+        if(!confirm(`¿Eliminar a ${st.name} del alumnado externo?`))return;
+
+        data.externalStudents=data.externalStudents.filter(x=>x.id!==st.id);
+
+        (data.teachingGroups||[]).forEach(g=>{
+          g.studentIds=(g.studentIds||[]).filter(id=>id!==st.id);
+        });
+
+        persistState();
+        renderExternalStudents();
+        renderTeachingGroups();
+        toast('Alumno externo eliminado');
+      };
+    });
+  }
+
+  function externalStudentModal(){
+    modal(
+      'Añadir alumnado externo',
+      `<div class="form-grid">
+        <label>
+          Nombre
+          <input id="m-external-name" placeholder="Ej. Lucía">
+        </label>
+        <label>
+          Grupo de referencia
+          <input id="m-external-group" placeholder="Ej. 6.º A">
+        </label>
+      </div>
+      <p class="small" style="margin-top:12px">
+        Este alumnado solo aparecerá en los grupos docentes donde lo incluyas.
+        No se añadirá a tu aula base.
+      </p>`,
+      ()=>{
+        const name=document.querySelector('#m-external-name')?.value.trim()||'';
+        const referenceGroup=document.querySelector('#m-external-group')?.value.trim()||'';
+
+        if(!name){
+          toast('El nombre es obligatorio.');
+          return false;
+        }
+
+        data.externalStudents.push({
+          id:uid('external_student'),
+          name,
+          referenceGroup
+        });
+
+        persistState();
+        renderExternalStudents();
+        toast('Alumno externo añadido');
+        return true;
+      }
+    );
+  }
+
+  function teachingGroup(id){
+    return (data.teachingGroups||[]).find(g=>g.id===id);
+  }
+
+  function teachingStudent(id){
+    return (data.students||[]).find(s=>s.id===id)
+      || (data.externalStudents||[]).find(s=>s.id===id)
+      || null;
+  }
+
+  function isExternalStudentId(id){
+    return (data.externalStudents||[]).some(s=>s.id===id);
+  }
+
+  function renderTeachingGroups(){
+    const box=document.querySelector('#teaching-groups-list');
+    if(!box)return;
+
+    const groups=Array.isArray(data.teachingGroups)?data.teachingGroups:[];
+
+    if(!groups.length){
+      box.innerHTML='<div class="empty">Todavía no has creado grupos docentes.</div>';
+    }else{
+      box.innerHTML=groups.map(g=>{
+        const members=(g.studentIds||[])
+          .map(id=>teachingStudent(id))
+          .filter(Boolean);
+
+        return `<div class="card" style="margin-bottom:12px">
+          <div class="notebook-title-row">
+            <div>
+              <h3 style="margin-bottom:5px">${esc(g.name||'Grupo sin nombre')}</h3>
+              <div class="small">${members.length} alumno${members.length===1?'':'s'}</div>
+            </div>
+            <div class="actions no-print" style="margin:0">
+              <button class="ghost" data-edit-teaching-group="${esc(g.id)}">Editar</button>
+              <button class="ghost danger" data-delete-teaching-group="${esc(g.id)}">Eliminar</button>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            ${members.length
+              ? members.map(st=>{
+                  const external=isExternalStudentId(st.id);
+                  const label=external && st.referenceGroup
+                    ? `${st.name} · ${st.referenceGroup}`
+                    : st.name;
+                  return `<span class="pill ${external?'yellow':'blue'}" style="margin:3px">${esc(label)}</span>`;
+                }).join('')
+              : '<span class="small">Sin alumnado asignado.</span>'}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    box.querySelectorAll('[data-edit-teaching-group]').forEach(btn=>{
+      btn.onclick=()=>teachingGroupModal(btn.dataset.editTeachingGroup);
+    });
+
+    box.querySelectorAll('[data-delete-teaching-group]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=teachingGroup(btn.dataset.deleteTeachingGroup);
+        if(!g)return;
+        if(!confirm(`¿Eliminar el grupo docente "${g.name}"?`))return;
+        data.teachingGroups=data.teachingGroups.filter(x=>x.id!==g.id);
+        persistState();
+        renderTeachingGroups();
+        toast('Grupo docente eliminado');
+      };
+    });
+  }
+
+  function teachingGroupModal(groupId=''){
+    const existing=groupId?teachingGroup(groupId):null;
+    const selected=new Set(existing?.studentIds||[]);
+
+    const studentRow=(st,label='')=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border)">
+        <input type="checkbox"
+          data-teaching-student="${esc(st.id)}"
+          ${selected.has(st.id)?'checked':''}
+          style="width:18px;height:18px;flex:0 0 auto;margin:0">
+        <span style="font-weight:700">${esc(st.name)}</span>
+        ${label?`<span class="small" style="margin-left:auto">${esc(label)}</span>`:''}
+      </div>
+    `;
+
+    const homeStudentsHtml=data.students.length
+      ? data.students.map(st=>studentRow(st)).join('')
+      : '<div class="empty">No hay alumnado en el aula.</div>';
+
+    const externalStudentsHtml=(data.externalStudents||[]).length
+      ? data.externalStudents.map(st=>
+          studentRow(st,st.referenceGroup||'Otro grupo')
+        ).join('')
+      : '<div class="empty">No hay alumnado de otros grupos.</div>';
+
+    modal(
+      existing?'Editar grupo docente':'Nuevo grupo docente',
+      `<div>
+        <label style="display:block">
+          <strong>Nombre del grupo</strong>
+          <input id="m-teaching-group-name"
+            value="${esc(existing?.name||'')}"
+            placeholder="Ej. Cultura"
+            style="margin-top:7px">
+        </label>
+
+        <label style="display:block;margin-top:14px">
+          <strong>Materia / área</strong>
+          <input id="m-teaching-group-subject"
+            value="${esc(existing?.subject||'')}"
+            placeholder="Ej. Cultura Asturiana"
+            style="margin-top:7px">
+          <div class="small" style="margin-top:5px">
+            Las evaluaciones de este grupo quedarán vinculadas a esta materia.
+          </div>
+        </label>
+
+        <div style="margin-top:22px">
+          <div style="display:flex;justify-content:space-between;align-items:end;gap:12px">
+            <div>
+              <strong>Alumnado del grupo</strong>
+              <div class="small" style="margin-top:4px">
+                Marca únicamente el alumnado que participa en este grupo.
+              </div>
+            </div>
+            <span class="pill blue" id="teaching-selected-count">0 seleccionados</span>
+          </div>
+
+          <div style="margin-top:10px;max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:12px">
+            <div style="padding:10px 12px;background:var(--surface-2);font-weight:800">
+              Mi aula · ${data.students.length}
+            </div>
+            ${homeStudentsHtml}
+
+            <div style="padding:10px 12px;background:var(--surface-2);font-weight:800;border-top:1px solid var(--border)">
+              Alumnado de otros grupos · ${(data.externalStudents||[]).length}
+            </div>
+            ${externalStudentsHtml}
+          </div>
+        </div>
+      </div>`,
+      ()=>{
+        const name=document.querySelector('#m-teaching-group-name')?.value.trim()||'';
+        const subject=document.querySelector('#m-teaching-group-subject')?.value.trim()||'';
+
+        if(!name){
+          toast('El nombre del grupo es obligatorio.');
+          return false;
+        }
+
+        if(!subject){
+          toast('La materia o área es obligatoria.');
+          return false;
+        }
+
+        const studentIds=Array.from(
+          document.querySelectorAll('[data-teaching-student]:checked')
+        ).map(el=>el.getAttribute('data-teaching-student'));
+
+        if(!studentIds.length){
+          toast('Selecciona al menos un alumno/a.');
+          return false;
+        }
+
+        if(existing){
+          existing.name=name;
+          existing.subject=subject;
+          existing.studentIds=studentIds;
+        }else{
+          data.teachingGroups=data.teachingGroups||[];
+          data.teachingGroups.push({
+            id:uid('teaching_group'),
+            name:name,
+            subject:subject,
+            studentIds:studentIds
+          });
+        }
+
+        persistState();
+        renderTeachingGroups();
+        toast(existing?'Grupo docente actualizado':'Grupo docente creado');
+        return true;
+      }
+    );
+
+    const updateCount=()=>{
+      const n=document.querySelectorAll('[data-teaching-student]:checked').length;
+      const el=document.querySelector('#teaching-selected-count');
+      if(el)el.textContent=n+' seleccionado'+(n===1?'':'s');
+    };
+
+    document.querySelectorAll('[data-teaching-student]').forEach(el=>{
+      el.addEventListener('change',updateCount);
+    });
+
+    updateCount();
   }
 
   function renderStudents(){
@@ -4250,11 +4594,18 @@
                     </div>
                   </div>
 
-                  <button type="button"
-                          class="secondary"
-                          data-open-instrument-application="${esc(app.id)}">
-                    Abrir evaluación
-                  </button>
+                  <div class="actions" style="gap:8px;flex-wrap:nowrap">
+                    <button type="button"
+                            class="secondary"
+                            data-open-instrument-application="${esc(app.id)}">
+                      Abrir evaluación
+                    </button>
+                    <button type="button"
+                            class="danger"
+                            data-delete-instrument-application="${esc(app.id)}">
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
             `;
@@ -4266,6 +4617,38 @@
     box.querySelectorAll('[data-open-instrument-application]').forEach(btn=>{
       btn.onclick=()=>{
         openInstrumentApplication(btn.dataset.openInstrumentApplication);
+      };
+    });
+
+    box.querySelectorAll('[data-delete-instrument-application]').forEach(btn=>{
+      btn.onclick=()=>{
+        const appId=btn.dataset.deleteInstrumentApplication;
+        const app=(data.instrumentApplications||[]).find(x=>x.id===appId);
+        if(!app) return;
+
+        const linkedEvidence=(data.instrumentEvidence||[])
+          .filter(ev=>ev.applicationId===appId).length;
+
+        const message=
+          '¿Eliminar definitivamente la evaluación "'+
+          (app.name||'Sin nombre')+'"?\n\n'+
+          'Se eliminarán también '+linkedEvidence+
+          ' evidencia'+(linkedEvidence===1?'':'s')+
+          ' curricular'+(linkedEvidence===1?'':'es')+
+          ' generada'+(linkedEvidence===1?'':'s')+
+          ' por esta evaluación.';
+
+        if(!confirm(message)) return;
+
+        data.instrumentApplications=(data.instrumentApplications||[])
+          .filter(x=>x.id!==appId);
+
+        data.instrumentEvidence=(data.instrumentEvidence||[])
+          .filter(ev=>ev.applicationId!==appId);
+
+        persistState();
+        renderNotebook();
+        toast('Evaluación eliminada');
       };
     });
   }
@@ -4329,7 +4712,7 @@
     const rubric=app.rubricSnapshot||{};
     const indicators=rubric.indicators||[];
     const students=(app.studentIds||[])
-      .map(id=>data.students.find(s=>s.id===id))
+      .map(id=>teachingStudent(id))
       .filter(Boolean);
 
     if(!students.length){
@@ -4870,7 +5253,34 @@
     return items;
   }
   function todaysUnits(){return scheduledSessionsForDate(today())}
-  function todaysTimetable(){const d=new Date(),idx=d.getDay()-1;if(idx<0||idx>4)return [];return (data.settings.timetable||[]).map(r=>({time:r.time||'',text:(r.days||[])[idx]||''})).filter(x=>x.text.trim())}
+  function studentsForTeachingGroup(groupId=''){
+    if(!groupId)return data.students||[];
+    const group=teachingGroup(groupId);
+    if(!group)return data.students||[];
+    return (group.studentIds||[])
+      .map(id=>teachingStudent(id))
+      .filter(Boolean);
+  }
+
+  function todaysTimetable(){
+    const d=new Date(),idx=d.getDay()-1;
+    if(idx<0||idx>4)return [];
+    return (data.settings.timetable||[])
+      .map(r=>{
+        const key=r.id+'|'+idx;
+        const teachingGroupId=data.settings.timetableGroups?.[key]||'';
+        const group=teachingGroupId?teachingGroup(teachingGroupId):null;
+        return {
+          rowId:r.id||'',
+          time:r.time||'',
+          text:(r.days||[])[idx]||'',
+          teachingGroupId,
+          teachingGroup:group,
+          students:studentsForTeachingGroup(teachingGroupId)
+        };
+      })
+      .filter(x=>x.text.trim());
+  }
 
   function todaysTeacherTimetable(){
     const d=new Date(),idx=d.getDay()-1;
@@ -5086,12 +5496,73 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   function renderTimetable(){
     const body=document.querySelector('#timetable-body');if(!body)return;
     const rows=data.settings.timetable||[];
-    body.innerHTML=rows.map((r,ri)=>`<tr><td class="time-slot"><input data-time-row="${ri}" value="${esc(r.time||'')}"></td>${[0,1,2,3,4].map(di=>`<td><input data-tt="${ri}|${di}" value="${esc((r.days||[])[di]||'')}" placeholder="Materia / sesión"></td>`).join('')}</tr>`).join('');
-    body.querySelectorAll('[data-tt]').forEach(inp=>inp.onchange=()=>{const [ri,di]=inp.dataset.tt.split('|').map(Number);data.settings.timetable[ri].days[di]=inp.value;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));toast('Horario guardado')});
-    body.querySelectorAll('[data-time-row]').forEach(inp=>inp.onchange=()=>{data.settings.timetable[Number(inp.dataset.timeRow)].time=inp.value;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));toast('Franja guardada')});
+    const groups=data.teachingGroups||[];
+    const groupOptions=selectedId=>
+      `<option value="">Aula completa</option>`+
+      groups.map(g=>`<option value="${esc(g.id)}" ${g.id===selectedId?'selected':''}>${esc(g.name)}</option>`).join('');
+
+    body.innerHTML=rows.map((r,ri)=>`
+      <tr>
+        <td class="time-slot">
+          <input data-time-row="${ri}" value="${esc(r.time||'')}">
+        </td>
+        ${[0,1,2,3,4].map(di=>{
+          const key=r.id+'|'+di;
+          const groupId=data.settings.timetableGroups?.[key]||'';
+          return `<td>
+            <input data-tt="${ri}|${di}"
+              value="${esc((r.days||[])[di]||'')}"
+              placeholder="Materia / sesión">
+            <select data-tt-group="${esc(key)}"
+              style="margin-top:6px;font-size:12px;padding:6px 8px">
+              ${groupOptions(groupId)}
+            </select>
+          </td>`;
+        }).join('')}
+      </tr>
+    `).join('');
+
+    body.querySelectorAll('[data-tt]').forEach(inp=>inp.onchange=()=>{
+      const [ri,di]=inp.dataset.tt.split('|').map(Number);
+      data.settings.timetable[ri].days[di]=inp.value;
+      persistState();
+      toast('Horario guardado');
+    });
+
+    body.querySelectorAll('[data-time-row]').forEach(inp=>inp.onchange=()=>{
+      data.settings.timetable[Number(inp.dataset.timeRow)].time=inp.value;
+      persistState();
+      toast('Franja guardada');
+    });
+
+    body.querySelectorAll('[data-tt-group]').forEach(sel=>sel.onchange=()=>{
+      const key=sel.dataset.ttGroup;
+      if(sel.value)data.settings.timetableGroups[key]=sel.value;
+      else delete data.settings.timetableGroups[key];
+      persistState();
+      toast(sel.value?'Grupo docente asignado':'Aula completa asignada');
+    });
   }
-  function addTimetableRow(){data.settings.timetable.push({time:'',days:['','','','','']});save('Franja añadida')}
-  function resetTimetable(){if(confirm('¿Restablecer las franjas del horario?')){data.settings.timetable=clone(demo.settings.timetable);save('Horario restablecido')}}
+
+  function addTimetableRow(){
+    data.settings.timetable.push({
+      id:uid('ttrow'),
+      time:'',
+      days:['','','','','']
+    });
+    save('Franja añadida');
+  }
+
+  function resetTimetable(){
+    if(confirm('¿Restablecer las franjas del horario?')){
+      data.settings.timetable=clone(demo.settings.timetable);
+      data.settings.timetable.forEach(row=>{
+        row.id=uid('ttrow');
+      });
+      data.settings.timetableGroups={};
+      save('Horario restablecido');
+    }
+  }
 
   function renderTeacherTimetable(){
     const body=document.querySelector('#teacher-timetable-body');if(!body)return;
@@ -7028,6 +7499,31 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       data.cooperativeMoments=[];
     }
 
+    data.cooperativeMoments.forEach(moment=>{
+      if(!Array.isArray(moment.secretaryContributions)){
+        moment.secretaryContributions=[];
+      }
+
+      /*
+       * Compatibilidad con aportaciones importadas cuando
+       * el momento quedó sin hora.
+       */
+      if(!String(moment.time||'').trim()){
+        const contributionWithTime=
+          moment.secretaryContributions.find(
+            contribution=>String(
+              contribution.sourceCreatedAt||''
+            ).match(/\b\d{2}:\d{2}\b/)
+          );
+
+        if(contributionWithTime){
+          moment.time=String(
+            contributionWithTime.sourceCreatedAt||''
+          ).match(/\b(\d{2}:\d{2})\b/)?.[1] || '';
+        }
+      }
+    });
+
     data.cooperativeTeams.forEach((team,index)=>{
 
       if(!team.id)team.id=uid('team');
@@ -7059,6 +7555,50 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   }
 
 
+  function cooperativeExportTeamsForWeb(){
+    ensureCooperativeTeams();
+
+    const payload={
+      format:'micuadernodigital-cooperative-teams',
+      version:1,
+      exportedAt:new Date().toISOString(),
+      teams:data.cooperativeTeams.map(team=>({
+        id:team.id,
+        name:team.name,
+        members:team.members.map(member=>({
+          studentId:member.studentId,
+          name:teamStudentName(member.studentId),
+          role:member.role||''
+        }))
+      }))
+    };
+
+    const blob=new Blob(
+      [JSON.stringify(payload,null,2)],
+      {type:'application/json;charset=utf-8'}
+    );
+
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+
+    link.href=url;
+    link.download=
+      'micuadernodigital_equipos_cooperativos_'+today()+'.json';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+    toast(
+      'Equipos exportados: '+
+      payload.teams.length+
+      ' equipo/s'
+    );
+  }
+
+
   function cooperativeTeamForStudent(studentId){
 
     ensureCooperativeTeams();
@@ -7083,6 +7623,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     const currentIds=new Set(
       (team?.members||[]).map(m=>m.studentId)
     );
+
 
     const html=`
       <div class="form-grid">
@@ -7408,6 +7949,11 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       secretaryStudentId:'',
       secretaryText:'',
       secretaryUpdatedAt:'',
+      /*
+        Aportaciones importadas desde la web.
+        Permanecen separadas de las observaciones docentes.
+      */
+      secretaryContributions:[],
 
       createdAt:new Date().toISOString()
     };
@@ -7436,7 +7982,16 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       moment.secretaryText||''
     ).trim();
 
-    if(!hasRecords && !hasActivity && !hasSecretaryText){
+    const hasSecretaryContributions=
+      Array.isArray(moment.secretaryContributions) &&
+      moment.secretaryContributions.length>0;
+
+    if(
+      !hasRecords &&
+      !hasActivity &&
+      !hasSecretaryText &&
+      !hasSecretaryContributions
+    ){
       data.cooperativeMoments=
         data.cooperativeMoments.filter(
           m=>m.id!==momentId
@@ -8178,6 +8733,790 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   }
 
 
+  function normalizeCooperativeImportName(value){
+    return String(value||'')
+      .trim()
+      .toLocaleLowerCase('es')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'');
+  }
+
+
+  function cooperativeImportIsSecretary(role){
+    return normalizeCooperativeImportName(role)
+      .includes('secretari');
+  }
+
+
+  function cooperativeImportPreview(payload){
+
+    if(
+      !payload ||
+      payload.format!=='micuadernodigital-cooperativo' ||
+      Number(payload.version)!==1 ||
+      !Array.isArray(payload.aportaciones)
+    ){
+      toast('El archivo no es una exportación cooperativa válida.');
+      return;
+    }
+
+    ensureCooperativeTeams();
+
+    /*
+     * Identidad estable de cada aportación procedente de la web.
+     */
+    const contributionSourceKey=item=>
+      item?.id===undefined || item?.id===null
+        ? ''
+        : 'recursosdocentes.info:'+String(item.id);
+
+    const importedContributionExists=sourceKey=>
+      !!sourceKey &&
+      data.cooperativeMoments.some(moment=>
+        Array.isArray(moment.secretaryContributions) &&
+        moment.secretaryContributions.some(
+          contribution=>contribution.sourceKey===sourceKey
+        )
+      );
+
+    const momentsForDate=date=>
+      data.cooperativeMoments
+        .filter(moment=>moment.date===date)
+        .slice()
+        .sort((a,b)=>
+          String(a.time||'').localeCompare(String(b.time||''))
+        );
+
+    const results=payload.aportaciones.map(item=>{
+
+      const importedName=
+        normalizeCooperativeImportName(item.nombre);
+
+      const matches=data.students.filter(st=>
+        normalizeCooperativeImportName(st.name)===importedName
+      );
+
+      if(matches.length===0){
+        return {
+          item,
+          status:'unmatched',
+          message:'No se encuentra este nombre en el alumnado.'
+        };
+      }
+
+      if(matches.length>1){
+        return {
+          item,
+          status:'ambiguous',
+          message:'Hay más de un alumno/a con este nombre.'
+        };
+      }
+
+      const student=matches[0];
+      const team=cooperativeTeamForStudent(student.id);
+
+      if(!team){
+        return {
+          item,
+          student,
+          status:'no-team',
+          message:'El alumno/a no pertenece actualmente a ningún equipo.'
+        };
+      }
+
+      const member=team.members.find(
+        m=>m.studentId===student.id
+      );
+
+      const role=member?.role||'';
+
+      if(!cooperativeImportIsSecretary(role)){
+        return {
+          item,
+          student,
+          team,
+          role,
+          status:'not-secretary',
+          message:'No tiene actualmente el rol de secretario/a.'
+        };
+      }
+
+      /*
+       * Si el JSON conoce el equipo de origen, comprobamos
+       * que corresponde al mismo equipo de MiCuadernoDigital.
+       */
+      if(
+        item.equipo?.external_id &&
+        String(item.equipo.external_id)!==String(team.id)
+      ){
+        return {
+          item,
+          student,
+          team,
+          role,
+          status:'team-mismatch',
+          message:'La aportación pertenece a otro equipo.'
+        };
+      }
+
+      const importedRatings=
+        Array.isArray(item.valoraciones)
+          ? item.valoraciones
+          : [];
+
+      const ratings=[];
+      let ratingsError='';
+
+      for(const importedRating of importedRatings){
+
+        const ratingName=
+          normalizeCooperativeImportName(importedRating.nombre);
+
+        const studentMatches=data.students.filter(st=>
+          normalizeCooperativeImportName(st.name)===ratingName
+        );
+
+        if(studentMatches.length===0){
+          ratingsError=
+            'Una valoración corresponde a un alumno/a no encontrado.';
+          break;
+        }
+
+        if(studentMatches.length>1){
+          ratingsError=
+            'Una valoración tiene un nombre ambiguo.';
+          break;
+        }
+
+        const ratedStudent=studentMatches[0];
+
+        const ratedMember=team.members.find(
+          m=>m.studentId===ratedStudent.id
+        );
+
+        if(!ratedMember){
+          ratingsError=
+            ratedStudent.name+
+            ' no pertenece actualmente a este equipo.';
+          break;
+        }
+
+        const values={
+          participation:Number(importedRating.participacion),
+          listening:Number(importedRating.escucha),
+          rolePerformance:Number(importedRating.desempeno_rol),
+          cooperation:Number(importedRating.cooperacion)
+        };
+
+        if(
+          !Object.values(values).every(
+            value=>Number.isInteger(value) && value>=1 && value<=4
+          )
+        ){
+          ratingsError=
+            'Hay una valoración fuera del rango 1–4.';
+          break;
+        }
+
+        ratings.push({
+          student:ratedStudent,
+          role:ratedMember.role||'',
+          values
+        });
+      }
+
+      if(ratingsError){
+        return {
+          item,
+          student,
+          team,
+          role,
+          ratings,
+          status:'ratings-error',
+          message:ratingsError
+        };
+      }
+
+      const sourceKey=contributionSourceKey(item);
+
+      if(importedContributionExists(sourceKey)){
+        return {
+          item,
+          student,
+          team,
+          role,
+          ratings,
+          sourceKey,
+          status:'imported',
+          message:'Esta aportación ya está guardada en MiCuadernoDigital.'
+        };
+      }
+
+      return {
+        item,
+        student,
+        team,
+        role,
+        ratings,
+        sourceKey,
+        candidateMoments:momentsForDate(item.fecha),
+        status:'ready',
+        message:ratings.length
+          ? 'Aportación y valoraciones reconocidas.'
+          : 'Aportación reconocida y preparada para asignar.'
+      };
+
+    });
+
+    const icon=status=>
+      status==='ready'
+        ? '✅'
+        : status==='imported'
+          ? '☑️'
+          : '❌';
+
+    const ratingsHtml=result=>{
+
+      if(!Array.isArray(result.ratings) || !result.ratings.length){
+        return '';
+      }
+
+      return `
+        <div style="
+          margin-top:10px;
+          overflow-x:auto;
+          border:1px solid #e5e7eb;
+          border-radius:12px;
+        ">
+          <table style="
+            width:100%;
+            min-width:520px;
+            border-collapse:collapse;
+            font-size:13px;
+          ">
+            <thead>
+              <tr style="background:#f8fafc">
+                <th style="text-align:left;padding:8px">Alumno/a</th>
+                <th style="text-align:center;padding:8px">Participa</th>
+                <th style="text-align:center;padding:8px">Escucha</th>
+                <th style="text-align:center;padding:8px">Rol</th>
+                <th style="text-align:center;padding:8px">Coopera</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${result.ratings.map(rating=>`
+                <tr style="border-top:1px solid #e5e7eb">
+                  <td style="padding:8px">
+                    <strong>${esc(rating.student.name)}</strong>
+                    ${
+                      rating.role
+                        ? `<div class="small">${esc(rating.role)}</div>`
+                        : ''
+                    }
+                  </td>
+                  <td style="text-align:center;padding:8px">
+                    <strong>${rating.values.participation}</strong>
+                  </td>
+                  <td style="text-align:center;padding:8px">
+                    <strong>${rating.values.listening}</strong>
+                  </td>
+                  <td style="text-align:center;padding:8px">
+                    <strong>${rating.values.rolePerformance}</strong>
+                  </td>
+                  <td style="text-align:center;padding:8px">
+                    <strong>${rating.values.cooperation}</strong>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    const momentAssignmentHtml=(result,index)=>{
+      if(result.status!=='ready'){
+        return '';
+      }
+
+      const moments=Array.isArray(result.candidateMoments)
+        ? result.candidateMoments
+        : [];
+
+      const existing=moments.map(moment=>{
+        const details=[
+          moment.time||'Sin hora',
+          moment.contextLabel||'',
+          moment.activity||''
+        ].filter(Boolean).join(' · ');
+
+        return `
+          <label style="
+            display:flex;
+            gap:8px;
+            align-items:flex-start;
+            padding:8px 10px;
+            border:1px solid #e5e7eb;
+            border-radius:10px;
+            cursor:pointer;
+          ">
+            <input
+              type="radio"
+              name="coop-import-moment-${index}"
+              value="${esc(moment.id)}"
+            >
+            <span>${esc(details)}</span>
+          </label>
+        `;
+      }).join('');
+
+      const importedTime=
+        String(result.item.created_at||'')
+          .match(/\b(\d{2}:\d{2})/)?.[1] || '';
+
+      return `
+        <div style="
+          margin-top:12px;
+          padding:10px 12px;
+          background:#f8fafc;
+          border-radius:10px;
+        ">
+          <label style="
+            display:flex;
+            gap:8px;
+            align-items:center;
+            cursor:pointer;
+            font-weight:700;
+          ">
+            <input
+              type="checkbox"
+              class="coop-import-select"
+              data-result-index="${index}"
+            >
+            <span>Importar esta aportación</span>
+          </label>
+        </div>
+
+        <div
+          class="coop-import-moment-assignment"
+          data-result-index="${index}"
+          style="margin-top:12px;display:none"
+        >
+          <strong>¿A qué momento pertenece?</strong>
+          <div class="small" style="margin-top:3px">
+            Selecciona el momento antes de importar.
+          </div>
+
+          <div style="display:grid;gap:7px;margin-top:8px">
+            ${
+              existing ||
+              `<div class="small">
+                No hay momentos cooperativos registrados ese día.
+              </div>`
+            }
+
+            <label style="
+              display:flex;
+              gap:8px;
+              align-items:flex-start;
+              padding:8px 10px;
+              border:1px solid #e5e7eb;
+              border-radius:10px;
+              cursor:pointer;
+            ">
+              <input
+                type="radio"
+                name="coop-import-moment-${index}"
+                value="__new__"
+              >
+              <span>
+                <strong>➕ Nuevo momento (se creará al importar)</strong>
+                ${
+                  importedTime
+                    ? `<div class="small">
+                        Hora de la aportación: ${esc(importedTime)}
+                      </div>`
+                    : ''
+                }
+              </span>
+            </label>
+          </div>
+        </div>
+      `;
+    };
+
+
+    const html=`
+      <div style="display:grid;gap:12px">
+
+        <div class="card" style="box-shadow:none;padding:14px">
+          <strong>
+            ${results.length}
+            ${results.length===1
+              ? 'aportación encontrada'
+              : 'aportaciones encontradas'}
+          </strong>
+
+          <div class="small" style="margin-top:4px">
+            Revisa las aportaciones y selecciona cuáles quieres importar.
+          </div>
+        </div>
+
+        ${results.map((result,index)=>`
+          <div class="card" style="box-shadow:none;padding:14px">
+
+            <div style="display:flex;gap:10px;align-items:flex-start">
+
+              <span style="font-size:20px">
+                ${icon(result.status)}
+              </span>
+
+              <div style="min-width:0;flex:1">
+
+                <strong>
+                  ${esc(result.item.nombre||'Sin nombre')}
+                </strong>
+
+                ${
+                  result.team
+                    ? `
+                      <div class="small">
+                        ${esc(result.team.name)}
+                        ${
+                          result.role
+                            ? ' · '+esc(result.role)
+                            : ''
+                        }
+                      </div>
+                    `
+                    : ''
+                }
+
+                <div style="margin-top:7px">
+                  ${esc(result.message)}
+                </div>
+
+                <div
+                  class="small"
+                  style="
+                    margin-top:8px;
+                    padding:8px 10px;
+                    border-radius:10px;
+                    background:#f8fafc;
+                  "
+                >
+                  <strong>${esc(result.item.fecha||'')}</strong>
+
+                  ${
+                    result.item.created_at
+                      ? ' · '+esc(result.item.created_at)
+                      : ''
+                  }
+
+                  <br>
+
+                  ${esc(result.item.texto||'')}
+                </div>
+
+                ${ratingsHtml(result)}
+                ${momentAssignmentHtml(result,index)}
+
+              </div>
+            </div>
+          </div>
+        `).join('')}
+
+      </div>
+    `;
+
+    modal(
+      '📥 Previsualizar aportaciones',
+      html,
+      ()=>true
+    );
+
+    document
+      .querySelectorAll('.coop-import-select')
+      .forEach(checkbox=>{
+        checkbox.onchange=()=>{
+          const index=checkbox.dataset.resultIndex;
+
+          const assignment=document.querySelector(
+            '.coop-import-moment-assignment[data-result-index="'+
+            index+
+            '"]'
+          );
+
+          if(!assignment)return;
+
+          assignment.style.display=
+            checkbox.checked
+              ? 'block'
+              : 'none';
+
+          if(!checkbox.checked){
+            assignment
+              .querySelectorAll('input[type="radio"]')
+              .forEach(radio=>{
+                radio.checked=false;
+              });
+          }
+        };
+      });
+
+    const saveBtn=document.querySelector('#modal-save');
+    const cancelBtn=document.querySelector('#modal-cancel');
+
+    if(saveBtn){
+      const readyResults=results.filter(
+        result=>result.status==='ready'
+      );
+
+      saveBtn.textContent=readyResults.length
+        ? 'Importar seleccionadas'
+        : 'Cerrar';
+
+      saveBtn.onclick=()=>{
+        if(!readyResults.length){
+          document
+            .querySelector('#modal-backdrop')
+            ?.classList.remove('show');
+          return;
+        }
+
+        /*
+         * Solo se procesan las aportaciones marcadas expresamente.
+         */
+        const checked=[
+          ...document.querySelectorAll(
+            '.coop-import-select:checked'
+          )
+        ];
+
+        if(!checked.length){
+          toast('Marca al menos una aportación para importar.');
+          return;
+        }
+
+        /*
+         * Validamos primero todas las seleccionadas.
+         * Si alguna no tiene momento, no se guarda ninguna.
+         */
+        const selections=[];
+
+        for(const checkbox of checked){
+          const index=Number(checkbox.dataset.resultIndex);
+          const result=results[index];
+
+          if(!result || result.status!=='ready'){
+            continue;
+          }
+
+          const selected=document.querySelector(
+            'input[name="coop-import-moment-'+index+'"]:checked'
+          );
+
+          if(!selected){
+            toast(
+              'Selecciona un momento para cada aportación marcada.'
+            );
+            return;
+          }
+
+          selections.push({
+            result,
+            selectedMomentId:selected.value
+          });
+        }
+
+        if(!selections.length){
+          toast('No hay aportaciones válidas seleccionadas.');
+          return;
+        }
+
+        let importedCount=0;
+
+        for(const selection of selections){
+          const {result,selectedMomentId}=selection;
+
+          /*
+           * Segunda barrera antduplicados justo antes de escribir.
+           */
+          if(importedContributionExists(result.sourceKey)){
+            continue;
+          }
+
+          let moment=null;
+
+          if(selectedMomentId==='__new__'){
+            const sourceCreatedAt=String(
+              result.item.created_at||''
+            );
+
+            const importedTime=
+              sourceCreatedAt.match(
+                /\b(\d{2}:\d{2})/
+              )?.[1] || '';
+
+            const ctx={
+              source:'manual',
+              unitId:'',
+              sessionId:'',
+              subject:'',
+              label:'Registro cooperativo libre'
+            };
+
+            moment=ensureCooperativeMoment(
+              uid('coopmoment'),
+              ctx,
+              result.item.fecha||today(),
+              importedTime
+            );
+          }else{
+            moment=cooperativeMoment(selectedMomentId);
+          }
+
+          if(!moment){
+            toast(
+              'No se ha podido localizar uno de los momentos seleccionados.'
+            );
+            return;
+          }
+
+          if(!Array.isArray(moment.secretaryContributions)){
+            moment.secretaryContributions=[];
+          }
+
+          moment.secretaryContributions.push({
+            source:'recursosdocentes.info',
+            contributionId:result.item.id,
+            sourceKey:result.sourceKey,
+
+            teamId:result.team.id,
+            teamName:result.team.name,
+
+            studentId:result.student.id,
+            studentName:result.student.name,
+            role:result.role||'',
+
+            text:String(result.item.texto||''),
+
+            evaluations:result.ratings.map(rating=>({
+              studentId:rating.student.id,
+              studentName:rating.student.name,
+              role:rating.role||'',
+              participation:rating.values.participation,
+              listening:rating.values.listening,
+              rolePerformance:rating.values.rolePerformance,
+              cooperation:rating.values.cooperation
+            })),
+
+            sourceCreatedAt:String(
+              result.item.created_at||''
+            ),
+
+            importedAt:new Date().toISOString()
+          });
+
+          importedCount++;
+        }
+
+        if(importedCount){
+          persistState();
+          renderTeams();
+          renderHomeCooperativeAction();
+        }
+
+        document
+          .querySelector('#modal-backdrop')
+          ?.classList.remove('show');
+
+        toast(
+          importedCount
+            ? importedCount+
+              (importedCount===1
+                ? ' aportación importada.'
+                : ' aportaciones importadas.')
+            : 'No había aportaciones nuevas que importar.'
+        );
+      };
+    }
+
+    if(cancelBtn){
+      cancelBtn.textContent='Cancelar';
+      cancelBtn.classList.remove('hidden');
+    }
+
+  }
+
+  async function cooperativeImportChooseFile(){
+    try{
+      const tauri=window.__TAURI__;
+
+      if(!tauri?.dialog?.open){
+        toast('El selector nativo de archivos no está disponible.');
+        return;
+      }
+
+      const selected=await tauri.dialog.open({
+        multiple:false,
+        directory:false,
+        filters:[
+          {
+            name:'Aportaciones cooperativas',
+            extensions:['json']
+          }
+        ]
+      });
+
+      if(!selected)return;
+
+      const path=
+        typeof selected==='string'
+          ? selected
+          : selected.path;
+
+      if(!path){
+        toast('No se ha podido obtener la ruta del archivo.');
+        return;
+      }
+
+      if(!tauri?.core?.invoke){
+        toast('La API nativa de MiCuadernoDigital no está disponible.');
+        return;
+      }
+
+      const text=await tauri.core.invoke(
+        'read_text_file_for_import',
+        {path}
+      );
+
+      const payload=JSON.parse(String(text||''));
+
+      toast(
+        'JSON leído: '+
+        (Array.isArray(payload.aportaciones)
+          ? payload.aportaciones.length
+          : 0)+
+        ' aportación/es'
+      );
+
+      cooperativeImportPreview(payload);
+
+    }catch(error){
+      console.error(
+        'Error al importar aportaciones cooperativas:',
+        error
+      );
+
+      toast(
+        'Error de importación: '+
+        (error?.message || String(error))
+      );
+    }
+  }
+
+
   function renderTeams(){
 
     const list=document.querySelector('#teams-list');
@@ -8389,16 +9728,31 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     }
 
 
-    /* Histórico individual */
-
+    /* Histórico por momentos cooperativos */
     const history=
       document.querySelector('#teams-history');
 
     if(history){
-
-      const rows=[
-        ...data.cooperativeRecords
+      const moments=[
+        ...data.cooperativeMoments
       ]
+        .filter(moment=>{
+          const teacherRecords=
+            data.cooperativeRecords.filter(
+              record=>record.momentId===moment.id
+            );
+
+          const teamContributions=
+            Array.isArray(moment.secretaryContributions)
+              ? moment.secretaryContributions
+              : [];
+
+          return (
+            teacherRecords.length ||
+            teamContributions.length ||
+            String(moment.activity||'').trim()
+          );
+        })
         .sort((a,b)=>
           (
             (b.date||'')+
@@ -8410,128 +9764,341 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         )
         .slice(0,30);
 
-      history.innerHTML=rows.length
-        ? rows.map(record=>{
+      history.innerHTML=moments.length
+        ? moments.map(moment=>{
+            const teacherRecords=
+              data.cooperativeRecords
+                .filter(
+                  record=>record.momentId===moment.id
+                );
 
-            const avg=
-              cooperativeRecordAverage(record);
+            const teamContributions=
+              Array.isArray(moment.secretaryContributions)
+                ? moment.secretaryContributions
+                : [];
 
-            const values=[];
+            const teacherHtml=teacherRecords.length
+              ? teacherRecords.map(record=>{
+                  const values=[];
 
-            const moment=
-              cooperativeMoment(
-                record.momentId
-              );
+                  if(record.participation)
+                    values.push(
+                      'Participa '+record.participation
+                    );
 
-            if(record.participation)
-              values.push(
-                'Participación '+
-                record.participation
-              );
+                  if(record.listening)
+                    values.push(
+                      'Escucha '+record.listening
+                    );
 
-            if(record.listening)
-              values.push(
-                'Escucha '+
-                record.listening
-              );
+                  if(record.rolePerformance)
+                    values.push(
+                      'Rol '+record.rolePerformance
+                    );
 
-            if(record.rolePerformance)
-              values.push(
-                'Rol '+
-                record.rolePerformance
-              );
+                  if(record.cooperation)
+                    values.push(
+                      'Coopera '+record.cooperation
+                    );
 
-            if(record.cooperation)
-              values.push(
-                'Cooperación '+
-                record.cooperation
-              );
+                  return `
+                    <div style="
+                      padding:8px 0;
+                      border-bottom:1px solid var(--line)
+                    ">
+                      <strong>
+                        ${esc(teamStudentName(record.studentId))}
+                      </strong>
+
+                      <span class="small">
+                        · ${esc(record.teamName||'Equipo')}
+                        ${
+                          record.role
+                            ? ' · '+esc(record.role)
+                            : ''
+                        }
+                      </span>
+
+                      ${
+                        values.length
+                          ? `
+                            <div class="small">
+                              ${esc(values.join(' · '))}
+                            </div>
+                          `
+                          : ''
+                      }
+
+                      ${
+                        record.note
+                          ? `
+                            <div class="small">
+                              ${esc(record.note)}
+                            </div>
+                          `
+                          : ''
+                      }
+                    </div>
+                  `;
+                }).join('')
+              : `
+                  <div class="small">
+                    Sin observaciones docentes en este momento.
+                  </div>
+                `;
+
+            const teamHtml=teamContributions.length
+              ? teamContributions.map(contribution=>{
+                  const evaluations=
+                    Array.isArray(contribution.evaluations)
+                      ? contribution.evaluations
+                      : [];
+
+                  return `
+                    <div style="
+                      padding:10px 0;
+                      border-bottom:1px solid var(--line)
+                    ">
+                      <strong>
+                        ${esc(contribution.teamName||'Equipo')}
+                      </strong>
+
+                      <span class="small">
+                        · Secretario/a:
+                        ${esc(contribution.studentName||'')}
+                      </span>
+                      <button
+                        type="button"
+                        class="ghost coop-delete-contribution"
+                        data-moment-id="${esc(moment.id)}"
+                        data-source-key="${esc(contribution.sourceKey||'')}"
+                        title="Eliminar esta aportación"
+                        style="float:right;padding:4px 7px;min-width:auto"
+                      >🗑️</button>
+
+                      ${
+                        contribution.text
+                          ? `
+                            <div style="margin:6px 0">
+                              “${esc(contribution.text)}”
+                            </div>
+                          `
+                          : ''
+                      }
+
+                      ${
+                        evaluations.length
+                          ? `
+                            <div style="
+                              display:grid;
+                              gap:4px;
+                              margin-top:8px
+                            ">
+                              ${evaluations.map(evaluation=>`
+                                <div class="small">
+                                  <strong>
+                                    ${esc(evaluation.studentName||'')}
+                                  </strong>
+                                  ${
+                                    evaluation.role
+                                      ? ' · '+esc(evaluation.role)
+                                      : ''
+                                  }
+                                  · Participa
+                                  ${esc(evaluation.participation)}
+                                  · Escucha
+                                  ${esc(evaluation.listening)}
+                                  · Rol
+                                  ${esc(evaluation.rolePerformance)}
+                                  · Coopera
+                                  ${esc(evaluation.cooperation)}
+                                </div>
+                              `).join('')}
+                            </div>
+                          `
+                          : `
+                              <div class="small">
+                                Sin valoración individual importada.
+                              </div>
+                            `
+                      }
+                    </div>
+                  `;
+                }).join('')
+              : `
+                  <div class="small">
+                    Sin aportaciones del equipo en este momento.
+                  </div>
+                `;
 
             return `
-              <div class="team-history-item">
+              <article class="team-history-item"
+                style="
+                  display:block;
+                  padding:16px;
+                ">
 
-                <div>
-                  <strong>${esc(record.date||'')}</strong>
-                  <span class="small" style="display:block">
-                    ${esc(record.time||'')}
-                  </span>
-                </div>
+                <div style="
+                  display:flex;
+                  justify-content:space-between;
+                  gap:12px;
+                  margin-bottom:10px
+                ">
+                  <div>
+                    <strong>
+                      ${esc(moment.date||'')}
+                      ${
+                        moment.time
+                          ? ' · '+esc(moment.time)
+                          : ''
+                      }
+                    </strong>
 
-                <div>
-                  <strong>
-                    ${esc(teamStudentName(record.studentId))}
-                  </strong>
-
-                  <span class="small" style="display:block">
-                    ${esc(record.teamName||'Equipo')}
-                    ${
-                      record.role
-                        ? ' · '+esc(record.role)
-                        : ''
-                    }
-                  </span>
-                </div>
-
-                <div class="small">
-
-                  ${
-                    record.contextLabel
-                      ? `
-                        <strong>
-                          ${esc(record.contextLabel)}
-                        </strong>
-                        <br>
-                      `
-                      : ''
-                  }
-
-                  ${
-                    moment?.activity
-                      ? `
-                        <span style="display:block;margin:3px 0">
-                          ${esc(moment.activity)}
-                        </span>
-                      `
-                      : ''
-                  }
-
-                  ${esc(values.join(' · '))}
-
-                  ${
-                    record.note
-                      ? `<br>${esc(record.note)}`
-                      : ''
-                  }
-
+                    <span class="small" style="display:block">
+                      ${esc(moment.contextLabel||'Registro cooperativo')}
+                    </span>
+                  </div>
                 </div>
 
                 ${
-                  avg
+                  moment.activity
                     ? `
-                      <span class="team-score">
-                        ${avg}/4
-                      </span>
+                      <div style="
+                        margin-bottom:12px;
+                        padding:10px;
+                        border-radius:10px;
+                        background:var(--soft)
+                      ">
+                        <strong>Actividad</strong>
+                        <div class="small">
+                          ${esc(moment.activity)}
+                        </div>
+                      </div>
                     `
                     : ''
                 }
 
-              </div>
+                <div style="
+                  display:grid;
+                  grid-template-columns:
+                    repeat(auto-fit,minmax(280px,1fr));
+                  gap:14px
+                ">
+                  <section style="
+                    border:1px solid var(--line);
+                    border-radius:12px;
+                    padding:12px
+                  ">
+                    <strong>👨‍🏫 Observación docente</strong>
+                    <div style="margin-top:6px">
+                      ${teacherHtml}
+                    </div>
+                  </section>
+
+                  <section style="
+                    border:1px solid var(--line);
+                    border-radius:12px;
+                    padding:12px
+                  ">
+                    <strong>🤝 Cuaderno del equipo</strong>
+                    <div style="margin-top:6px">
+                      ${teamHtml}
+                    </div>
+                  </section>
+                </div>
+              </article>
             `;
           }).join('')
-
         : `
             <div class="empty">
-              Todavía no hay registros cooperativos.
+              Todavía no hay momentos cooperativos registrados.
             </div>
           `;
     }
 
+
+    document
+      .querySelectorAll('.coop-delete-contribution')
+      .forEach(button=>{
+        button.onclick=async()=>{
+          const momentId=
+            button.dataset.momentId||'';
+
+          const sourceKey=
+            button.dataset.sourceKey||'';
+
+          const moment=
+            cooperativeMoment(momentId);
+
+          if(!moment){
+            toast('No se encuentra el momento cooperativo.');
+            return;
+          }
+
+          const contributions=
+            Array.isArray(moment.secretaryContributions)
+              ? moment.secretaryContributions
+              : [];
+
+          const index=
+            contributions.findIndex(
+              contribution=>
+                contribution.sourceKey===sourceKey
+            );
+
+          if(index<0){
+            toast('No se encuentra la aportación.');
+            return;
+          }
+
+          const contribution=contributions[index];
+
+          const ok=confirm(
+            '¿Eliminar esta aportación de '+
+            (contribution.teamName||'este equipo')+
+            '?\n\n'+
+            'Se eliminarán también sus valoraciones individuales. '+
+            'Las observaciones docentes y las demás aportaciones '+
+            'del momento no se modificarán.\n\n'+
+            'Esto solo afecta a MiCuadernoDigital.'
+          );
+
+          if(!ok) return;
+
+          contributions.splice(index,1);
+
+          cleanupEmptyCooperativeMoment(momentId);
+
+          await persistState();
+
+          renderTeams();
+          renderHomeCooperativeAction();
+
+          toast('Aportación eliminada de MiCuadernoDigital.');
+        };
+      });
 
     const add=
       document.querySelector('#team-new');
 
     if(add){
       add.onclick=()=>cooperativeTeamModal();
+    }
+
+
+    const importBtn=
+      document.querySelector('#coop-import');
+
+    if(importBtn){
+      importBtn.onclick=()=>cooperativeImportChooseFile();
+    }
+
+
+    const exportWebBtn=
+      document.querySelector('#coop-export-web');
+
+    if(exportWebBtn){
+      exportWebBtn.onclick=()=>cooperativeExportTeamsForWeb();
     }
 
 
@@ -8771,7 +10338,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     }
   }
 
-  function renderAll(){renderStudents();renderClassroom();renderTeams();renderHomeCooperativeAction();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
+  function renderAll(){renderExternalStudents();renderTeachingGroups();renderStudents();renderClassroom();renderTeams();renderHomeCooperativeAction();renderNotebook();renderCompetencyProfile();renderDiary();renderAttendance();renderCalendar();renderCustomDays();renderAgenda();renderMeetings();renderActuations();renderAportaciones();renderUnits();renderTimetable();renderTeacherTimetable();renderDashboard();renderLiveClass();renderIntelligence();renderIssues();renderGoogleCalendarSettings();bindRichEditors();renderInstrumentLists();renderDailyNote();bindDailyNote();bindSidebar();}
 
 
   let pendingUpdateVersion='';
@@ -9485,13 +11052,19 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
             </label>
           </div>
 
-          <div class="notice" style="margin-top:14px">
-            <strong>Alumnado · Todo el grupo</strong>
-            <p style="margin-bottom:0">
-              ${data.students.length} alumno${data.students.length===1?'':'s'}.
-              Más adelante podrás aplicar instrumentos a equipos o alumnado seleccionado.
-            </p>
-          </div>
+          <label style="display:block;margin-top:14px">
+            <strong>Alumnado a evaluar</strong>
+            <select id="application-teaching-group" style="margin-top:7px">
+              <option value="">Aula completa</option>
+              ${(data.teachingGroups||[]).map(group=>`
+                <option value="${esc(group.id)}">
+                  ${esc(group.name)}${group.subject?' · '+esc(group.subject):''}
+                </option>
+              `).join('')}
+            </select>
+          </label>
+
+          <div class="notice" id="application-group-summary" style="margin-top:14px"></div>
 
           <p class="small" style="margin-top:14px">
             Se utilizará una copia de esta rúbrica para que futuras modificaciones
@@ -9500,9 +11073,20 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         `,()=>{
           const name=document.querySelector('#application-name')?.value.trim();
           const date=document.querySelector('#application-date')?.value||today();
+          const teachingGroupId=document.querySelector('#application-teaching-group')?.value||'';
+          const group=teachingGroupId?teachingGroup(teachingGroupId):null;
 
           if(!name){
             toast('Escribe el nombre de la actividad.');
+            return false;
+          }
+
+          const applicationStudents=group
+            ? studentsForTeachingGroup(group.id)
+            : (data.students||[]);
+
+          if(!applicationStudents.length){
+            toast('No hay alumnado en el grupo seleccionado.');
             return false;
           }
 
@@ -9512,7 +11096,10 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
             date,
             rubricId:rubric.id,
             rubricSnapshot:clone(rubric),
-            studentIds:data.students.map(student=>student.id),
+            teachingGroupId:group?.id||'',
+            teachingGroupName:group?.name||'Aula completa',
+            subject:group?.subject||'',
+            studentIds:applicationStudents.map(student=>student.id),
             results:{},
             createdAt:new Date().toISOString()
           };
@@ -9526,6 +11113,39 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
         const nextBtn=document.querySelector('#modal-save');
         if(nextBtn) nextBtn.textContent='Comenzar evaluación';
+
+        const groupSelect=document.querySelector('#application-teaching-group');
+        const groupSummary=document.querySelector('#application-group-summary');
+
+        const updateGroupSummary=()=>{
+          if(!groupSummary) return;
+
+          const groupId=groupSelect?.value||'';
+          const group=groupId?teachingGroup(groupId):null;
+          const students=group
+            ? studentsForTeachingGroup(group.id)
+            : (data.students||[]);
+
+          if(group){
+            groupSummary.innerHTML=`
+              <strong>${esc(group.name)}</strong>
+              <p style="margin:4px 0 0">
+                ${group.subject?esc(group.subject)+' · ':''}
+                ${students.length} alumno${students.length===1?'':'s'}.
+              </p>
+            `;
+          }else{
+            groupSummary.innerHTML=`
+              <strong>Aula completa</strong>
+              <p style="margin:4px 0 0">
+                ${students.length} alumno${students.length===1?'':'s'} de tu tutoría.
+              </p>
+            `;
+          }
+        };
+
+        if(groupSelect) groupSelect.onchange=updateGroupSummary;
+        updateGroupSummary();
 
         setTimeout(()=>document.querySelector('#application-name')?.focus(),0);
       };

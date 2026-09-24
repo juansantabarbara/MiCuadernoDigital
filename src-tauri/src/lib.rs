@@ -1418,9 +1418,27 @@ fn generate_aportacion_pdf(
     Ok(path.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+fn read_text_file_for_import(path: String) -> Result<String, String> {
+    let file_path = std::path::Path::new(&path);
+
+    let is_json = file_path
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.eq_ignore_ascii_case("json"))
+        .unwrap_or(false);
+
+    if !is_json {
+        return Err("Solo se pueden importar archivos JSON.".to_string());
+    }
+
+    std::fs::read_to_string(file_path).map_err(|e| format!("No se ha podido leer el archivo: {e}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let mdns = sidecar::discovery::start_discovery().map_err(std::io::Error::other)?;
@@ -1442,7 +1460,8 @@ pub fn run() {
             check_for_update,
             install_update,
             generate_aportacion_pdf,
-            generate_aportacion_csv
+            generate_aportacion_csv,
+            read_text_file_for_import
         ])
         .run(tauri::generate_context!())
         .expect("error while running MiCuadernoDigital");
