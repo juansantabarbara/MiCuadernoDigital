@@ -334,6 +334,213 @@ fn countdown_keychain_delete() {
 
 const COUNTDOWN_API_URL: &str = "https://recursosdocentes.info/private/countdown_api.php";
 
+const WORKPLANS_API_URL: &str = "https://recursosdocentes.info/private/workplans_api.php";
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplansStudent {
+    id: i64,
+    nombre: String,
+    username: String,
+    avatar: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkplansStudentsResponse {
+    ok: bool,
+    students: Option<Vec<WorkplansStudent>>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+async fn workplans_students() -> Result<Vec<WorkplansStudent>, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .get(format!("{WORKPLANS_API_URL}?action=students"))
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansStudentsResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(data.students.unwrap_or_default())
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplansAssignment {
+    id: i64,
+    user_id: i64,
+    nombre: String,
+    username: String,
+    avatar: String,
+    estado: String,
+    autoevaluacion: Option<String>,
+    comentario_alumno: Option<String>,
+    alumno_updated_at: Option<String>,
+    valoracion_docente: Option<String>,
+    comentario_docente: Option<String>,
+    docente_updated_at: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplanItem {
+    id: i64,
+    fecha: String,
+    titulo: String,
+    indicaciones: Option<String>,
+    created_at: String,
+    updated_at: String,
+    assignments: Vec<WorkplansAssignment>,
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkplansListResponse {
+    ok: bool,
+    plans: Option<Vec<WorkplanItem>>,
+    error: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct WorkplansSaveRequest {
+    fecha: String,
+    titulo: String,
+    indicaciones: String,
+    user_ids: Vec<i64>,
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkplansSaveResponse {
+    ok: bool,
+    id: Option<i64>,
+    error: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct WorkplansDeleteRequest {
+    id: i64,
+}
+
+#[derive(Debug, Deserialize)]
+struct WorkplansActionResponse {
+    ok: bool,
+    error: Option<String>,
+}
+
+#[tauri::command]
+async fn workplans_list() -> Result<Vec<WorkplanItem>, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .get(format!("{WORKPLANS_API_URL}?action=list"))
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansListResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(data.plans.unwrap_or_default())
+}
+
+#[tauri::command]
+async fn workplans_save(
+    fecha: String,
+    titulo: String,
+    indicaciones: String,
+    user_ids: Vec<i64>,
+) -> Result<i64, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{WORKPLANS_API_URL}?action=save"))
+        .bearer_auth(token)
+        .json(&WorkplansSaveRequest {
+            fecha,
+            titulo,
+            indicaciones,
+            user_ids,
+        })
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansSaveResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    data.id.ok_or_else(|| "El servidor no devolvió el identificador del plan.".to_string())
+}
+
+#[tauri::command]
+async fn workplans_delete(id: i64) -> Result<(), String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{WORKPLANS_API_URL}?action=delete"))
+        .bearer_auth(token)
+        .json(&WorkplansDeleteRequest { id })
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansActionResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(())
+}
+
+
 #[derive(Debug, Serialize, Deserialize)]
 struct CountdownEvent {
     id: i64,
@@ -1718,7 +1925,11 @@ pub fn run() {
             countdown_list,
             countdown_calendar_sync,
             countdown_save,
-            countdown_delete
+            countdown_delete,
+            workplans_students,
+            workplans_list,
+            workplans_save,
+            workplans_delete
         ])
         .run(tauri::generate_context!())
         .expect("error while running MiCuadernoDigital");

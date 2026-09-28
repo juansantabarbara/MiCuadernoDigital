@@ -2354,6 +2354,7 @@
         <button data-section="aula"><span class="nav-icon">▦</span><span>Plano del aula</span></button>
         <button data-section="grupos-docentes"><span class="nav-icon">◉</span><span>Grupos docentes</span></button>
         <button data-section="equipos"><span class="nav-icon">◫</span><span>Equipos cooperativos</span></button>
+        <button data-section="planes-trabajo"><span class="nav-icon">☑</span><span>Planes de trabajo</span></button>
         <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
         <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
       </div>
@@ -2600,6 +2601,43 @@
       </div>
     </section>
 
+    <section id="planes-trabajo" class="section">
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Planes de trabajo</h3>
+            <p>Organiza el trabajo individual del alumnado y consulta su seguimiento.</p>
+          </div>
+          <button class="primary no-print" id="nuevo-plan-trabajo">＋ Nuevo plan</button>
+        </div>
+
+        <div style="display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-top:20px">
+          <button class="secondary" id="plan-dia-anterior" type="button">‹</button>
+
+          <label style="min-width:190px">
+            Día de trabajo
+            <input id="planes-trabajo-fecha" type="date">
+          </label>
+
+          <button class="secondary" id="plan-dia-siguiente" type="button">›</button>
+          <button class="ghost" id="plan-ir-hoy" type="button">Hoy</button>
+        </div>
+      </div>
+
+      <div id="planes-trabajo-lista" style="margin-top:18px">
+        <div class="card" style="text-align:center;padding:42px 24px">
+          <div style="font-size:38px;margin-bottom:12px">☑</div>
+          <h3 style="margin-bottom:8px">Trabajo del día</h3>
+          <p style="max-width:560px;margin:0 auto 18px">
+            Aquí aparecerán los planes asignados al alumnado para la fecha seleccionada.
+          </p>
+          <button class="primary" type="button" id="nuevo-plan-trabajo-vacio">
+            ＋ Crear el primer plan
+          </button>
+        </div>
+      </div>
+    </section>
+
     <section id="alumnado" class="section">
       <div class="card no-print" style="margin-bottom:18px">
         <h3>Gestión del alumnado</h3>
@@ -2608,6 +2646,16 @@
           <button class="primary" id="nuevo-alumno">Añadir alumno/a</button>
           <button class="ghost" id="editar-alumno">Editar seleccionado</button>
           <button class="ghost danger" id="eliminar-alumno" onclick="alert('BOTON BORRAR FUNCIONA')">Eliminar seleccionado</button>
+        </div>
+
+        <div id="web-students-connection" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <strong>🌐 recursosdocentes.info</strong>
+              <div class="small" id="web-students-status">Sin comprobar</div>
+            </div>
+            <button class="secondary" id="manage-web-students" type="button">Gestionar vinculación</button>
+          </div>
         </div>
       </div>
 
@@ -3430,6 +3478,7 @@
     diario:['Diario','Observaciones generales e individuales con banco inteligente.'],
     aula:['Plano del aula','Distribución editable del espacio y ubicación del alumnado.'],
     equipos:['Equipos cooperativos','Agrupamientos, roles y seguimiento del trabajo cooperativo.'],
+    'planes-trabajo':['Planes de trabajo','Organiza el trabajo individual del alumnado y consulta su seguimiento diario.'],
     asistencia:['Asistencia','Faltas, retrasos, justificadas y estadísticas persistentes.'],
     planificacion:['UP / Situaciones','Crea rápido, desarrolla currículo, programa sesiones y abre la clase que toca desde Inicio.'],
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
@@ -3441,7 +3490,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','grupos-docentes','equipos','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','grupos-docentes','equipos','planes-trabajo','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -4146,7 +4195,114 @@
     updateCount();
   }
 
+  function normalizeWebStudentName(value){
+    return String(value||'')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g,' ');
+  }
+
+  function renderWebStudentsStatus(){
+    const el=document.querySelector('#web-students-status');
+    if(!el)return;
+    const total=(data.students||[]).length;
+    const linked=(data.students||[]).filter(st=>Number(st.webUserId)>0).length;
+    el.textContent=linked+' de '+total+' vinculados';
+  }
+
+  async function openWebStudentsManager(){
+    if(!nativeInvoke){
+      toast('La vinculación web está disponible en la aplicación de escritorio.');
+      return;
+    }
+
+    let webStudents=[];
+    try{
+      toast('Consultando alumnado de recursosdocentes.info…');
+      webStudents=await nativeInvoke('workplans_students');
+    }catch(err){
+      console.error('workplans_students failed',err);
+      toast('No se pudo consultar el alumnado web: '+String(err));
+      return;
+    }
+
+    const usedByOther=new Map();
+    (data.students||[]).forEach(st=>{
+      const id=Number(st.webUserId);
+      if(id>0)usedByOther.set(id,st.id);
+    });
+
+    const rows=(data.students||[]).map(st=>{
+      let selected=Number(st.webUserId)||0;
+
+      if(!selected){
+        const localName=normalizeWebStudentName(st.name);
+        const matches=webStudents.filter(ws=>
+          normalizeWebStudentName(ws.nombre)===localName
+        );
+        if(matches.length===1)selected=Number(matches[0].id);
+      }
+
+      const options=[
+        '<option value="">Sin vincular</option>',
+        ...webStudents.map(ws=>{
+          const wid=Number(ws.id);
+          const owner=usedByOther.get(wid);
+          const unavailable=owner && owner!==st.id;
+          return `<option value="${wid}" ${selected===wid?'selected':''} ${unavailable?'disabled':''}>${esc(ws.nombre)}${ws.username&&ws.username!==ws.nombre?' · '+esc(ws.username):''}</option>`;
+        })
+      ].join('');
+
+      return `
+        <div style="display:grid;grid-template-columns:minmax(140px,.8fr) minmax(220px,1.2fr);gap:12px;align-items:center;margin-bottom:10px">
+          <strong>${esc(st.name)}</strong>
+          <select data-web-link-student="${esc(st.id)}">${options}</select>
+        </div>
+      `;
+    }).join('');
+
+    modal(
+      'Vincular alumnado con recursosdocentes.info',
+      `<p class="small" style="margin-top:0">
+        Las coincidencias por nombre se muestran como propuesta. Revisa las asociaciones antes de guardarlas.
+      </p>
+      <div style="max-height:55vh;overflow:auto;padding-right:4px">${rows}</div>`,
+      ()=>{
+        const selections=[...document.querySelectorAll('[data-web-link-student]')];
+        const chosen=new Map();
+
+        for(const select of selections){
+          const value=Number(select.value)||0;
+          if(!value)continue;
+          if(chosen.has(value)){
+            toast('Una misma cuenta web no puede vincularse a dos alumnos.');
+            return false;
+          }
+          chosen.set(value,select.dataset.webLinkStudent);
+        }
+
+        selections.forEach(select=>{
+          const st=(data.students||[]).find(x=>x.id===select.dataset.webLinkStudent);
+          if(!st)return;
+          const value=Number(select.value)||0;
+          if(value)st.webUserId=value;
+          else delete st.webUserId;
+        });
+
+        persistState();
+        renderWebStudentsStatus();
+        toast('Vinculaciones guardadas.');
+      }
+    );
+
+    const saveBtn=document.querySelector('#modal-save');
+    if(saveBtn)saveBtn.textContent='Guardar vinculaciones';
+  }
+
   function renderStudents(){
+    renderWebStudentsStatus();
     const box=document.querySelector('#student-chips');
     box.innerHTML=data.students.length?data.students.map(s=>`<button class="student-chip ${s.id===data.selectedStudentId?'active':''}" data-student="${esc(s.id)}">${esc(s.name)}</button>`).join(''):'<div class="empty">No hay alumnado.</div>';
     box.querySelectorAll('[data-student]').forEach(b=>b.onclick=()=>{data.selectedStudentId=b.dataset.student;save();openSection('alumnado')});
@@ -11238,6 +11394,299 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelector('#modal-cancel').onclick=()=>document.querySelector('#modal-backdrop').classList.remove('show');
   document.querySelector('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')e.currentTarget.classList.remove('show')};
 
+  let workPlansCache=[];
+
+  function workPlanStudentName(userId){
+    const st=(data.students||[]).find(
+      x=>Number(x.webUserId)===Number(userId)
+    );
+    return st?.name||'Alumno/a';
+  }
+
+  function renderWorkPlans(){
+    const box=document.querySelector('#planes-trabajo-lista');
+    const dateInput=document.querySelector('#planes-trabajo-fecha');
+    if(!box||!dateInput)return;
+
+    const fecha=dateInput.value;
+    const plans=(workPlansCache||[]).filter(p=>p.fecha===fecha);
+
+    if(!plans.length){
+      box.innerHTML=`
+        <div class="card" style="text-align:center;padding:34px 20px">
+          <div style="font-size:30px;margin-bottom:8px">☑</div>
+          <strong>No hay planes para este día</strong>
+          <div class="small" style="margin:6px 0 16px">
+            Puedes preparar trabajo individual para uno o varios alumnos.
+          </div>
+          <button class="primary" id="nuevo-plan-trabajo-vacio" type="button">
+            + Crear el primer plan
+          </button>
+        </div>
+      `;
+
+      const emptyBtn=document.querySelector('#nuevo-plan-trabajo-vacio');
+      if(emptyBtn)emptyBtn.onclick=()=>workPlanModal();
+      return;
+    }
+
+    box.innerHTML=plans.map(plan=>{
+      const assignments=plan.assignments||[];
+
+      const pupils=assignments.map(a=>{
+        const name=a.nombre||workPlanStudentName(a.user_id);
+        const estado=a.estado||'pendiente';
+
+        return `
+          <span style="display:inline-flex;align-items:center;gap:6px;
+            padding:6px 9px;border:1px solid var(--border);
+            border-radius:999px;margin:3px 4px 3px 0">
+            ${esc(name)}
+            <span class="small">· ${esc(estado)}</span>
+          </span>
+        `;
+      }).join('');
+
+      return `
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;
+            gap:16px;align-items:flex-start;flex-wrap:wrap">
+
+            <div style="min-width:0;flex:1">
+              <strong style="font-size:17px">${esc(plan.titulo)}</strong>
+
+              <div style="white-space:pre-wrap;line-height:1.55;
+                margin-top:10px">${esc(plan.indicaciones||'')}</div>
+
+              <div style="margin-top:14px">
+                ${pupils}
+              </div>
+            </div>
+
+            <div class="small">
+              ${assignments.length}
+              ${assignments.length===1?'alumno':'alumnos'}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadWorkPlans(){
+    const box=document.querySelector('#planes-trabajo-lista');
+
+    if(!nativeInvoke){
+      if(box)box.innerHTML='<div class="small">Los planes de trabajo están disponibles en la aplicación de escritorio.</div>';
+      return;
+    }
+
+    try{
+      if(box)box.innerHTML='<div class="small">Cargando planes de trabajo…</div>';
+      workPlansCache=await nativeInvoke('workplans_list');
+      renderWorkPlans();
+    }catch(err){
+      console.error('workplans_list failed',err);
+      if(box)box.innerHTML=`
+        <div class="card">
+          <strong>No se pudieron cargar los planes de trabajo.</strong>
+          <div class="small" style="margin-top:6px">${esc(String(err))}</div>
+        </div>
+      `;
+    }
+  }
+
+  function workPlanModal(){
+    const dateInput=document.querySelector('#planes-trabajo-fecha');
+    const selectedDate=dateInput?.value||new Date().toISOString().slice(0,10);
+
+    const students=(data.students||[]).filter(st=>st.webUserId);
+    const teams=(data.cooperativeTeams||[]);
+
+    const studentCards=students.map(st=>`
+      <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer">
+        <input type="checkbox" class="workplan-student" value="${esc(st.id)}" style="width:auto">
+        <span>${esc(st.name)}</span>
+      </label>
+    `).join('');
+
+    const teamButtons=teams.map(team=>`
+      <button type="button" class="secondary workplan-team-btn"
+        data-team="${esc(team.id)}"
+        style="text-align:left">
+        ${esc(team.name)}
+      </button>
+    `).join('');
+
+    const html=`
+      <div style="display:grid;gap:18px">
+
+        <div class="form-grid">
+          <label>
+            Fecha
+            <input id="workplan-date" type="date" value="${esc(selectedDate)}">
+          </label>
+
+          <label>
+            Título
+            <input id="workplan-title"
+              placeholder="Ej. Matemáticas · Multiplicaciones y problemas">
+          </label>
+        </div>
+
+        <label>
+          <strong>Trabajo para el alumnado</strong>
+          <div class="small" style="margin:4px 0 8px">
+            Puedes escribir aquí la tarea completa: ejercicios, problemas,
+            preguntas, instrucciones o pasos de trabajo.
+          </div>
+          <textarea id="workplan-content"
+            style="min-height:350px;resize:vertical;line-height:1.55"
+            placeholder="Escribe aquí el trabajo que verá el alumnado..."></textarea>
+        </label>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+            <div>
+              <strong>¿Para quién?</strong>
+              <div class="small" id="workplan-selection-count">0 alumnos seleccionados</div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="secondary" id="workplan-select-all">
+                Todos
+              </button>
+              <button type="button" class="ghost" id="workplan-select-none">
+                Ninguno
+              </button>
+            </div>
+          </div>
+
+          ${teams.length?`
+            <div style="margin-bottom:14px">
+              <div class="small" style="margin-bottom:7px">Seleccionar por equipo cooperativo</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                ${teamButtons}
+              </div>
+            </div>
+          `:''}
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;max-height:250px;overflow:auto;padding:2px">
+            ${studentCards||'<div class="small">No hay alumnado vinculado con recursosdocentes.info.</div>'}
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    modal('Nuevo plan de trabajo',html,()=>{
+      const fecha=document.querySelector('#workplan-date')?.value;
+      const title=document.querySelector('#workplan-title')?.value.trim();
+      const content=document.querySelector('#workplan-content')?.value.trim();
+      const selected=[...document.querySelectorAll('.workplan-student:checked')];
+
+      if(!fecha){
+        toast('Selecciona una fecha.');
+        return false;
+      }
+      if(!title){
+        toast('Escribe un título para el plan.');
+        return false;
+      }
+      if(!content){
+        toast('Escribe el trabajo para el alumnado.');
+        return false;
+      }
+      if(!selected.length){
+        toast('Selecciona al menos un alumno o alumna.');
+        return false;
+      }
+      if(!nativeInvoke){
+        toast('Los planes de trabajo se guardan desde la aplicación de escritorio.');
+        return false;
+      }
+
+      const userIds=selected.map(ch=>{
+        const st=(data.students||[]).find(x=>String(x.id)===String(ch.value));
+        return Number(st?.webUserId)||0;
+      }).filter(id=>id>0);
+
+      if(userIds.length!==selected.length){
+        toast('Hay alumnado seleccionado sin vinculación web.');
+        return false;
+      }
+
+      const saveBtn=document.querySelector('#modal-save');
+      if(saveBtn){
+        saveBtn.disabled=true;
+        saveBtn.textContent='Creando…';
+      }
+
+      nativeInvoke('workplans_save',{
+        fecha:fecha,
+        titulo:title,
+        indicaciones:content,
+        userIds:userIds
+      }).then(id=>{
+        document.querySelector('#modal-backdrop')?.classList.remove('show');
+        const dateInput=document.querySelector('#planes-trabajo-fecha');
+        if(dateInput)dateInput.value=fecha;
+        toast('Plan de trabajo creado.');
+        console.log('workplan created',id);
+        loadWorkPlans();
+      }).catch(err=>{
+        console.error('workplans_save failed',err);
+        toast('No se pudo crear el plan: '+String(err));
+        if(saveBtn){
+          saveBtn.disabled=false;
+          saveBtn.textContent='Crear plan';
+        }
+      });
+
+      return false;
+    });
+
+    const saveBtn=document.querySelector('#modal-save');
+    if(saveBtn)saveBtn.textContent='Crear plan';
+
+    const checks=()=>[...document.querySelectorAll('.workplan-student')];
+
+    const refreshCount=()=>{
+      const n=checks().filter(x=>x.checked).length;
+      const box=document.querySelector('#workplan-selection-count');
+      if(box)box.textContent=`${n} ${n===1?'alumno seleccionado':'alumnos seleccionados'}`;
+    };
+
+    checks().forEach(ch=>ch.addEventListener('change',refreshCount));
+
+    const allBtn=document.querySelector('#workplan-select-all');
+    if(allBtn)allBtn.onclick=()=>{
+      checks().forEach(ch=>ch.checked=true);
+      refreshCount();
+    };
+
+    const noneBtn=document.querySelector('#workplan-select-none');
+    if(noneBtn)noneBtn.onclick=()=>{
+      checks().forEach(ch=>ch.checked=false);
+      refreshCount();
+    };
+
+    document.querySelectorAll('.workplan-team-btn').forEach(btn=>{
+      btn.onclick=()=>{
+        const team=(data.cooperativeTeams||[]).find(t=>t.id===btn.dataset.team);
+        if(!team)return;
+
+        const ids=new Set((team.members||[]).map(m=>String(m.studentId)));
+        checks().forEach(ch=>{
+          if(ids.has(String(ch.value)))ch.checked=true;
+        });
+        refreshCount();
+      };
+    });
+
+    refreshCount();
+  }
+
   function studentModal(edit=false){const st=edit?student():{name:'',status:'En seguimiento',attendance:100,feedbacks:0,coverage:0,strengths:[],difficulties:[],next:''};modal(edit?'Editar alumno/a':'Añadir alumno/a',`<div class="form-grid"><label>Nombre<input id="m-name" value="${esc(st.name)}"></label><label>Estado<input id="m-status" value="${esc(st.status)}"></label><label>Fortalezas (separadas por coma)<input id="m-strengths" value="${esc(st.strengths.join(', '))}"></label><label>Dificultades (separadas por coma)<input id="m-difficulties" value="${esc(st.difficulties.join(', '))}"></label><label style="grid-column:1/-1">Próximo paso<textarea id="m-next">${esc(st.next)}</textarea></label></div>`,()=>{const name=document.querySelector('#m-name').value.trim();if(!name){toast('El nombre es obligatorio.');return false}const obj={...st,name,status:document.querySelector('#m-status').value.trim(),strengths:document.querySelector('#m-strengths').value.split(',').map(x=>x.trim()).filter(Boolean),difficulties:document.querySelector('#m-difficulties').value.split(',').map(x=>x.trim()).filter(Boolean),next:document.querySelector('#m-next').value.trim()};if(edit)Object.assign(st,obj);else{obj.id=uid('student');data.students.push(obj);data.evidence[obj.id]={};data.selectedStudentId=obj.id}save(edit?'Alumno actualizado':'Alumno añadido');});}
   function evidenceModal(){modal('Nueva evidencia',`<div class="form-grid"><label>Nombre de la evidencia<input id="e-label" placeholder="Ej.: Resolución de problemas · STEM"></label><label>Criterio / CE<input id="e-criterion" placeholder="Ej.: CE2"></label><label>Competencia clave<input id="e-comp" placeholder="Ej.: STEM"></label></div><p class="small">Después podrás pulsar cada celda del cuaderno para alternar — → INS → SUF → BI → NOT → SOBRE.</p>`,()=>{const label=document.querySelector('#e-label').value.trim();if(!label){toast('Escribe el nombre de la evidencia.');return false}data.evidenceColumns.push({id:uid('ev'),label,criterion:document.querySelector('#e-criterion').value.trim(),competency:document.querySelector('#e-comp').value.trim()});save('Evidencia creada');});}
 
@@ -11276,6 +11725,52 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelector('#guardar-sesion').onclick=saveSession;
   document.querySelector('#cancelar-edicion-sesion').onclick=()=>clearSessionForm(true);
   document.querySelector('#nuevo-instrumento').onclick=instrumentModal;
+  const workPlansDate=document.querySelector('#planes-trabajo-fecha');
+  if(workPlansDate){
+    if(!workPlansDate.value)workPlansDate.value=today();
+    workPlansDate.onchange=()=>renderWorkPlans();
+    loadWorkPlans();
+  }
+
+  function moveWorkPlanDay(days){
+    const input=document.querySelector('#planes-trabajo-fecha');
+    if(!input)return;
+
+    const base=input.value||today();
+    const d=new Date(base+'T12:00:00');
+    d.setDate(d.getDate()+days);
+
+    const y=d.getFullYear();
+    const m=String(d.getMonth()+1).padStart(2,'0');
+    const day=String(d.getDate()).padStart(2,'0');
+
+    input.value=`${y}-${m}-${day}`;
+    renderWorkPlans();
+  }
+
+  const previousWorkPlanDay=document.querySelector('#plan-dia-anterior');
+  if(previousWorkPlanDay)previousWorkPlanDay.onclick=()=>moveWorkPlanDay(-1);
+
+  const nextWorkPlanDay=document.querySelector('#plan-dia-siguiente');
+  if(nextWorkPlanDay)nextWorkPlanDay.onclick=()=>moveWorkPlanDay(1);
+
+  const todayWorkPlanBtn=document.querySelector('#plan-ir-hoy');
+  if(todayWorkPlanBtn)todayWorkPlanBtn.onclick=()=>{
+    const input=document.querySelector('#planes-trabajo-fecha');
+    if(!input)return;
+    input.value=today();
+    renderWorkPlans();
+  };
+
+  const newWorkPlanBtn=document.querySelector('#nuevo-plan-trabajo');
+  if(newWorkPlanBtn)newWorkPlanBtn.onclick=()=>workPlanModal();
+
+  const emptyWorkPlanBtn=document.querySelector('#nuevo-plan-trabajo-vacio');
+  if(emptyWorkPlanBtn)emptyWorkPlanBtn.onclick=()=>workPlanModal();
+
+  const manageWebStudentsBtn=document.querySelector('#manage-web-students');
+  if(manageWebStudentsBtn)manageWebStudentsBtn.onclick=openWebStudentsManager;
+
   document.querySelector('#nuevo-alumno').onclick=()=>studentModal(false);
   document.querySelector('#editar-alumno').onclick=()=>studentModal(true);
   document.querySelector('#eliminar-alumno').onclick=()=>{
