@@ -26,6 +26,8 @@ const GOOGLE_CLIENT_ID: &str = env!("GOOGLE_CLIENT_ID");
 const GOOGLE_CLIENT_SECRET: &str = env!("GOOGLE_CLIENT_SECRET");
 const KEYCHAIN_SERVICE: &str = "MiCuadernoDigital Google Calendar";
 const KEYCHAIN_SECRET_SERVICE: &str = "MiCuadernoDigital Google OAuth Client";
+const COUNTDOWN_KEYCHAIN_SERVICE: &str = "MiCuadernoDigital Cuenta Atras";
+const COUNTDOWN_KEYCHAIN_ACCOUNT: &str = "recursosdocentes.info";
 
 fn db_path(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
@@ -304,6 +306,254 @@ fn keychain_delete(client_id: &str) {
     if let Ok(entry) = token_entry(client_id) {
         let _ = entry.delete_credential();
     }
+}
+
+fn countdown_token_entry() -> Result<keyring::Entry, String> {
+    keyring::Entry::new(COUNTDOWN_KEYCHAIN_SERVICE, COUNTDOWN_KEYCHAIN_ACCOUNT)
+        .map_err(|e| format!("No se pudo acceder al almacén seguro de Cuenta atrás: {e}"))
+}
+
+fn countdown_keychain_store(token: &str) -> Result<(), String> {
+    countdown_token_entry()?
+        .set_password(token)
+        .map_err(|e| format!("No se pudo guardar la autorización de Cuenta atrás: {e}"))
+}
+
+fn countdown_keychain_get() -> Result<String, String> {
+    countdown_token_entry()?
+        .get_password()
+        .map_err(|_| "No hay una autorización de Cuenta atrás guardada.".to_string())
+}
+
+fn countdown_keychain_delete() {
+    if let Ok(entry) = countdown_token_entry() {
+        let _ = entry.delete_credential();
+    }
+}
+
+
+const COUNTDOWN_API_URL: &str = "https://recursosdocentes.info/private/countdown_api.php";
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CountdownEvent {
+    id: i64,
+    titulo: String,
+    descripcion: String,
+    fecha: String,
+    icono: String,
+    modo: String,
+    activo: i64,
+}
+
+#[derive(Debug, Deserialize)]
+struct CountdownListResponse {
+    ok: bool,
+    eventos: Option<Vec<CountdownEvent>>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+fn countdown_connect(token: String) -> Result<(), String> {
+    let token = token.trim();
+    if token.len() < 32 {
+        return Err("La credencial de Cuenta atrás no es válida.".to_string());
+    }
+    countdown_keychain_store(token)
+}
+
+#[tauri::command]
+fn countdown_status() -> bool {
+    countdown_keychain_get()
+        .map(|token| !token.trim().is_empty())
+        .unwrap_or(false)
+}
+
+#[tauri::command]
+fn countdown_disconnect() {
+    countdown_keychain_delete();
+}
+
+#[tauri::command]
+fn countdown_list() -> Result<Vec<CountdownEvent>, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::blocking::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .get(format!("{COUNTDOWN_API_URL}?action=list"))
+        .bearer_auth(token)
+        .send()
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().map_err(|e| e.to_string())?;
+
+    let data: CountdownListResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(data.eventos.unwrap_or_default())
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CountdownCalendarDay {
+    fecha: String,
+    nombre: String,
+}
+
+#[derive(Debug, Serialize)]
+struct CountdownCalendarSyncRequest {
+    dias: Vec<CountdownCalendarDay>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CountdownCalendarSyncResponse {
+    ok: bool,
+    dias: Option<usize>,
+    error: Option<String>,
+}
+
+#[tauri::command]
+async fn countdown_calendar_sync(dias: Vec<CountdownCalendarDay>) -> Result<usize, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{COUNTDOWN_API_URL}?action=calendar_sync"))
+        .bearer_auth(token)
+        .json(&CountdownCalendarSyncRequest { dias })
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: CountdownCalendarSyncResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(data.dias.unwrap_or(0))
+}
+
+#[derive(Debug, Serialize)]
+struct CountdownSaveRequest {
+    id: i64,
+    titulo: String,
+    descripcion: String,
+    fecha: String,
+    icono: String,
+    modo: String,
+    activo: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct CountdownSaveResponse {
+    ok: bool,
+    id: Option<i64>,
+    error: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CountdownActionResponse {
+    ok: bool,
+    error: Option<String>,
+}
+
+#[tauri::command]
+async fn countdown_save(
+    id: Option<i64>,
+    titulo: String,
+    descripcion: String,
+    fecha: String,
+    icono: String,
+    modo: String,
+    activo: bool,
+) -> Result<i64, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let payload = CountdownSaveRequest {
+        id: id.unwrap_or(0),
+        titulo,
+        descripcion,
+        fecha,
+        icono,
+        modo,
+        activo,
+    };
+
+    let resp = client
+        .post(format!("{COUNTDOWN_API_URL}?action=save"))
+        .bearer_auth(token)
+        .json(&payload)
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: CountdownSaveResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    data.id.ok_or_else(|| "El servidor no devolvió el ID del acontecimiento.".to_string())
+}
+
+#[tauri::command]
+async fn countdown_delete(id: i64) -> Result<(), String> {
+    if id <= 0 {
+        return Err("ID remoto no válido.".to_string());
+    }
+
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{COUNTDOWN_API_URL}?action=delete"))
+        .bearer_auth(token)
+        .json(&serde_json::json!({ "id": id }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: CountdownActionResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(())
 }
 
 fn google_config(app: &AppHandle) -> Result<Option<(String, String, String, String)>, String> {
@@ -1461,7 +1711,14 @@ pub fn run() {
             install_update,
             generate_aportacion_pdf,
             generate_aportacion_csv,
-            read_text_file_for_import
+            read_text_file_for_import,
+            countdown_connect,
+            countdown_status,
+            countdown_disconnect,
+            countdown_list,
+            countdown_calendar_sync,
+            countdown_save,
+            countdown_delete
         ])
         .run(tauri::generate_context!())
         .expect("error while running MiCuadernoDigital");

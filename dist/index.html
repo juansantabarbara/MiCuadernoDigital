@@ -1711,11 +1711,17 @@
   grid-template-columns:minmax(0,2fr) minmax(330px,.95fr) !important;
   grid-template-areas:
     "welcome live"
+    "countdown live"
     "next next"
     "schedule schedule"
     "note note" !important;
   gap:18px !important;
   align-items:start !important;
+}
+
+#inicio #home-countdown-card{
+  grid-area:countdown !important;
+  margin:0 !important;
 }
 
 #inicio .home-welcome{
@@ -1824,6 +1830,7 @@
       "welcome"
       "live"
       "next"
+      "countdown"
       "schedule"
       "note" !important;
   }
@@ -2443,6 +2450,19 @@
         <div id="home-teacher-schedule" class="home-schedule-list"></div>
       </div>
 
+
+      <div class="card" id="home-countdown-card" style="margin-top:18px">
+        <div class="home-section-head">
+          <div>
+            <div class="home-eyebrow">Próximamente</div>
+            <h3>⏳ Cuenta atrás</h3>
+          </div>
+          <span class="home-soft-icon">⌛</span>
+        </div>
+        <div id="home-countdown-list">
+          <div class="empty">Cargando próximos eventos…</div>
+        </div>
+      </div>
 
       <div class="card" id="daily-note-card" style="margin-top:18px">
         <div class="notebook-title-row" style="align-items:flex-start">
@@ -3358,7 +3378,7 @@
       if(raw){
         const stored=JSON.parse(raw),base=clone(demo);
         const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],instruments:Array.isArray(stored.instruments)?stored.instruments:[],instrumentApplications:Array.isArray(stored.instrumentApplications)?stored.instrumentApplications:[],
-          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
+          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],countdownEvents:Array.isArray(stored.countdownEvents)?stored.countdownEvents:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         data=merged;
         if(!Array.isArray(data.teachingGroups))data.teachingGroups=[];
@@ -3462,6 +3482,7 @@
     instrumentEvidence:[],
     meetingPeople:[],
     customDays:[],
+    countdownEvents:[],
     issues:[],
     dailyNotes:{},
     settings:{mode:'diario',calendarMonth:'2026-09',notebookView:'matrix',notebookSearch:'',notebookCompetency:'all',notebookEvidence:'all',notebookStudentId:'',timetable:[
@@ -3510,7 +3531,7 @@
       if(raw){
         const stored=JSON.parse(raw), base=clone(demo);
         const merged={...base,...stored,settings:mergeSettings(base.settings,stored.settings||{}),agenda:Array.isArray(stored.agenda)?stored.agenda:[],meetings:Array.isArray(stored.meetings)?stored.meetings:[],actuaciones:Array.isArray(stored.actuaciones)?stored.actuaciones:[],aportaciones:Array.isArray(stored.aportaciones)?stored.aportaciones:[],instruments:Array.isArray(stored.instruments)?stored.instruments:[],instrumentApplications:Array.isArray(stored.instrumentApplications)?stored.instrumentApplications:[],
-          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
+          instrumentEvidence:Array.isArray(stored.instrumentEvidence)?stored.instrumentEvidence:[],meetingPeople:Array.isArray(stored.meetingPeople)?stored.meetingPeople:[],customDays:Array.isArray(stored.customDays)?stored.customDays:[],countdownEvents:Array.isArray(stored.countdownEvents)?stored.countdownEvents:[],issues:Array.isArray(stored.issues)?stored.issues:[],dailyNotes:(stored.dailyNotes&&typeof stored.dailyNotes==='object'&&!Array.isArray(stored.dailyNotes))?stored.dailyNotes:{}};
         merged.units=(Array.isArray(merged.units)?merged.units:[]).map(normalizeUnit);
         if(!merged.selectedUnitId||!merged.units.some(u=>u.id===merged.selectedUnitId))merged.selectedUnitId=merged.units[0]?.id||'';
         return merged;
@@ -3575,6 +3596,101 @@
     const h=ASTURIAS_SCHOOL.holidays.find(x=>inRange(date,x.start,x.end)); if(h)return {type:'holiday',label:h.label};
     return null;
   }
+  function countdownParseDate(date){
+    const [y,m,d]=String(date||'').split('-').map(Number);
+    if(!y||!m||!d)return null;
+    return new Date(y,m-1,d);
+  }
+
+  function countdownCalendarSyncDays(){
+    const start=countdownParseDate(ASTURIAS_SCHOOL.courseStart);
+    const end=countdownParseDate(ASTURIAS_SCHOOL.courseEnd);
+    if(!start||!end)return [];
+
+    const dias=[];
+    const cursor=new Date(start);
+
+    while(cursor<=end){
+      const fecha=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+      const info=dateTypeInfo(fecha);
+      const weekend=cursor.getDay()===0||cursor.getDay()===6;
+
+      /* La web ya excluye sábados y domingos por sí misma.
+         Solo sincronizamos excepciones de lunes a viernes.
+         working manda sobre cualquier festivo, vacación o corrección previa. */
+      if(!weekend && info && info.type!=='working'){
+        dias.push({
+          fecha,
+          nombre:info.label||'Día no lectivo'
+        });
+      }
+
+      cursor.setDate(cursor.getDate()+1);
+    }
+
+    return dias;
+  }
+
+  async function syncCountdownCalendar(){
+    if(!nativeInvoke)return false;
+
+    try{
+      const dias=countdownCalendarSyncDays();
+      await nativeInvoke('countdown_calendar_sync',{dias});
+      return true;
+    }catch(err){
+      console.warn('Countdown calendar sync failed',err);
+      return false;
+    }
+  }
+
+  function countdownNaturalDaysUntil(date){
+    const target=countdownParseDate(date);
+    const start=countdownParseDate(today());
+    if(!target||!start)return null;
+    return Math.max(0,Math.round((target-start)/86400000));
+  }
+
+  function countdownIsTeachingDay(date){
+    const dt=countdownParseDate(date);
+    if(!dt)return false;
+
+    const info=dateTypeInfo(date);
+
+    /* Una corrección manual a "lectivo" tiene prioridad absoluta. */
+    if(info?.type==='working')return true;
+
+    /* Cualquier otro tipo configurado/oficial excluye el día. */
+    if(info)return false;
+
+    /* Si no hay excepción, lunes-viernes son lectivos. */
+    return dt.getDay()!==0 && dt.getDay()!==6;
+  }
+
+  function countdownTeachingDaysUntil(date){
+    const target=countdownParseDate(date);
+    const start=countdownParseDate(today());
+    if(!target||!start||target<=start)return 0;
+
+    let count=0;
+    const cursor=new Date(start);
+    cursor.setDate(cursor.getDate()+1);
+
+    while(cursor<=target){
+      const ds=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+      if(countdownIsTeachingDay(ds))count++;
+      cursor.setDate(cursor.getDate()+1);
+    }
+
+    return count;
+  }
+
+  function countdownDaysUntil(date,mode='naturales'){
+    return mode==='lectivos'
+      ? countdownTeachingDaysUntil(date)
+      : countdownNaturalDaysUntil(date);
+  }
+
   function monthKeys(){const out=[];let y=2026,m=8;while(y<2027||m<=5){out.push(`${y}-${String(m+1).padStart(2,'0')}`);m++;if(m>11){m=0;y++}}return out}
   function monthKeyInCourse(k){return monthKeys().includes(k)}
   function renderCalendar(){
@@ -3598,9 +3714,9 @@
     document.querySelector('#cal-prev').onclick=()=>shiftCalendar(-1);document.querySelector('#cal-next').onclick=()=>shiftCalendar(1);
   }
   function shiftCalendar(delta){const keys=monthKeys(),i=keys.indexOf(data.settings.calendarMonth),n=Math.max(0,Math.min(keys.length-1,i+delta));data.settings.calendarMonth=keys[n];localStorage.setItem(STORAGE_KEY,JSON.stringify(data));renderCalendar()}
-  function renderCustomDays(){const box=document.querySelector('#custom-days-list');if(!box)return;box.innerHTML=(data.customDays||[]).length?[...data.customDays].sort((a,b)=>a.start.localeCompare(b.start)).map(x=>`<div class="mini-item"><strong>${esc(x.start)}${x.end!==x.start?' → '+esc(x.end):''} · ${esc(typeLabel(x.type))}</strong>${esc(x.label||'Sin descripción')} <button class="ghost" style="float:right;padding:5px 8px" data-del-day="${esc(x.id)}">Eliminar</button></div>`).join(''):'<div class="empty">No has añadido días personalizados.</div>';box.querySelectorAll('[data-del-day]').forEach(b=>b.onclick=()=>{data.customDays=data.customDays.filter(x=>x.id!==b.dataset.delDay);save('Día eliminado')})}
+  function renderCustomDays(){const box=document.querySelector('#custom-days-list');if(!box)return;box.innerHTML=(data.customDays||[]).length?[...data.customDays].sort((a,b)=>a.start.localeCompare(b.start)).map(x=>`<div class="mini-item"><strong>${esc(x.start)}${x.end!==x.start?' → '+esc(x.end):''} · ${esc(typeLabel(x.type))}</strong>${esc(x.label||'Sin descripción')} <button class="ghost" style="float:right;padding:5px 8px" data-del-day="${esc(x.id)}">Eliminar</button></div>`).join(''):'<div class="empty">No has añadido días personalizados.</div>';box.querySelectorAll('[data-del-day]').forEach(b=>b.onclick=()=>{data.customDays=data.customDays.filter(x=>x.id!==b.dataset.delDay);save('Día eliminado');syncCountdownCalendar()})}
   function typeLabel(t){return ({holiday:'Festivo local',center:'Día de centro',permission:'Permiso mío',vacation:'Vacaciones añadidas',working:'Día hábil / lectivo'})[t]||t}
-  function addCustomDay(){const start=document.querySelector('#custom-day-start').value,end=document.querySelector('#custom-day-end').value||start,label=document.querySelector('#custom-day-label').value.trim(),type=document.querySelector('#custom-day-type').value;if(!start)return toast('Selecciona al menos una fecha.');if(end<start)return toast('La fecha final no puede ser anterior.');data.customDays.push({id:uid('day'),type,start,end,label});document.querySelector('#custom-day-label').value='';save('Calendario actualizado')}
+  function addCustomDay(){const start=document.querySelector('#custom-day-start').value,end=document.querySelector('#custom-day-end').value||start,label=document.querySelector('#custom-day-label').value.trim(),type=document.querySelector('#custom-day-type').value;if(!start)return toast('Selecciona al menos una fecha.');if(end<start)return toast('La fecha final no puede ser anterior.');data.customDays.push({id:uid('day'),type,start,end,label});document.querySelector('#custom-day-label').value='';save('Calendario actualizado');syncCountdownCalendar()}
 
   const observationBank={
     'Participación':['Participa de forma espontánea y aporta ideas relacionadas con la tarea.','Necesita más tiempo o apoyo para incorporarse a las intervenciones del grupo.','Escucha las aportaciones de sus compañeros y construye sobre ellas.'],
@@ -5453,6 +5569,241 @@
     }
   }
 
+  async function syncCountdownEvent(localId){
+    if(!nativeInvoke)return false;
+
+    const ev=(data.countdownEvents||[]).find(x=>x.id===localId);
+    if(!ev)return false;
+
+    try{
+      const remoteId=await nativeInvoke('countdown_save',{
+        id:ev.remoteId||null,
+        titulo:ev.titulo||'',
+        descripcion:ev.descripcion||'',
+        fecha:ev.fecha||'',
+        icono:ev.icono||'⭐',
+        modo:ev.modo||'lectivos',
+        activo:ev.activo!==false
+      });
+
+      const current=(data.countdownEvents||[]).find(x=>x.id===localId);
+      if(!current)return false;
+
+      current.remoteId=Number(remoteId);
+      current.syncStatus='synced';
+      persistState();
+      renderHomeCountdown();
+      return true;
+    }catch(err){
+      console.warn('Countdown sync failed',err);
+
+      const current=(data.countdownEvents||[]).find(x=>x.id===localId);
+      if(current){
+        current.syncStatus='error';
+        persistState();
+        renderHomeCountdown();
+      }
+      return false;
+    }
+  }
+
+  function openCountdownEditor(existing=null){
+    const ev=existing||{
+      id:'',
+      titulo:'',
+      descripcion:'',
+      fecha:'',
+      icono:'⭐',
+      modo:'lectivos',
+      activo:true
+    };
+
+    const html=`
+      <div class="form-grid">
+        <label>Título
+          <input id="countdown-title" value="${esc(ev.titulo||'')}" placeholder="Ej. Halloween">
+        </label>
+
+        <label>Fecha
+          <input id="countdown-date" type="date" value="${esc(ev.fecha||'')}">
+        </label>
+
+        <label>Icono
+          <input id="countdown-icon" value="${esc(ev.icono||'⭐')}" maxlength="8">
+        </label>
+
+        <label>Contar
+          <select id="countdown-mode">
+            <option value="lectivos" ${ev.modo==='lectivos'?'selected':''}>Días lectivos</option>
+            <option value="naturales" ${ev.modo==='naturales'?'selected':''}>Días naturales</option>
+          </select>
+        </label>
+
+        <label class="full-span">Descripción
+          <textarea id="countdown-description" placeholder="Opcional">${esc(ev.descripcion||'')}</textarea>
+        </label>
+      </div>`;
+
+    modal(existing?'Editar acontecimiento':'Nuevo acontecimiento',html,()=>{
+      const titulo=document.querySelector('#countdown-title').value.trim();
+      const fecha=document.querySelector('#countdown-date').value;
+
+      if(!titulo){
+        toast('Escribe un título.');
+        return false;
+      }
+
+      if(!fecha){
+        toast('Selecciona una fecha.');
+        return false;
+      }
+
+      const item={
+        ...ev,
+        id:ev.id||uid('countdown'),
+        titulo,
+        descripcion:document.querySelector('#countdown-description').value.trim(),
+        fecha,
+        icono:document.querySelector('#countdown-icon').value.trim()||'⭐',
+        modo:document.querySelector('#countdown-mode').value,
+        activo:true,
+        remoteId:ev.remoteId||null,
+        syncStatus:'pending',
+        updatedAt:new Date().toISOString()
+      };
+
+      const i=(data.countdownEvents||[]).findIndex(x=>x.id===item.id);
+      if(i>=0)data.countdownEvents[i]=item;
+      else data.countdownEvents.push(item);
+
+      save(existing?'Acontecimiento actualizado':'Acontecimiento creado');
+
+      /* El guardado local manda. La sincronización web ocurre después. */
+      syncCountdownEvent(item.id);
+
+      return true;
+    });
+  }
+
+  async function deleteCountdownEvent(localId){
+    const ev=(data.countdownEvents||[]).find(x=>x.id===localId);
+    if(!ev)return false;
+
+    const remoteId=Number(ev.remoteId||0);
+
+    /* El estado local manda: desaparece inmediatamente de MiCuadernoDigital. */
+    data.countdownEvents=data.countdownEvents.filter(x=>x.id!==localId);
+    save('Acontecimiento eliminado');
+
+    /* Si estaba sincronizado, intentamos retirarlo también de la web. */
+    if(nativeInvoke && remoteId>0){
+      try{
+        await nativeInvoke('countdown_delete',{id:remoteId});
+      }catch(err){
+        console.warn('Countdown remote delete failed',err);
+        toast('El acontecimiento se eliminó de la app, pero no se pudo borrar de la web.');
+      }
+    }
+
+    renderHomeCountdown();
+    return true;
+  }
+
+  function openCountdownManager(){
+    const events=[...(data.countdownEvents||[])].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+
+    const html=events.length
+      ? events.map(ev=>`
+          <div class="mini-item">
+            <strong>${esc(ev.icono||'⭐')} ${esc(ev.titulo)}</strong>
+            ${esc(ev.fecha)} · ${countdownDaysUntil(ev.fecha,ev.modo)}
+            ${ev.modo==='lectivos'?' días lectivos':' días'}
+            <div class="actions" style="margin-top:8px">
+              <button class="secondary" data-countdown-edit="${esc(ev.id)}">Editar</button>
+              <button class="ghost" data-countdown-delete="${esc(ev.id)}">Eliminar</button>
+            </div>
+          </div>`).join('')
+      : '<div class="empty">No hay acontecimientos.</div>';
+
+    modal('Gestionar cuenta atrás',html,()=>true);
+    document.querySelector('#modal-save').textContent='Cerrar';
+
+    document.querySelectorAll('[data-countdown-edit]').forEach(btn=>btn.onclick=()=>{
+      const ev=data.countdownEvents.find(x=>x.id===btn.dataset.countdownEdit);
+      document.querySelector('#modal-backdrop').classList.remove('show');
+      if(ev)openCountdownEditor(ev);
+    });
+
+    document.querySelectorAll('[data-countdown-delete]').forEach(btn=>btn.onclick=()=>{
+      deleteCountdownEvent(btn.dataset.countdownDelete);
+      document.querySelector('#modal-backdrop').classList.remove('show');
+    });
+  }
+
+  function renderHomeCountdown(){
+    const box=document.querySelector('#home-countdown-list');
+    if(!box)return;
+
+    const events=(data.countdownEvents||[])
+      .filter(ev=>ev.activo!==false && ev.fecha)
+      .map(ev=>({...ev,days:countdownDaysUntil(ev.fecha,ev.modo)}))
+      .filter(ev=>countdownParseDate(ev.fecha)>=countdownParseDate(today()))
+      .sort((a,b)=>a.fecha.localeCompare(b.fecha));
+
+    if(!events.length){
+      box.innerHTML=`
+        <div class="empty">
+          No hay acontecimientos próximos.
+          <div style="margin-top:12px">
+            <button class="primary" id="countdown-new">+ Añadir acontecimiento</button>
+          </div>
+        </div>`;
+      document.querySelector('#countdown-new').onclick=()=>openCountdownEditor();
+      return;
+    }
+
+    const main=events[0];
+    const rest=events.slice(1,5);
+    const date=countdownParseDate(main.fecha);
+    const dateLabel=new Intl.DateTimeFormat('es-ES',{
+      weekday:'long',day:'numeric',month:'long'
+    }).format(date);
+
+    box.innerHTML=`
+      <div style="display:grid;grid-template-columns:minmax(210px,.8fr) minmax(0,1.7fr);gap:18px;align-items:center">
+        <div style="text-align:center;padding:12px">
+          <div style="font-size:52px;font-weight:900;line-height:1">${main.days}</div>
+          <div class="small" style="margin-top:7px;font-weight:800">
+            ${main.modo==='lectivos'?'DÍAS LECTIVOS':'DÍAS'}
+          </div>
+        </div>
+
+        <div>
+          <div class="home-eyebrow">${esc(main.icono||'⭐')} Próximo acontecimiento</div>
+          <h2 style="margin:5px 0">${esc(main.titulo)}</h2>
+          <p style="margin:0">${esc(dateLabel)}</p>
+          ${main.descripcion?`<p class="small">${esc(main.descripcion)}</p>`:''}
+
+          ${rest.length?`
+            <div style="margin-top:14px">
+              ${rest.map(ev=>`
+                <span class="pill" style="margin:3px">
+                  ${esc(ev.icono||'⭐')} ${esc(ev.titulo)} · ${ev.days}
+                </span>`).join('')}
+            </div>`:''}
+
+          <div class="actions no-print" style="margin-top:14px">
+            <button class="secondary" id="countdown-manage">Gestionar</button>
+            <button class="primary" id="countdown-new">+ Nuevo</button>
+          </div>
+        </div>
+      </div>`;
+
+    document.querySelector('#countdown-new').onclick=()=>openCountdownEditor();
+    document.querySelector('#countdown-manage').onclick=()=>openCountdownManager();
+  }
+
+
   function dashboardDetails(type){
     if(type==='sessions'){
       const sessions=todaysUnits(),tt=todaysTimetable();
@@ -5489,6 +5840,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     const set=(id,v)=>{const el=document.querySelector(id);if(el)el.textContent=v};
     set('#dash-sessions-count',units.length||tt.length);set('#dash-absent-count',absent.length);set('#dash-evidence-count',pending.length);set('#dash-alert-count',alerts.length);
     renderHomeTimeline();
+    renderHomeCountdown();
     const summary=document.querySelector('#daily-summary'),pills=document.querySelector('#daily-summary-pills');
     if(summary){summary.textContent=(units.length||tt.length)?`Hoy tienes ${units.length} sesión(es) programada(s) desde tus situaciones y ${tt.length} franja(s) en el horario.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:'No quedan evidencias pendientes.'}`:`No hay sesiones programadas desde situaciones para hoy.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:''}`;}
     if(pills)pills.innerHTML=`<span class="pill ${absent.length?'yellow':'green'}">${absent.length?absent.length+' ausente(s)':'Asistencia sin faltas'}</span><span class="pill ${pending.length?'yellow':'green'}">${pending.length?pending.length+' evidencias pendientes':'Evidencias al día'}</span><span class="pill ${alerts.length?'red':'green'}">${alerts.length?alerts.length+' alertas':'Sin alertas'}</span>`;
