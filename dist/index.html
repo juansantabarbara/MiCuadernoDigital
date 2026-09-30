@@ -11437,13 +11437,48 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         const name=a.nombre||workPlanStudentName(a.user_id);
         const estado=a.estado||'pendiente';
 
+        const estadoLabel={
+          pendiente:'Pendiente',
+          trabajando:'Estoy trabajando',
+          terminado:'Terminado'
+        }[estado]||estado;
+
+        const estadoIcon={
+          pendiente:'○',
+          trabajando:'▶',
+          terminado:'✓'
+        }[estado]||'○';
+
+        const autoLabel={
+          solo:'😊 Lo ha hecho solo',
+          ayuda:'🤝 Ha necesitado ayuda',
+          revisar:'🙋 Necesita que lo revisemos'
+        }[a.autoevaluacion]||'';
+
+        const comentario=(a.comentario_alumno||'').trim();
+
         return `
-          <span style="display:inline-flex;align-items:center;gap:6px;
-            padding:6px 9px;border:1px solid var(--border);
-            border-radius:999px;margin:3px 4px 3px 0">
-            ${esc(name)}
-            <span class="small">· ${esc(estado)}</span>
-          </span>
+          <div style="border:1px solid var(--border);
+            border-radius:14px;padding:10px 12px;margin-top:8px">
+
+            <div style="display:flex;justify-content:space-between;
+              gap:10px;align-items:center;flex-wrap:wrap">
+              <strong>${esc(name)}</strong>
+              <span class="small">${estadoIcon} ${esc(estadoLabel)}</span>
+            </div>
+
+            ${autoLabel?`
+              <div class="small" style="margin-top:7px">
+                ${esc(autoLabel)}
+              </div>
+            `:''}
+
+            ${comentario?`
+              <div class="small" style="margin-top:7px">
+                💬 “${esc(comentario)}”
+              </div>
+            `:''}
+          </div>
         `;
       }).join('');
 
@@ -11463,14 +11498,74 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
               </div>
             </div>
 
-            <div class="small">
-              ${assignments.length}
-              ${assignments.length===1?'alumno':'alumnos'}
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="small">
+                ${assignments.length}
+                ${assignments.length===1?'alumno':'alumnos'}
+              </div>
+              <button type="button"
+                class="ghost workplan-delete"
+                data-workplan-id="${Number(plan.id)}"
+                data-workplan-title="${esc(plan.titulo)}"
+                style="padding:6px 9px"
+                title="Eliminar plan">
+                Eliminar
+              </button>
             </div>
           </div>
         </div>
       `;
     }).join('');
+
+    document.querySelectorAll('.workplan-delete').forEach(btn=>{
+      btn.onclick=()=>deleteWorkPlan(
+        Number(btn.dataset.workplanId),
+        btn.dataset.workplanTitle||'este plan'
+      );
+    });
+  }
+
+  function deleteWorkPlan(id,title){
+    if(!id||!nativeInvoke)return;
+
+    modal('Eliminar plan de trabajo',`
+      <div class="notice">
+        <strong>¿Eliminar “${esc(title)}”?</strong>
+        <p>
+          Se eliminará el plan y todo el seguimiento asociado
+          al alumnado.
+        </p>
+        <p style="margin-bottom:0">
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+    `,()=>false);
+
+    const saveBtn=document.querySelector('#modal-save');
+    if(!saveBtn)return;
+
+    saveBtn.disabled=false;
+    saveBtn.textContent='Eliminar plan';
+
+    saveBtn.onclick=async()=>{
+      saveBtn.disabled=true;
+      saveBtn.textContent='Eliminando…';
+
+      try{
+        await nativeInvoke('workplans_delete',{id});
+
+        document.querySelector('#modal-backdrop')?.classList.remove('show');
+        toast('Plan de trabajo eliminado.');
+
+        await loadWorkPlans();
+      }catch(err){
+        console.error('workplans_delete failed',err);
+        toast('No se pudo eliminar el plan: '+String(err));
+
+        saveBtn.disabled=false;
+        saveBtn.textContent='Eliminar plan';
+      }
+    };
   }
 
   async function loadWorkPlans(){
