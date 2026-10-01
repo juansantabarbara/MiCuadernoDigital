@@ -11526,7 +11526,6 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
           </button>
         </div>
       `;
-
       const emptyBtn=document.querySelector('#nuevo-plan-trabajo-vacio');
       if(emptyBtn)emptyBtn.onclick=()=>workPlanModal();
       return;
@@ -11534,22 +11533,29 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
     box.innerHTML=plans.map(plan=>{
       const assignments=plan.assignments||[];
+      const steps=plan.steps||[];
+      const isActivityPlan=steps.length>0;
 
       const pupils=assignments.map(a=>{
         const name=a.nombre||workPlanStudentName(a.user_id);
         const estado=a.estado||'pendiente';
+        const modo=a.modo||'autonomo';
 
         const estadoLabel={
           pendiente:'Pendiente',
-          trabajando:'Estoy trabajando',
-          terminado:'Terminado'
+          trabajando:'Trabajando',
+          terminado:'Finalizado'
         }[estado]||estado;
 
         const estadoIcon={
           pendiente:'○',
           trabajando:'▶',
-          terminado:'✓'
+          terminado:'🏁'
         }[estado]||'○';
+
+        const modeLabel=modo==='acompanado'
+          ? '🧩 Acompañado'
+          : '📋 Autónomo';
 
         const autoLabel={
           solo:'😊 Lo ha hecho solo',
@@ -11567,25 +11573,151 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
         const teacherComment=(a.comentario_docente||'').trim();
 
+        const progress=new Map(
+          (a.step_progress||[]).map(x=>[
+            Number(x.step_id),
+            {
+              completado:!!x.completado,
+              completado_at:x.completado_at||null
+            }
+          ])
+        );
+
+        const completedSteps=steps.filter(
+          st=>progress.get(Number(st.id))?.completado
+        );
+
+        const essentialSteps=steps.filter(st=>!!st.esencial);
+        const extraSteps=steps.filter(st=>!st.esencial);
+
+        const completedEssential=essentialSteps.filter(
+          st=>progress.get(Number(st.id))?.completado
+        );
+
+        const completedExtra=extraSteps.filter(
+          st=>progress.get(Number(st.id))?.completado
+        );
+
+        let progressSummary='';
+
+        if(isActivityPlan){
+          if(modo==='acompanado'){
+            if(essentialSteps.length){
+              progressSummary=
+                `Trabajo principal ${completedEssential.length}/${essentialSteps.length}`+
+                (completedEssential.length===essentialSteps.length?' ✓':'')+
+                (extraSteps.length
+                  ? ` · Extras ${completedExtra.length}/${extraSteps.length}`
+                  : '');
+            }else{
+              progressSummary=
+                `Actividades ${completedSteps.length}/${steps.length}`;
+            }
+          }else{
+            progressSummary=
+              `${completedSteps.length}/${steps.length} actividades`+
+              (completedSteps.length===steps.length?' ✓':'');
+          }
+        }
+
+        const stepRows=steps.map(st=>{
+          const pr=progress.get(Number(st.id));
+          const done=!!pr?.completado;
+
+          let kind='';
+          if(modo==='acompanado'){
+            kind=st.esencial?' · principal':' · extra';
+          }
+
+          return `
+            <div class="small"
+              style="display:flex;justify-content:space-between;
+              gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+              <span>
+                ${done?'✓':'○'} ${esc(st.titulo)}
+                <span style="opacity:.65">${kind}</span>
+              </span>
+              ${done&&pr?.completado_at?`
+                <span style="opacity:.65;white-space:nowrap">
+                  ${esc(pr.completado_at)}
+                </span>
+              `:''}
+            </div>
+          `;
+        }).join('');
+
+        const detailId=`workplan-detail-${Number(a.id)}`;
+
         return `
           <div style="border:1px solid var(--border);
-            border-radius:14px;padding:10px 12px;margin-top:8px">
+            border-radius:14px;padding:12px 14px;margin-top:8px">
 
             <div style="display:flex;justify-content:space-between;
-              gap:10px;align-items:center;flex-wrap:wrap">
-              <strong>${esc(name)}</strong>
-              <span class="small">${estadoIcon} ${esc(estadoLabel)}</span>
+              gap:12px;align-items:flex-start;flex-wrap:wrap">
+
+              <div>
+                <div style="display:flex;gap:8px;
+                  align-items:center;flex-wrap:wrap">
+                  <strong>${esc(name)}</strong>
+
+                  ${isActivityPlan?`
+                    <span class="small"
+                      style="padding:3px 7px;border-radius:999px;
+                      border:1px solid var(--border)">
+                      ${modeLabel}
+                    </span>
+                  `:''}
+                </div>
+
+                ${progressSummary?`
+                  <div class="small" style="margin-top:7px">
+                    <strong>${esc(progressSummary)}</strong>
+                  </div>
+                `:''}
+
+                ${autoLabel?`
+                  <div class="small" style="margin-top:7px">
+                    ${esc(autoLabel)}
+                  </div>
+                `:''}
+
+                ${comentario?`
+                  <div class="small" style="margin-top:7px">
+                    💬 “${esc(comentario)}”
+                  </div>
+                `:''}
+              </div>
+
+              <span class="small">
+                ${estadoIcon} ${esc(estadoLabel)}
+              </span>
             </div>
 
-            ${autoLabel?`
-              <div class="small" style="margin-top:7px">
-                ${esc(autoLabel)}
-              </div>
-            `:''}
+            ${isActivityPlan?`
+              <button type="button"
+                class="ghost workplan-detail-toggle"
+                data-detail-id="${detailId}"
+                style="padding:5px 8px;margin-top:10px">
+                ▾ Ver seguimiento
+              </button>
 
-            ${comentario?`
-              <div class="small" style="margin-top:7px">
-                💬 “${esc(comentario)}”
+              <div id="${detailId}" class="hidden"
+                style="margin-top:10px;padding:10px 12px;
+                border-radius:10px;background:var(--panel2)">
+
+                ${stepRows}
+
+                ${a.finalizado_at?`
+                  <div class="small" style="margin-top:9px">
+                    🏁 Finalizado: ${esc(a.finalizado_at)}
+                  </div>
+                `:''}
+
+                ${a.ultima_actividad_at?`
+                  <div class="small" style="margin-top:5px">
+                    🕒 Última actividad: ${esc(a.ultima_actividad_at)}
+                  </div>
+                `:''}
               </div>
             `:''}
 
@@ -11595,7 +11727,9 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
               gap:12px;align-items:flex-start;flex-wrap:wrap">
 
               <div>
-                <div class="small"><strong>Valoración docente</strong></div>
+                <div class="small">
+                  <strong>Valoración docente</strong>
+                </div>
 
                 ${teacherLabel?`
                   <div class="small" style="margin-top:4px">
@@ -11632,10 +11766,23 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
             gap:16px;align-items:flex-start;flex-wrap:wrap">
 
             <div style="min-width:0;flex:1">
-              <strong style="font-size:17px">${esc(plan.titulo)}</strong>
+              <strong style="font-size:17px">
+                ${esc(plan.titulo)}
+              </strong>
 
-              <div style="white-space:pre-wrap;line-height:1.55;
-                margin-top:10px">${esc(plan.indicaciones||'')}</div>
+              ${plan.indicaciones?`
+                <div style="white-space:pre-wrap;line-height:1.55;
+                  margin-top:10px">
+                  ${esc(plan.indicaciones)}
+                </div>
+              `:''}
+
+              ${isActivityPlan?`
+                <div class="small" style="margin-top:6px">
+                  ${steps.length}
+                  ${steps.length===1?'actividad':'actividades'}
+                </div>
+              `:''}
 
               <div style="margin-top:14px">
                 ${pupils}
@@ -11647,6 +11794,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
                 ${assignments.length}
                 ${assignments.length===1?'alumno':'alumnos'}
               </div>
+
               <button type="button"
                 class="ghost workplan-delete"
                 data-workplan-id="${Number(plan.id)}"
@@ -11660,6 +11808,20 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         </div>
       `;
     }).join('');
+
+    document.querySelectorAll('.workplan-detail-toggle').forEach(btn=>{
+      btn.onclick=()=>{
+        const detail=document.getElementById(btn.dataset.detailId);
+        if(!detail)return;
+
+        const opening=detail.classList.contains('hidden');
+        detail.classList.toggle('hidden');
+
+        btn.textContent=opening
+          ? '▴ Ocultar seguimiento'
+          : '▾ Ver seguimiento';
+      };
+    });
 
     document.querySelectorAll('.workplan-delete').forEach(btn=>{
       btn.onclick=()=>deleteWorkPlan(
@@ -11858,34 +12020,43 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   function workPlanModal(){
     const dateInput=document.querySelector('#planes-trabajo-fecha');
     const selectedDate=dateInput?.value||new Date().toISOString().slice(0,10);
-
     const students=(data.students||[]).filter(st=>st.webUserId);
     const teams=(data.cooperativeTeams||[]);
 
     const studentCards=students.map(st=>`
-      <label style="display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;cursor:pointer">
-        <input type="checkbox" class="workplan-student" value="${esc(st.id)}" style="width:auto">
-        <span>${esc(st.name)}</span>
-      </label>
+      <div class="workplan-student-card"
+        data-student-card="${esc(st.id)}"
+        style="padding:10px 12px;border:1px solid var(--border);border-radius:10px">
+        <label style="display:flex;align-items:center;gap:9px;cursor:pointer;margin:0">
+          <input type="checkbox" class="workplan-student"
+            value="${esc(st.id)}" style="width:auto">
+          <strong>${esc(st.name)}</strong>
+        </label>
+        <div class="workplan-mode"
+          style="display:none;margin-top:9px;padding-left:25px">
+          <div class="small" style="margin-bottom:5px">Cómo verá este plan</div>
+          <select class="workplan-student-mode" style="width:100%">
+            <option value="autonomo">📋 Autónomo</option>
+            <option value="acompanado">🧩 Acompañado</option>
+          </select>
+        </div>
+      </div>
     `).join('');
 
     const teamButtons=teams.map(team=>`
       <button type="button" class="secondary workplan-team-btn"
-        data-team="${esc(team.id)}"
-        style="text-align:left">
+        data-team="${esc(team.id)}" style="text-align:left">
         ${esc(team.name)}
       </button>
     `).join('');
 
     const html=`
-      <div style="display:grid;gap:18px">
-
+      <div style="display:grid;gap:18px;max-height:70vh;overflow-y:auto;padding-right:6px">
         <div class="form-grid">
           <label>
             Fecha
             <input id="workplan-date" type="date" value="${esc(selectedDate)}">
           </label>
-
           <label>
             Título
             <input id="workplan-title"
@@ -11893,24 +12064,54 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
           </label>
         </div>
 
-        <label>
-          <strong>Trabajo para el alumnado</strong>
-          <div class="small" style="margin:4px 0 8px">
-            Puedes escribir aquí la tarea completa: ejercicios, problemas,
-            preguntas, instrucciones o pasos de trabajo.
+        <div>
+          <strong>Tipo de plan</strong>
+          <div class="small" style="margin:4px 0 9px">
+            Puedes enviar una única tarea o dividir el trabajo en actividades.
           </div>
-          <textarea id="workplan-content"
-            style="min-height:350px;resize:vertical;line-height:1.55"
-            placeholder="Escribe aquí el trabajo que verá el alumnado..."></textarea>
-        </label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="primary" id="workplan-type-simple">
+              📝 Plan simple
+            </button>
+            <button type="button" class="secondary" id="workplan-type-steps">
+              🧩 Por actividades
+            </button>
+          </div>
+        </div>
+
+        <div id="workplan-simple-panel">
+          <label>
+            <strong>Trabajo para el alumnado</strong>
+            <div class="small" style="margin:4px 0 8px">
+              Escribe la tarea, ejercicios, preguntas o instrucciones.
+            </div>
+            <textarea id="workplan-content"
+              style="min-height:280px;resize:vertical;line-height:1.55"
+              placeholder="Escribe aquí el trabajo que verá el alumnado..."></textarea>
+          </label>
+        </div>
+
+        <div id="workplan-steps-panel" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">
+            <div>
+              <strong>Actividades</strong>
+              <div class="small">Ordénalas como quieras que avance el alumnado.</div>
+            </div>
+            <button type="button" class="secondary" id="workplan-add-step">
+              ＋ Añadir actividad
+            </button>
+          </div>
+          <div id="workplan-steps-list" style="display:grid;gap:10px"></div>
+        </div>
 
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
             <div>
               <strong>¿Para quién?</strong>
-              <div class="small" id="workplan-selection-count">0 alumnos seleccionados</div>
+              <div class="small" id="workplan-selection-count">
+                0 alumnos seleccionados
+              </div>
             </div>
-
             <div class="actions">
               <button type="button" class="secondary" id="workplan-select-all">
                 Todos
@@ -11923,127 +12124,303 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
           ${teams.length?`
             <div style="margin-bottom:14px">
-              <div class="small" style="margin-bottom:7px">Seleccionar por equipo cooperativo</div>
+              <div class="small" style="margin-bottom:7px">
+                Seleccionar por equipo cooperativo
+              </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 ${teamButtons}
               </div>
             </div>
           `:''}
 
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;max-height:250px;overflow:auto;padding:2px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;padding:2px">
             ${studentCards||'<div class="small">No hay alumnado vinculado con recursosdocentes.info.</div>'}
           </div>
         </div>
-
       </div>
     `;
 
-    modal('Nuevo plan de trabajo',html,()=>{
-      const fecha=document.querySelector('#workplan-date')?.value;
-      const title=document.querySelector('#workplan-title')?.value.trim();
-      const content=document.querySelector('#workplan-content')?.value.trim();
-      const selected=[...document.querySelectorAll('.workplan-student:checked')];
+    let planType='simple';
 
-      if(!fecha){
-        toast('Selecciona una fecha.');
-        return false;
-      }
-      if(!title){
-        toast('Escribe un título para el plan.');
-        return false;
-      }
-      if(!content){
-        toast('Escribe el trabajo para el alumnado.');
-        return false;
-      }
-      if(!selected.length){
-        toast('Selecciona al menos un alumno o alumna.');
-        return false;
-      }
-      if(!nativeInvoke){
-        toast('Los planes de trabajo se guardan desde la aplicación de escritorio.');
-        return false;
-      }
-
-      const userIds=selected.map(ch=>{
-        const st=(data.students||[]).find(x=>String(x.id)===String(ch.value));
-        return Number(st?.webUserId)||0;
-      }).filter(id=>id>0);
-
-      if(userIds.length!==selected.length){
-        toast('Hay alumnado seleccionado sin vinculación web.');
-        return false;
-      }
-
-      const saveBtn=document.querySelector('#modal-save');
-      if(saveBtn){
-        saveBtn.disabled=true;
-        saveBtn.textContent='Creando…';
-      }
-
-      nativeInvoke('workplans_save',{
-        fecha:fecha,
-        titulo:title,
-        indicaciones:content,
-        userIds:userIds
-      }).then(id=>{
-        document.querySelector('#modal-backdrop')?.classList.remove('show');
-        const dateInput=document.querySelector('#planes-trabajo-fecha');
-        if(dateInput)dateInput.value=fecha;
-        toast('Plan de trabajo creado.');
-        console.log('workplan created',id);
-        loadWorkPlans();
-      }).catch(err=>{
-        console.error('workplans_save failed',err);
-        toast('No se pudo crear el plan: '+String(err));
-        if(saveBtn){
-          saveBtn.disabled=false;
-          saveBtn.textContent='Crear plan';
-        }
-      });
-
-      return false;
-    });
+    modal('Nuevo plan de trabajo',html,()=>false);
 
     const saveBtn=document.querySelector('#modal-save');
     if(saveBtn)saveBtn.textContent='Crear plan';
 
-    const checks=()=>[...document.querySelectorAll('.workplan-student')];
+    const simpleBtn=document.querySelector('#workplan-type-simple');
+    const stepsBtn=document.querySelector('#workplan-type-steps');
+    const simplePanel=document.querySelector('#workplan-simple-panel');
+    const stepsPanel=document.querySelector('#workplan-steps-panel');
 
-    const refreshCount=()=>{
-      const n=checks().filter(x=>x.checked).length;
-      const box=document.querySelector('#workplan-selection-count');
-      if(box)box.textContent=`${n} ${n===1?'alumno seleccionado':'alumnos seleccionados'}`;
+    const setPlanType=type=>{
+      planType=type;
+      const simple=type==='simple';
+      if(simplePanel)simplePanel.style.display=simple?'block':'none';
+      if(stepsPanel)stepsPanel.style.display=simple?'none':'block';
+      if(simpleBtn)simpleBtn.className=simple?'primary':'secondary';
+      if(stepsBtn)stepsBtn.className=simple?'secondary':'primary';
+      if(typeof refreshSelection==='function')refreshSelection();
     };
 
-    checks().forEach(ch=>ch.addEventListener('change',refreshCount));
+    if(simpleBtn)simpleBtn.onclick=()=>setPlanType('simple');
+    if(stepsBtn)stepsBtn.onclick=()=>setPlanType('steps');
+
+    let stepCounter=0;
+
+    const refreshStepNumbers=()=>{
+      [...document.querySelectorAll('.workplan-step-card')].forEach((card,index)=>{
+        const number=card.querySelector('.workplan-step-number');
+        if(number)number.textContent=`Actividad ${index+1}`;
+        const up=card.querySelector('.workplan-step-up');
+        const down=card.querySelector('.workplan-step-down');
+        if(up)up.disabled=index===0;
+        if(down)down.disabled=index===[...document.querySelectorAll('.workplan-step-card')].length-1;
+      });
+    };
+
+    const addStep=()=>{
+      stepCounter++;
+      const list=document.querySelector('#workplan-steps-list');
+      if(!list)return;
+
+      const card=document.createElement('div');
+      card.className='workplan-step-card';
+      card.dataset.stepKey=String(stepCounter);
+      card.style.cssText='border:1px solid var(--border);border-radius:12px;padding:14px;display:grid;gap:10px';
+
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <strong class="workplan-step-number">Actividad</strong>
+          <div style="display:flex;gap:5px">
+            <button type="button" class="ghost workplan-step-up"
+              title="Subir actividad">↑</button>
+            <button type="button" class="ghost workplan-step-down"
+              title="Bajar actividad">↓</button>
+            <button type="button" class="ghost workplan-step-delete"
+              title="Eliminar actividad">🗑</button>
+          </div>
+        </div>
+
+        <label>
+          Título
+          <input class="workplan-step-title"
+            placeholder="Ej. Resuelve las multiplicaciones">
+        </label>
+
+        <label>
+          Qué tiene que hacer
+          <textarea class="workplan-step-content"
+            style="min-height:110px;resize:vertical;line-height:1.5"
+            placeholder="Instrucciones, ejercicios, material necesario..."></textarea>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" class="workplan-step-essential"
+            style="width:auto">
+          <span>⭐ Actividad esencial</span>
+        </label>
+      `;
+
+      card.querySelector('.workplan-step-delete').onclick=()=>{
+        card.remove();
+        refreshStepNumbers();
+      };
+
+      card.querySelector('.workplan-step-up').onclick=e=>{
+        e.preventDefault();
+        const cards=[...list.querySelectorAll('.workplan-step-card')];
+        const index=cards.indexOf(card);
+        if(index>0){
+          list.insertBefore(card,cards[index-1]);
+          refreshStepNumbers();
+        }
+      };
+
+      card.querySelector('.workplan-step-down').onclick=e=>{
+        e.preventDefault();
+        const cards=[...list.querySelectorAll('.workplan-step-card')];
+        const index=cards.indexOf(card);
+        if(index>=0 && index<cards.length-1){
+          list.insertBefore(cards[index+1],card);
+          refreshStepNumbers();
+        }
+      };
+
+      list.appendChild(card);
+      refreshStepNumbers();
+    };
+
+    const addStepBtn=document.querySelector('#workplan-add-step');
+    if(addStepBtn)addStepBtn.onclick=addStep;
+
+    if(stepsBtn){
+      const oldStepsClick=stepsBtn.onclick;
+      stepsBtn.onclick=()=>{
+        oldStepsClick?.();
+        if(!document.querySelector('.workplan-step-card'))addStep();
+      };
+    }
+
+    const checks=()=>[...document.querySelectorAll('.workplan-student')];
+
+    const refreshSelection=()=>{
+      const selected=checks().filter(ch=>ch.checked);
+      const box=document.querySelector('#workplan-selection-count');
+      if(box){
+        const n=selected.length;
+        box.textContent=`${n} ${n===1?'alumno seleccionado':'alumnos seleccionados'}`;
+      }
+
+      checks().forEach(ch=>{
+        const card=ch.closest('.workplan-student-card');
+        const mode=card?.querySelector('.workplan-mode');
+        if(mode)mode.style.display=(ch.checked && planType==='steps')?'block':'none';
+      });
+    };
+
+    checks().forEach(ch=>ch.addEventListener('change',refreshSelection));
 
     const allBtn=document.querySelector('#workplan-select-all');
     if(allBtn)allBtn.onclick=()=>{
       checks().forEach(ch=>ch.checked=true);
-      refreshCount();
+      refreshSelection();
     };
 
     const noneBtn=document.querySelector('#workplan-select-none');
     if(noneBtn)noneBtn.onclick=()=>{
       checks().forEach(ch=>ch.checked=false);
-      refreshCount();
+      refreshSelection();
     };
 
     document.querySelectorAll('.workplan-team-btn').forEach(btn=>{
       btn.onclick=()=>{
-        const team=(data.cooperativeTeams||[]).find(t=>t.id===btn.dataset.team);
+        const team=(data.cooperativeTeams||[]).find(
+          t=>String(t.id)===String(btn.dataset.team)
+        );
         if(!team)return;
 
-        const ids=new Set((team.members||[]).map(m=>String(m.studentId)));
+        const ids=new Set(
+          (team.members||[]).map(m=>String(m.studentId))
+        );
+
         checks().forEach(ch=>{
           if(ids.has(String(ch.value)))ch.checked=true;
         });
-        refreshCount();
+
+        refreshSelection();
       };
     });
 
-    refreshCount();
+    refreshSelection();
+
+    if(saveBtn){
+      saveBtn.onclick=()=>{
+        const fecha=document.querySelector('#workplan-date')?.value;
+        const title=document.querySelector('#workplan-title')?.value.trim();
+        const selected=checks().filter(ch=>ch.checked);
+
+        if(!fecha){
+          toast('Selecciona una fecha.');
+          return;
+        }
+
+        if(!title){
+          toast('Escribe un título para el plan.');
+          return;
+        }
+
+        if(!selected.length){
+          toast('Selecciona al menos un alumno o alumna.');
+          return;
+        }
+
+        const selectedStudents=selected.map(ch=>{
+          const st=(data.students||[]).find(
+            x=>String(x.id)===String(ch.value)
+          );
+          const mode=ch.closest('.workplan-student-card')
+            ?.querySelector('.workplan-student-mode')?.value||'autonomo';
+
+          return {
+            userId:Number(st?.webUserId)||0,
+            modo:mode
+          };
+        });
+
+        if(selectedStudents.some(x=>x.userId<=0)){
+          toast('Hay alumnado seleccionado sin vinculación web.');
+          return;
+        }
+
+        let indicaciones='';
+        let steps=[];
+
+        if(planType==='simple'){
+          indicaciones=document.querySelector('#workplan-content')?.value.trim()||'';
+
+          if(!indicaciones){
+            toast('Escribe el trabajo para el alumnado.');
+            return;
+          }
+        }else{
+          const cards=[...document.querySelectorAll('.workplan-step-card')];
+
+          if(!cards.length){
+            toast('Añade al menos una actividad.');
+            return;
+          }
+
+          steps=cards.map(card=>({
+            titulo:card.querySelector('.workplan-step-title')?.value.trim()||'',
+            contenido:card.querySelector('.workplan-step-content')?.value.trim()||'',
+            esencial:!!card.querySelector('.workplan-step-essential')?.checked
+          }));
+
+          const emptyIndex=steps.findIndex(step=>!step.titulo);
+          if(emptyIndex>=0){
+            toast(`Escribe el título de la actividad ${emptyIndex+1}.`);
+            return;
+          }
+        }
+
+        if(!nativeInvoke){
+          toast('Los planes de trabajo se guardan desde la aplicación de escritorio.');
+          return;
+        }
+
+        const userIds=selectedStudents.map(x=>x.userId);
+        const assignments=selectedStudents.map(x=>({
+          user_id:x.userId,
+          modo:x.modo
+        }));
+
+        saveBtn.disabled=true;
+        saveBtn.textContent='Creando…';
+
+        nativeInvoke('workplans_save',{
+          fecha:fecha,
+          titulo:title,
+          indicaciones:indicaciones,
+          userIds:userIds,
+          steps:steps,
+          assignments:assignments
+        }).then(id=>{
+          document.querySelector('#modal-backdrop')?.classList.remove('show');
+
+          const dateInput=document.querySelector('#planes-trabajo-fecha');
+          if(dateInput)dateInput.value=fecha;
+
+          toast('Plan de trabajo creado.');
+          console.log('workplan created',id);
+          loadWorkPlans();
+        }).catch(err=>{
+          console.error('workplans_save failed',err);
+          toast('No se pudo crear el plan: '+String(err));
+          saveBtn.disabled=false;
+          saveBtn.textContent='Crear plan';
+        });
+      };
+    }
   }
 
   function studentModal(edit=false){const st=edit?student():{name:'',status:'En seguimiento',attendance:100,feedbacks:0,coverage:0,strengths:[],difficulties:[],next:''};modal(edit?'Editar alumno/a':'Añadir alumno/a',`<div class="form-grid"><label>Nombre<input id="m-name" value="${esc(st.name)}"></label><label>Estado<input id="m-status" value="${esc(st.status)}"></label><label>Fortalezas (separadas por coma)<input id="m-strengths" value="${esc(st.strengths.join(', '))}"></label><label>Dificultades (separadas por coma)<input id="m-difficulties" value="${esc(st.difficulties.join(', '))}"></label><label style="grid-column:1/-1">Próximo paso<textarea id="m-next">${esc(st.next)}</textarea></label></div>`,()=>{const name=document.querySelector('#m-name').value.trim();if(!name){toast('El nombre es obligatorio.');return false}const obj={...st,name,status:document.querySelector('#m-status').value.trim(),strengths:document.querySelector('#m-strengths').value.split(',').map(x=>x.trim()).filter(Boolean),difficulties:document.querySelector('#m-difficulties').value.split(',').map(x=>x.trim()).filter(Boolean),next:document.querySelector('#m-next').value.trim()};if(edit)Object.assign(st,obj);else{obj.id=uid('student');data.students.push(obj);data.evidence[obj.id]={};data.selectedStudentId=obj.id}save(edit?'Alumno actualizado':'Alumno añadido');});}

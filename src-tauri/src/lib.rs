@@ -382,6 +382,22 @@ async fn workplans_students() -> Result<Vec<WorkplansStudent>, String> {
 
 
 #[derive(Debug, Serialize, Deserialize)]
+struct WorkplanStepProgress {
+    step_id: i64,
+    completado: bool,
+    completado_at: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplanStep {
+    id: i64,
+    orden: i64,
+    titulo: String,
+    contenido: String,
+    esencial: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct WorkplansAssignment {
     id: i64,
     user_id: i64,
@@ -389,12 +405,16 @@ struct WorkplansAssignment {
     username: String,
     avatar: String,
     estado: String,
+    modo: String,
     autoevaluacion: Option<String>,
     comentario_alumno: Option<String>,
     alumno_updated_at: Option<String>,
+    finalizado_at: Option<String>,
+    ultima_actividad_at: Option<String>,
     valoracion_docente: Option<String>,
     comentario_docente: Option<String>,
     docente_updated_at: Option<String>,
+    step_progress: Vec<WorkplanStepProgress>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -405,6 +425,7 @@ struct WorkplanItem {
     indicaciones: Option<String>,
     created_at: String,
     updated_at: String,
+    steps: Vec<WorkplanStep>,
     assignments: Vec<WorkplansAssignment>,
 }
 
@@ -415,12 +436,27 @@ struct WorkplansListResponse {
     error: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplansSaveStep {
+    titulo: String,
+    contenido: String,
+    esencial: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WorkplansSaveAssignment {
+    user_id: i64,
+    modo: String,
+}
+
 #[derive(Debug, Serialize)]
 struct WorkplansSaveRequest {
     fecha: String,
     titulo: String,
     indicaciones: String,
     user_ids: Vec<i64>,
+    steps: Vec<WorkplansSaveStep>,
+    assignments: Vec<WorkplansSaveAssignment>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -483,6 +519,8 @@ async fn workplans_save(
     titulo: String,
     indicaciones: String,
     user_ids: Vec<i64>,
+    steps: Vec<WorkplansSaveStep>,
+    assignments: Vec<WorkplansSaveAssignment>,
 ) -> Result<i64, String> {
     let token = countdown_keychain_get()?;
 
@@ -499,6 +537,8 @@ async fn workplans_save(
             titulo,
             indicaciones,
             user_ids,
+            steps,
+            assignments,
         })
         .send()
         .await
