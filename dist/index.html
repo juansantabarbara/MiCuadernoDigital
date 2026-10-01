@@ -2712,6 +2712,20 @@
             </div>
           </div>
 
+          <div class="card" id="student-workplans-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div>
+                <h3 style="margin-bottom:4px">☑ Planes de trabajo</h3>
+                <div class="small">Seguimiento del trabajo individual del alumno.</div>
+              </div>
+              <span class="pill" id="student-workplans-summary">—</span>
+            </div>
+
+            <div id="student-workplans-list" style="margin-top:14px">
+              <div class="small">Cargando planes de trabajo…</div>
+            </div>
+          </div>
+
           <div class="card">
             <h3>Timeline temporal</h3>
             <div class="timeline">
@@ -4332,6 +4346,7 @@
       if(cols[2]) cols[2].innerHTML='<h4>Próximos pasos</h4><p>'+esc(st.next||'Recoger nuevas evidencias y revisar la evolución.')+'</p>';
     }
     renderTimeline(st.id);
+    renderStudentWorkPlans(st);
 
     const diaryBtn=document.querySelector('#student-open-diary');
     if(diaryBtn){
@@ -4345,6 +4360,93 @@
       };
     }
   }
+  function renderStudentWorkPlans(st){
+    const box=document.querySelector('#student-workplans-list');
+    const summary=document.querySelector('#student-workplans-summary');
+    if(!box||!summary)return;
+
+    const webUserId=Number(st.webUserId||0);
+
+    if(!webUserId){
+      summary.textContent='Sin vincular';
+      box.innerHTML='<div class="small">Este alumno no está vinculado con recursosdocentes.info.</div>';
+      return;
+    }
+
+    const items=(workPlansCache||[]).flatMap(plan=>
+      (plan.assignments||[])
+        .filter(a=>Number(a.user_id)===webUserId)
+        .map(a=>({plan,assignment:a}))
+    ).sort((x,y)=>
+      String(y.plan.fecha||'').localeCompare(String(x.plan.fecha||'')) ||
+      Number(y.plan.id||0)-Number(x.plan.id||0)
+    );
+
+    renderStudentWorkPlanItems(st,items,box,summary);
+  }
+
+  function renderStudentWorkPlanItems(st,items,box,summary){
+    if(!items.length){
+      summary.textContent='Sin planes';
+      box.innerHTML='<div class="small">Todavía no hay planes de trabajo asignados a este alumno.</div>';
+      return;
+    }
+
+    const done=items.filter(x=>x.assignment.estado==='terminado').length;
+    summary.textContent=`${done}/${items.length} terminados`;
+
+    box.innerHTML=items.map(({plan,assignment:a})=>{
+      const estado=a.estado||'pendiente';
+
+      const estadoLabel={
+        pendiente:'○ Pendiente',
+        trabajando:'▶ Trabajando',
+        terminado:'✓ Terminado'
+      }[estado]||estado;
+
+      const autoLabel={
+        solo:'😊 Lo ha hecho solo',
+        ayuda:'🤝 Ha necesitado ayuda',
+        revisar:'🙋 Necesita revisión'
+      }[a.autoevaluacion]||'';
+
+      const teacherLabel={
+        conseguido:'🟢 Conseguido',
+        con_ayuda:'🟡 Con ayuda',
+        reforzar:'🔴 Necesita reforzar'
+      }[a.valoracion_docente]||'';
+
+      const alumnoComment=(a.comentario_alumno||'').trim();
+      const teacherComment=(a.comentario_docente||'').trim();
+
+      return `
+        <div style="border:1px solid var(--border);border-radius:14px;
+          padding:12px 14px;margin-top:10px">
+
+          <div style="display:flex;justify-content:space-between;
+            align-items:flex-start;gap:12px;flex-wrap:wrap">
+            <div>
+              <strong>${esc(plan.titulo||'Plan de trabajo')}</strong>
+              <div class="small" style="margin-top:3px">${esc(plan.fecha||'')}</div>
+            </div>
+            <span class="small">${esc(estadoLabel)}</span>
+          </div>
+
+          ${autoLabel?`<div class="small" style="margin-top:8px">${esc(autoLabel)}</div>`:''}
+          ${alumnoComment?`<div class="small" style="margin-top:5px">💬 “${esc(alumnoComment)}”</div>`:''}
+
+          <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--border)">
+            <div class="small"><strong>Valoración docente · privada</strong></div>
+            <div class="small" style="margin-top:4px">
+              ${teacherLabel?esc(teacherLabel):'Sin valorar'}
+            </div>
+            ${teacherComment?`<div class="small" style="margin-top:4px">📝 ${esc(teacherComment)}</div>`:''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function buildInterpretation(st){
     const cur=studentIntelligenceCurricularSummary(st.id);
     const parts=[];
@@ -11457,6 +11559,14 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
         const comentario=(a.comentario_alumno||'').trim();
 
+        const teacherLabel={
+          conseguido:'Conseguido',
+          con_ayuda:'Con ayuda',
+          reforzar:'Necesita reforzar'
+        }[a.valoracion_docente]||'';
+
+        const teacherComment=(a.comentario_docente||'').trim();
+
         return `
           <div style="border:1px solid var(--border);
             border-radius:14px;padding:10px 12px;margin-top:8px">
@@ -11478,6 +11588,40 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
                 💬 “${esc(comentario)}”
               </div>
             `:''}
+
+            <div style="margin-top:10px;padding-top:9px;
+              border-top:1px solid var(--border);
+              display:flex;justify-content:space-between;
+              gap:12px;align-items:flex-start;flex-wrap:wrap">
+
+              <div>
+                <div class="small"><strong>Valoración docente</strong></div>
+
+                ${teacherLabel?`
+                  <div class="small" style="margin-top:4px">
+                    ${esc(teacherLabel)}
+                  </div>
+                `:`
+                  <div class="small" style="margin-top:4px">
+                    Sin valorar
+                  </div>
+                `}
+
+                ${teacherComment?`
+                  <div class="small" style="margin-top:4px">
+                    📝 ${esc(teacherComment)}
+                  </div>
+                `:''}
+              </div>
+
+              <button type="button"
+                class="ghost workplan-evaluate"
+                data-assignment-id="${Number(a.id)}"
+                data-student-name="${esc(name)}"
+                style="padding:6px 9px">
+                ${teacherLabel?'Editar valoración':'Valorar'}
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -11523,6 +11667,121 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         btn.dataset.workplanTitle||'este plan'
       );
     });
+
+    document.querySelectorAll('.workplan-evaluate').forEach(btn=>{
+      btn.onclick=()=>{
+        const assignmentId=Number(btn.dataset.assignmentId);
+        const assignment=workPlansCache
+          .flatMap(plan=>plan.assignments||[])
+          .find(a=>Number(a.id)===assignmentId);
+
+        if(assignment){
+          evaluateWorkPlanAssignment(
+            assignment,
+            btn.dataset.studentName||'Alumno'
+          );
+        }
+      };
+    });
+  }
+
+  function evaluateWorkPlanAssignment(assignment,studentName){
+    if(!assignment?.id||!nativeInvoke)return;
+
+    const current=assignment.valoracion_docente||'';
+    const comment=assignment.comentario_docente||'';
+
+    modal('Valoración docente',`
+      <div style="margin-bottom:14px">
+        <strong>${esc(studentName)}</strong>
+        <div class="small" style="margin-top:4px">
+          Esta valoración es privada y no se muestra al alumno.
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);
+        gap:10px">
+
+        <label class="workplan-rating-option"
+          style="display:flex;align-items:center;justify-content:center;
+          gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;
+          text-align:center;background:#e8f5e9;border:1px solid #a5d6a7">
+          <input type="radio" name="workplan-teacher-rating"
+            value="conseguido" style="width:auto"
+            ${current==='conseguido'?'checked':''}>
+          <span>🟢 <strong>Conseguido</strong></span>
+        </label>
+
+        <label class="workplan-rating-option"
+          style="display:flex;align-items:center;justify-content:center;
+          gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;
+          text-align:center;background:#fff8e1;border:1px solid #ffe082">
+          <input type="radio" name="workplan-teacher-rating"
+            value="con_ayuda" style="width:auto"
+            ${current==='con_ayuda'?'checked':''}>
+          <span>🟡 <strong>Con ayuda</strong></span>
+        </label>
+
+        <label class="workplan-rating-option"
+          style="display:flex;align-items:center;justify-content:center;
+          gap:7px;padding:11px 8px;border-radius:12px;cursor:pointer;
+          text-align:center;background:#ffebee;border:1px solid #ef9a9a">
+          <input type="radio" name="workplan-teacher-rating"
+            value="reforzar" style="width:auto"
+            ${current==='reforzar'?'checked':''}>
+          <span>🔴 <strong>Necesita reforzar</strong></span>
+        </label>
+
+      </div>
+
+      <label style="display:block;margin-top:16px">
+        <span class="small">Observación docente (opcional)</span>
+        <textarea id="workplan-teacher-comment"
+          rows="4"
+          style="margin-top:6px"
+          placeholder="Añade una observación si lo necesitas…">${esc(comment)}</textarea>
+      </label>
+    `,()=>false);
+
+    const saveBtn=document.querySelector('#modal-save');
+    if(!saveBtn)return;
+
+    saveBtn.disabled=false;
+    saveBtn.textContent='Guardar valoración';
+
+    saveBtn.onclick=async()=>{
+      const selected=document.querySelector(
+        'input[name="workplan-teacher-rating"]:checked'
+      );
+
+      if(!selected){
+        toast('Selecciona una valoración.');
+        return;
+      }
+
+      const comentarioDocente=
+        document.querySelector('#workplan-teacher-comment')?.value.trim()||'';
+
+      saveBtn.disabled=true;
+      saveBtn.textContent='Guardando…';
+
+      try{
+        await nativeInvoke('workplans_evaluate',{
+          assignmentId:Number(assignment.id),
+          valoracionDocente:selected.value,
+          comentarioDocente
+        });
+
+        document.querySelector('#modal-backdrop')?.classList.remove('show');
+        toast('Valoración docente guardada.');
+        await loadWorkPlans();
+      }catch(err){
+        console.error('workplans_evaluate failed',err);
+        toast('No se pudo guardar la valoración: '+String(err));
+        saveBtn.disabled=false;
+        saveBtn.textContent='Guardar valoración';
+      }
+    };
   }
 
   function deleteWorkPlan(id,title){
@@ -11580,6 +11839,11 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       if(box)box.innerHTML='<div class="small">Cargando planes de trabajo…</div>';
       workPlansCache=await nativeInvoke('workplans_list');
       renderWorkPlans();
+
+      const currentStudent=student();
+      if(currentStudent){
+        renderStudentWorkPlans(currentStudent);
+      }
     }catch(err){
       console.error('workplans_list failed',err);
       if(box)box.innerHTML=`

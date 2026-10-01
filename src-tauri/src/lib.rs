@@ -435,6 +435,13 @@ struct WorkplansDeleteRequest {
     id: i64,
 }
 
+#[derive(Debug, Serialize)]
+struct WorkplansEvaluateRequest {
+    assignment_id: i64,
+    valoracion_docente: String,
+    comentario_docente: String,
+}
+
 #[derive(Debug, Deserialize)]
 struct WorkplansActionResponse {
     ok: bool,
@@ -523,6 +530,44 @@ async fn workplans_delete(id: i64) -> Result<(), String> {
         .post(format!("{WORKPLANS_API_URL}?action=delete"))
         .bearer_auth(token)
         .json(&WorkplansDeleteRequest { id })
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansActionResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn workplans_evaluate(
+    assignment_id: i64,
+    valoracion_docente: String,
+    comentario_docente: String,
+) -> Result<(), String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{WORKPLANS_API_URL}?action=evaluate"))
+        .bearer_auth(token)
+        .json(&WorkplansEvaluateRequest {
+            assignment_id,
+            valoracion_docente,
+            comentario_docente,
+        })
         .send()
         .await
         .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
@@ -1929,7 +1974,8 @@ pub fn run() {
             workplans_students,
             workplans_list,
             workplans_save,
-            workplans_delete
+            workplans_delete,
+            workplans_evaluate
         ])
         .run(tauri::generate_context!())
         .expect("error while running MiCuadernoDigital");
