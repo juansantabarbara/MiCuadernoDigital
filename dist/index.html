@@ -2622,6 +2622,30 @@
           <button class="secondary" id="plan-dia-siguiente" type="button">›</button>
           <button class="ghost" id="plan-ir-hoy" type="button">Hoy</button>
         </div>
+
+        <div style="display:flex;justify-content:space-between;
+          align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px">
+
+          <div id="workplan-filters"
+            style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="secondary workplan-filter"
+              data-filter="todos" type="button">Todos</button>
+            <button class="ghost workplan-filter"
+              data-filter="trabajando" type="button">▶ Trabajando</button>
+            <button class="ghost workplan-filter"
+              data-filter="atencion" type="button">🙋 Necesitan atención</button>
+            <button class="ghost workplan-filter"
+              data-filter="finalizados" type="button">🏁 Finalizados</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:9px">
+            <span class="small" id="workplans-updated-at"></span>
+            <button class="ghost no-print" id="workplans-refresh"
+              type="button" title="Actualizar seguimiento">
+              ↻ Actualizar
+            </button>
+          </div>
+        </div>
       </div>
 
       <div id="planes-trabajo-lista" style="margin-top:18px">
@@ -11497,6 +11521,65 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelector('#modal-backdrop').onclick=e=>{if(e.target.id==='modal-backdrop')e.currentTarget.classList.remove('show')};
 
   let workPlansCache=[];
+  let workPlansFilter='todos';
+  let workPlansLastUpdated=null;
+  let workPlansRefreshing=false;
+
+  function workPlansSectionVisible(){
+    const section=document.querySelector('#planes-trabajo');
+    return !!section && (
+      section.classList.contains('active') ||
+      section.offsetParent!==null
+    );
+  }
+
+  function updateWorkPlansFreshness(){
+    const el=document.querySelector('#workplans-updated-at');
+    if(!el)return;
+
+    if(!workPlansLastUpdated){
+      el.textContent='';
+      return;
+    }
+
+    const seconds=Math.max(
+      0,
+      Math.floor((Date.now()-workPlansLastUpdated)/1000)
+    );
+
+    if(seconds<10){
+      el.textContent='Actualizado ahora';
+    }else if(seconds<60){
+      el.textContent=`Actualizado hace ${seconds} s`;
+    }else{
+      const minutes=Math.floor(seconds/60);
+      el.textContent=`Actualizado hace ${minutes} min`;
+    }
+  }
+
+  function workPlanAssignmentMatchesFilter(a){
+    if(workPlansFilter==='trabajando'){
+      return a.estado==='trabajando';
+    }
+
+    if(workPlansFilter==='atencion'){
+      return a.autoevaluacion==='revisar';
+    }
+
+    if(workPlansFilter==='finalizados'){
+      return a.estado==='terminado';
+    }
+
+    return true;
+  }
+
+  function updateWorkPlanFilterButtons(){
+    document.querySelectorAll('.workplan-filter').forEach(btn=>{
+      const active=btn.dataset.filter===workPlansFilter;
+      btn.classList.toggle('secondary',active);
+      btn.classList.toggle('ghost',!active);
+    });
+  }
 
   function workPlanStudentName(userId){
     const st=(data.students||[]).find(
@@ -11531,10 +11614,15 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       return;
     }
 
-    box.innerHTML=plans.map(plan=>{
-      const assignments=plan.assignments||[];
+    const renderedPlans=plans.map(plan=>{
+      const allAssignments=plan.assignments||[];
+      const assignments=allAssignments.filter(
+        a=>workPlanAssignmentMatchesFilter(a)
+      );
       const steps=plan.steps||[];
       const isActivityPlan=steps.length>0;
+
+      if(!assignments.length)return '';
 
       const pupils=assignments.map(a=>{
         const name=a.nombre||workPlanStudentName(a.user_id);
@@ -11809,6 +11897,42 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       `;
     }).join('');
 
+    if(!renderedPlans.trim()){
+      const emptyMessages={
+        trabajando:[
+          '▶',
+          'No hay alumnos trabajando ahora',
+          'Cuando algún alumno empiece su plan, aparecerá aquí.'
+        ],
+        atencion:[
+          '🙋',
+          'Nadie ha indicado que necesite atención',
+          'Aquí aparecerán únicamente quienes marquen que necesitan revisión.'
+        ],
+        finalizados:[
+          '🏁',
+          'No hay alumnos finalizados',
+          'Los trabajos terminados aparecerán aquí.'
+        ]
+      };
+
+      const info=emptyMessages[workPlansFilter]||[
+        '☑',
+        'No hay alumnos en esta situación',
+        'Prueba con otro filtro.'
+      ];
+
+      box.innerHTML=`
+        <div class="card" style="text-align:center;padding:34px 20px">
+          <div style="font-size:30px;margin-bottom:8px">${info[0]}</div>
+          <strong>${info[1]}</strong>
+          <div class="small" style="margin-top:6px">${info[2]}</div>
+        </div>
+      `;
+    }else{
+      box.innerHTML=renderedPlans;
+    }
+
     document.querySelectorAll('.workplan-detail-toggle').forEach(btn=>{
       btn.onclick=()=>{
         const detail=document.getElementById(btn.dataset.detailId);
@@ -12000,6 +12124,8 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     try{
       if(box)box.innerHTML='<div class="small">Cargando planes de trabajo…</div>';
       workPlansCache=await nativeInvoke('workplans_list');
+      workPlansLastUpdated=Date.now();
+      updateWorkPlansFreshness();
       renderWorkPlans();
 
       const currentStudent=student();
@@ -12497,6 +12623,39 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     input.value=today();
     renderWorkPlans();
   };
+
+  document.querySelectorAll('.workplan-filter').forEach(btn=>{
+    btn.onclick=()=>{
+      workPlansFilter=btn.dataset.filter||'todos';
+      updateWorkPlanFilterButtons();
+      renderWorkPlans();
+    };
+  });
+  updateWorkPlanFilterButtons();
+
+  const workPlansRefresh=document.querySelector('#workplans-refresh');
+  if(workPlansRefresh)workPlansRefresh.onclick=async()=>{
+    if(workPlansRefreshing)return;
+    workPlansRefreshing=true;
+    workPlansRefresh.disabled=true;
+    workPlansRefresh.textContent='↻ Actualizando…';
+
+    try{
+      await loadWorkPlans();
+    }finally{
+      workPlansRefreshing=false;
+      workPlansRefresh.disabled=false;
+      workPlansRefresh.textContent='↻ Actualizar';
+    }
+  };
+
+  setInterval(updateWorkPlansFreshness,10000);
+
+  setInterval(()=>{
+    if(workPlansSectionVisible()&&!workPlansRefreshing){
+      loadWorkPlans();
+    }
+  },180000);
 
   const newWorkPlanBtn=document.querySelector('#nuevo-plan-trabajo');
   if(newWorkPlanBtn)newWorkPlanBtn.onclick=()=>workPlanModal();
