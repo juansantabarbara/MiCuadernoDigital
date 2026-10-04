@@ -1,7 +1,7 @@
 {
   "name": "micuadernodigital",
   "private": true,
-  "version": "0.4.4",
+  "version": "0.4.4-hotfix.1",
   "description": "MiCuadernoDigital · escritorio macOS + SQLite",
   "scripts": {
     "tauri": "tauri",
