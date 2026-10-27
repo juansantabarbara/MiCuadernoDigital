@@ -3447,6 +3447,7 @@
   const nativeInvoke=window.__TAURI__?.core?.invoke || null;
   const nativeMode=!!nativeInvoke;
   let nativeSaveTimer=null;
+  let nativeSavePromise=Promise.resolve();
   let googleSyncTimer=null;
   let googleStatusCache={connected:false,client_id:'',calendar_id:'',calendar_name:'MiCuadernoDigital',last_sync_at:'',detail:'No conectado.'};
   function persistState(){
@@ -3454,9 +3455,49 @@
     localStorage.setItem(STORAGE_KEY,payload);
     if(nativeMode){
       clearTimeout(nativeSaveTimer);
-      nativeSaveTimer=setTimeout(()=>nativeInvoke('save_state',{stateJson:payload}).catch(err=>{console.error('SQLite save failed',err);updateDbStatus(false,String(err))}),120);
+      nativeSaveTimer=setTimeout(()=>{
+        nativeSavePromise=nativeSavePromise.catch(()=>{}).then(()=>
+          nativeInvoke('save_state',{stateJson:payload})
+        ).catch(err=>{
+          console.error('SQLite save failed',err);
+          updateDbStatus(false,String(err));
+          throw err;
+        });
+      },120);
     }
   }
+  let closingAfterSave=false;
+
+  async function installSafeClose(){
+    if(!nativeMode || !window.__TAURI__?.window?.getCurrentWindow)return;
+
+    const appWindow=window.__TAURI__.window.getCurrentWindow();
+
+    await appWindow.onCloseRequested(async event=>{
+      if(closingAfterSave)return;
+
+      event.preventDefault();
+
+      try{
+        clearTimeout(nativeSaveTimer);
+
+        await nativeSavePromise;
+
+        await nativeInvoke('save_state',{
+          stateJson:JSON.stringify(data)
+        });
+
+        closingAfterSave=true;
+        await appWindow.close();
+      }catch(error){
+        closingAfterSave=false;
+        console.error('No se pudo guardar antes de cerrar:',error);
+        updateDbStatus(false,String(error));
+        alert('No se ha podido guardar el cuaderno. La aplicación permanecerá abierta para evitar perder cambios.');
+      }
+    });
+  }
+
   async function hydrateFromDatabase(){
     if(!nativeMode)return;
     try{
@@ -6127,6 +6168,26 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     if(summary){summary.textContent=(units.length||tt.length)?`Hoy tienes ${units.length} sesión(es) programada(s) desde tus situaciones y ${tt.length} franja(s) en el horario.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:'No quedan evidencias pendientes.'}`:`No hay sesiones programadas desde situaciones para hoy.  ${absent.length?`Hay ${absent.length} ausencia(s) registrada(s). `:''}${pending.length?`Quedan ${pending.length} evidencias por completar.`:''}`;}
     if(pills)pills.innerHTML=`<span class="pill ${absent.length?'yellow':'green'}">${absent.length?absent.length+' ausente(s)':'Asistencia sin faltas'}</span><span class="pill ${pending.length?'yellow':'green'}">${pending.length?pending.length+' evidencias pendientes':'Evidencias al día'}</span><span class="pill ${alerts.length?'red':'green'}">${alerts.length?alerts.length+' alertas':'Sin alertas'}</span>`;
   }
+  let timetableSyncTimer=null;
+  function syncGroupTimetable(){
+    if(!nativeMode)return;
+    clearTimeout(timetableSyncTimer);
+    timetableSyncTimer=setTimeout(async()=>{
+      const rows=(data.settings.timetable||[]).map(row=>{
+        const match=String(row.time||'').match(/^\s*(\d{2}:\d{2})\s*[-–]\s*(\d{2}:\d{2})\s*$/);
+        if(!match)return null;
+        return {start:match[1],end:match[2],
+          days:[0,1,2,3,4].map(i=>String((row.days||[])[i]||''))};
+      }).filter(Boolean);
+      if(!rows.length)return;
+      try{
+        await nativeInvoke('workplans_sync_timetable',{rows});
+        console.info('Horario del grupo sincronizado en entorno local.');
+      }catch(err){
+        console.warn('Horario sin sincronizar:',err);
+      }
+    },800);
+  }
   function renderTimetable(){
     const body=document.querySelector('#timetable-body');if(!body)return;
     const rows=data.settings.timetable||[];
@@ -6160,12 +6221,14 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       const [ri,di]=inp.dataset.tt.split('|').map(Number);
       data.settings.timetable[ri].days[di]=inp.value;
       persistState();
+      syncGroupTimetable();
       toast('Horario guardado');
     });
 
     body.querySelectorAll('[data-time-row]').forEach(inp=>inp.onchange=()=>{
       data.settings.timetable[Number(inp.dataset.timeRow)].time=inp.value;
       persistState();
+      syncGroupTimetable();
       toast('Franja guardada');
     });
 
@@ -6174,6 +6237,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       if(sel.value)data.settings.timetableGroups[key]=sel.value;
       else delete data.settings.timetableGroups[key];
       persistState();
+      syncGroupTimetable();
       toast(sel.value?'Grupo docente asignado':'Aula completa asignada');
     });
   }
@@ -6185,6 +6249,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       days:['','','','','']
     });
     save('Franja añadida');
+    syncGroupTimetable();
   }
 
   function resetTimetable(){
@@ -6195,6 +6260,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       });
       data.settings.timetableGroups={};
       save('Horario restablecido');
+      syncGroupTimetable();
     }
   }
 
@@ -11594,7 +11660,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
     if(!box||!dateInput)return;
 
     const fecha=dateInput.value;
-    const plans=(workPlansCache||[]).filter(p=>p.fecha===fecha);
+    const plans=(workPlansCache||[]).filter(p=>(p.fecha_programada||p.fecha)===fecha);
 
     if(!plans.length){
       box.innerHTML=`
@@ -11884,6 +11950,15 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
               </div>
 
               <button type="button"
+                class="ghost workplan-reschedule"
+                data-workplan-id="${Number(plan.id)}"
+                data-workplan-title="${esc(plan.titulo)}"
+                style="padding:6px 9px"
+                title="Cambiar la fecha del plan">
+                📅 Reprogramar
+              </button>
+
+              <button type="button"
                 class="ghost workplan-delete"
                 data-workplan-id="${Number(plan.id)}"
                 data-workplan-title="${esc(plan.titulo)}"
@@ -11944,6 +12019,79 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
         btn.textContent=opening
           ? '▴ Ocultar seguimiento'
           : '▾ Ver seguimiento';
+      };
+    });
+
+    document.querySelectorAll('.workplan-reschedule').forEach(btn=>{
+      btn.onclick=()=>{
+        const id=Number(btn.dataset.workplanId);
+        const plan=(workPlansCache||[]).find(p=>Number(p.id)===id);
+
+        if(!plan){
+          alert('No se ha encontrado el plan. Actualiza la lista.');
+          return;
+        }
+
+        const anterior=document.querySelector('#workplan-reschedule-form');
+        if(anterior)anterior.remove();
+
+        const formulario=document.createElement('div');
+        formulario.id='workplan-reschedule-form';
+        formulario.style.cssText='padding:14px;margin-top:10px;border:1px solid #ccc;border-radius:10px;background:var(--card,#fff);';
+
+        const titulo=document.createElement('strong');
+        titulo.textContent='Nueva fecha para: '+plan.titulo;
+
+        const fechaInput=document.createElement('input');
+        fechaInput.type='date';
+        fechaInput.value=plan.fecha_programada||plan.fecha;
+        fechaInput.style.cssText='display:block;margin:12px 0;width:100%;max-width:240px;';
+
+        const guardar=document.createElement('button');
+        guardar.type='button';
+        guardar.className='primary';
+        guardar.textContent='Guardar nueva fecha';
+
+        const cancelar=document.createElement('button');
+        cancelar.type='button';
+        cancelar.className='ghost';
+        cancelar.textContent='Cancelar';
+        cancelar.style.marginLeft='8px';
+
+        cancelar.onclick=()=>formulario.remove();
+
+        guardar.onclick=async()=>{
+          const fecha=fechaInput.value;
+
+          if(!fecha){
+            alert('Selecciona una fecha.');
+            return;
+          }
+
+          if(fecha===(plan.fecha_programada||plan.fecha)){
+            formulario.remove();
+            return;
+          }
+
+          guardar.disabled=true;
+
+          try{
+            await nativeInvoke('workplans_reschedule',{
+              id,
+              fechaProgramada:fecha===plan.fecha?'':fecha
+            });
+
+            document.querySelector('#planes-trabajo-fecha').value=fecha;
+            await loadWorkPlans();
+            toast('Plan reprogramado correctamente.');
+          }catch(error){
+            guardar.disabled=false;
+            alert('No se pudo reprogramar el plan: '+error);
+          }
+        };
+
+        formulario.append(titulo,fechaInput,guardar,cancelar);
+        btn.parentElement.parentElement.appendChild(formulario);
       };
     });
 
@@ -12926,6 +13074,8 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
   document.querySelector('#update-install').onclick=installAppUpdate;
 
   await hydrateFromDatabase();
+  await installSafeClose();
+  syncGroupTimetable();
   await refreshGoogleStatus();
   migrateAllGrades();
   syncCurricularEvidenceColumns();

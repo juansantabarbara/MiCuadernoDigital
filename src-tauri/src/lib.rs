@@ -337,6 +337,42 @@ const COUNTDOWN_API_URL: &str = "https://recursosdocentes.info/private/countdown
 const WORKPLANS_API_URL: &str = "https://recursosdocentes.info/private/workplans_api.php";
 
 #[derive(Debug, Serialize, Deserialize)]
+struct WorkplansTimetableRow {
+    start: String,
+    end: String,
+    days: Vec<String>,
+}
+
+#[tauri::command]
+async fn workplans_sync_timetable(rows: Vec<WorkplansTimetableRow>) -> Result<(), String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{WORKPLANS_API_URL}?action=sync_timetable"))
+        .bearer_auth(token)
+        .json(&json_value!({ "rows": rows }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta del servidor no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error").and_then(Value::as_str)
+            .unwrap_or("No se pudo sincronizar el horario.").to_string());
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct WorkplansStudent {
     id: i64,
     nombre: String,
@@ -421,6 +457,7 @@ struct WorkplansAssignment {
 struct WorkplanItem {
     id: i64,
     fecha: String,
+    fecha_programada: Option<String>,
     titulo: String,
     indicaciones: Option<String>,
     created_at: String,
@@ -555,6 +592,39 @@ async fn workplans_save(
     }
 
     data.id.ok_or_else(|| "El servidor no devolvió el identificador del plan.".to_string())
+}
+
+#[tauri::command]
+async fn workplans_reschedule(id: i64, fecha_programada: String) -> Result<(), String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
+
+    let resp = client
+        .post(format!("{WORKPLANS_API_URL}?action=reschedule"))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "id": id,
+            "fecha_programada": fecha_programada
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+
+    let data: WorkplansActionResponse = serde_json::from_str(&text)
+        .map_err(|_| format!("El servidor devolvió una respuesta no válida ({status})."))?;
+
+    if !status.is_success() || !data.ok {
+        return Err(data.error.unwrap_or_else(|| format!("El servidor respondió {status}.")));
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -2014,8 +2084,10 @@ pub fn run() {
             workplans_students,
             workplans_list,
             workplans_save,
+            workplans_reschedule,
             workplans_delete,
-            workplans_evaluate
+            workplans_evaluate,
+            workplans_sync_timetable
         ])
         .run(tauri::generate_context!())
         .expect("error while running MiCuadernoDigital");

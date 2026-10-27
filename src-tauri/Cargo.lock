@@ -2106,7 +2106,7 @@ dependencies = [
 
 [[package]]
 name = "micuadernodigital"
-version = "0.4.4-hotfix.1"
+version = "0.4.5"
 dependencies = [
  "base64 0.22.1",
  "chrono",
