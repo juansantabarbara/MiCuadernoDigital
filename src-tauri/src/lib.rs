@@ -336,6 +336,48 @@ const COUNTDOWN_API_URL: &str = "https://recursosdocentes.info/private/countdown
 
 const WORKPLANS_API_URL: &str = "https://recursosdocentes.info/private/workplans_api.php";
 
+#[tauri::command]
+async fn workplans_get_timetable() -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .get(format!(
+            "{}?action=get_timetable",
+            if cfg!(debug_assertions) {
+                "http://127.0.0.1:8000/private/workplans_api.php"
+            } else {
+                WORKPLANS_API_URL
+            }
+        ))
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con recursosdocentes.info: {e}"))?;
+
+    let status = response.status();
+
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta del servidor no válida: {e}"))?;
+
+    if !status.is_success()
+        || body.get("ok").and_then(Value::as_bool) != Some(true)
+    {
+        return Err(
+            body.get("error")
+                .and_then(Value::as_str)
+                .unwrap_or("No se pudo consultar el horario.")
+                .to_string()
+        );
+    }
+
+    Ok(body)
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct WorkplansTimetableRow {
     start: String,
@@ -434,6 +476,14 @@ struct WorkplanStep {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+struct WorkplanReflection {
+    fecha: String,
+    autoevaluacion: Option<String>,
+    logros: String,
+    necesidades: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct WorkplansAssignment {
     id: i64,
     user_id: i64,
@@ -450,6 +500,14 @@ struct WorkplansAssignment {
     valoracion_docente: Option<String>,
     comentario_docente: Option<String>,
     docente_updated_at: Option<String>,
+    #[serde(default)]
+    reflexiones: Vec<WorkplanReflection>,
+    #[serde(default)]
+    sesion_activa: bool,
+    #[serde(default)]
+    sesion_inicio: Option<String>,
+    #[serde(default)]
+    sesion_fin: Option<String>,
     step_progress: Vec<WorkplanStepProgress>,
 }
 
@@ -521,6 +579,165 @@ struct WorkplansActionResponse {
     error: Option<String>,
 }
 
+
+/* ---------- ACTIVIDADES DE TRABAJO AUTÓNOMO ---------- */
+
+fn autonomo_api_url() -> &'static str {
+    if cfg!(debug_assertions) {
+        "http://127.0.0.1:8000/private/workplans_api.php"
+    } else {
+        WORKPLANS_API_URL
+    }
+}
+
+#[tauri::command]
+async fn autonomo_bloques_list(semana_inicio: String) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .get(format!("{}?action=autonomo_bloques_list", autonomo_api_url()))
+        .bearer_auth(token)
+        .query(&[("semana_inicio", semana_inicio)])
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudieron consultar los bloques.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_bloques_save(
+    semana_inicio: String,
+    asignatura: String,
+    titulo: String,
+    contenido_general: String,
+) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=autonomo_bloques_save", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "semana_inicio": semana_inicio,
+            "asignatura": asignatura,
+            "titulo": titulo,
+            "contenido_general": contenido_general
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudo guardar el bloque.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_actividades_list(semana_inicio: String) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .get(format!("{}?action=autonomo_actividades_list", autonomo_api_url()))
+        .bearer_auth(token)
+        .query(&[("semana_inicio", semana_inicio)])
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudieron consultar las actividades.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_actividades_save(
+    bloque_id: i64,
+    semana_inicio: String,
+    asignatura: String,
+    titulo: String,
+    instrucciones: String,
+    prioridad: String,
+    minutos_estimados: i64,
+    materiales: String,
+) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=autonomo_actividades_save", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "bloque_id": bloque_id,
+            "semana_inicio": semana_inicio,
+            "asignatura": asignatura,
+            "titulo": titulo,
+            "instrucciones": instrucciones,
+            "prioridad": prioridad,
+            "minutos_estimados": minutos_estimados,
+            "materiales": materiales
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudo guardar la actividad.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
 #[tauri::command]
 async fn workplans_list() -> Result<Vec<WorkplanItem>, String> {
     let token = countdown_keychain_get()?;
@@ -531,7 +748,7 @@ async fn workplans_list() -> Result<Vec<WorkplanItem>, String> {
         .map_err(|e| format!("No se pudo preparar la conexión: {e}"))?;
 
     let resp = client
-        .get(format!("{WORKPLANS_API_URL}?action=list"))
+        .get(format!("{}?action=list", autonomo_api_url()))
         .bearer_auth(token)
         .send()
         .await
@@ -2087,6 +2304,11 @@ pub fn run() {
             workplans_reschedule,
             workplans_delete,
             workplans_evaluate,
+            autonomo_bloques_list,
+            autonomo_bloques_save,
+            autonomo_actividades_list,
+            autonomo_actividades_save,
+            workplans_get_timetable,
             workplans_sync_timetable
         ])
         .run(tauri::generate_context!())

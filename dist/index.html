@@ -2355,6 +2355,7 @@
         <button data-section="grupos-docentes"><span class="nav-icon">◉</span><span>Grupos docentes</span></button>
         <button data-section="equipos"><span class="nav-icon">◫</span><span>Equipos cooperativos</span></button>
         <button data-section="planes-trabajo"><span class="nav-icon">☑</span><span>Planes de trabajo</span></button>
+        <button data-section="trabajo-autonomo"><span class="nav-icon">◷</span><span>Trabajo autónomo</span></button>
         <button data-section="asistencia"><span class="nav-icon">✓</span><span>Asistencia</span></button>
         <button data-section="diario"><span class="nav-icon">✎</span><span>Diario</span></button>
       </div>
@@ -2659,6 +2660,138 @@
             ＋ Crear el primer plan
           </button>
         </div>
+      </div>
+    </section>
+
+    <section id="trabajo-autonomo" class="section">
+      <div class="card">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Trabajo autónomo</h3>
+            <p>Organiza las sesiones de trabajo autónomo y acompaña la planificación semanal del alumnado.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Horario semanal</h3>
+        <p class="small">Aquí aparecerá el horario real del grupo, sincronizado con recursosdocentes.info.</p>
+        <div id="autonomo-horario"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Configuración de las sesiones</h3>
+        <p class="small">Podrás establecer qué sesiones son autónomas, parcialmente autónomas o dirigidas.</p>
+        <div id="autonomo-sesiones"></div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <div class="notebook-title-row">
+          <div>
+            <h3>Preparar la semana</h3>
+            <p class="small">Crea los ejercicios que organizará el alumnado durante las sesiones autónomas.</p>
+          </div>
+        </div>
+        <div id="autonomo-actividades">
+          <div style="margin-bottom:22px;padding:18px;border:1px solid var(--border);border-radius:12px">
+            <h4 style="margin-top:0">1. Crear bloque de trabajo</h4>
+            <form id="autonomo-bloque-form">
+              <div class="form-grid">
+                <label>Asignatura
+                  <select id="autonomo-bloque-asignatura" required>
+                    <option value="Matemáticas">Matemáticas</option>
+                    <option value="Lengua">Lengua</option>
+                  </select>
+                </label>
+                <label class="full-span">Título del bloque
+                  <input id="autonomo-bloque-titulo" maxlength="255" required
+                         placeholder="Ej.: Operaciones combinadas y problemas">
+                </label>
+                <label class="full-span">Trabajo completo / instrucciones generales
+                  <textarea id="autonomo-bloque-contenido" rows="9"
+                            placeholder="Copia y pega aquí el trabajo completo. Después podrás separar sus ejercicios."></textarea>
+                </label>
+              </div>
+              <div class="actions" style="justify-content:flex-start;margin-top:14px">
+                <button class="primary" type="submit"
+                        id="autonomo-bloque-guardar"
+                        title="Pendiente de conectar con la API local">
+                  Guardar bloque
+                </button>
+                <span class="small">Guarda el bloque y selecciónalo para preparar sus ejercicios.</span>
+              </div>
+            </form>
+          </div>
+          <div id="autonomo-bloques-lista" aria-live="polite"
+               style="margin-bottom:18px"></div>
+          <label style="display:block;margin-bottom:18px">
+            Bloque en el que estás trabajando
+            <select id="autonomo-bloque-seleccion">
+              <option value="">Selecciona un bloque guardado</option>
+            </select>
+          </label>
+          <h4>2. Ejercicios del bloque</h4>
+          <p class="small">Cada ejercicio tendrá su propia prioridad y tiempo estimado.</p>
+          <form id="autonomo-actividad-form" style="margin-bottom:22px">
+            <div class="form-grid">
+              <label>Asignatura
+                <select id="autonomo-actividad-asignatura" required>
+                  <option value="Matemáticas">Matemáticas</option>
+                  <option value="Lengua">Lengua</option>
+                </select>
+              </label>
+              <label>Prioridad
+                <select id="autonomo-actividad-prioridad">
+                  <option value="imprescindible">Imprescindible</option>
+                  <option value="obligatoria" selected>Obligatoria</option>
+                  <option value="opcional">Opcional</option>
+                  <option value="ampliacion">Ampliación</option>
+                </select>
+              </label>
+              <label class="full-span">Título de la actividad
+                <input id="autonomo-actividad-titulo"
+                       placeholder="Ej.: Operaciones combinadas"
+                       required maxlength="255">
+              </label>
+              <label class="full-span">Instrucciones para el alumnado
+                <textarea id="autonomo-actividad-instrucciones"
+                          rows="4"
+                          placeholder="Explica qué tienen que hacer, paso a paso..."></textarea>
+              </label>
+              <label>Tiempo estimado (minutos)
+                <input id="autonomo-actividad-minutos"
+                       type="number" min="1" max="240" value="15" required>
+              </label>
+              <label class="full-span">Materiales o enlaces
+                <textarea id="autonomo-actividad-materiales"
+                          rows="2"
+                          placeholder="Libro, páginas, material manipulativo, enlaces..."></textarea>
+              </label>
+            </div>
+            <div class="actions" style="justify-content:flex-start;margin-top:14px">
+              <button class="primary" type="submit"
+                      id="autonomo-actividad-guardar"
+                      title="Disponible cuando conectemos la API local">
+                ＋ Añadir actividad
+              </button>
+              <span class="small">Añade el ejercicio al bloque seleccionado.</span>
+            </div>
+          </form>
+          <div id="autonomo-actividades-lista" aria-live="polite"></div>
+          <div style="padding:22px;border:1px dashed var(--border,#ddd);border-radius:12px;text-align:center">
+            <div style="font-size:30px;margin-bottom:8px">📝</div>
+            <strong>Actividades de la semana</strong>
+            <p class="small" style="margin:8px 0 0">
+              Aquí podrás crear ejercicios, establecer prioridades, tiempos estimados y destinatarios.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3>Planificación semanal</h3>
+        <p class="small">Establece el tiempo de planificación y consulta el progreso del alumnado.</p>
+        <div id="autonomo-planificacion"></div>
       </div>
     </section>
 
@@ -3558,6 +3691,8 @@
     aula:['Plano del aula','Distribución editable del espacio y ubicación del alumnado.'],
     equipos:['Equipos cooperativos','Agrupamientos, roles y seguimiento del trabajo cooperativo.'],
     'planes-trabajo':['Planes de trabajo','Organiza el trabajo individual del alumnado y consulta su seguimiento diario.'],
+    'trabajo-autonomo':['Trabajo autónomo','Organiza las sesiones autónomas, la planificación semanal y el seguimiento del alumnado.'],
+    'trabajo-autonomo':['Trabajo autónomo','Organiza las sesiones autónomas, la planificación semanal y el seguimiento del alumnado.'],
     asistencia:['Asistencia','Faltas, retrasos, justificadas y estadísticas persistentes.'],
     planificacion:['UP / Situaciones','Crea rápido, desarrolla currículo, programa sesiones y abre la clase que toca desde Inicio.'],
     evaluacion:['Motor criterial','Evidencia → Criterio → Competencia específica → Competencia clave.'],
@@ -3569,7 +3704,7 @@
     pdf:['PDF oficial','Generación imprimible de la situación o unidad.']
   };
   const modeSections={
-    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','grupos-docentes','equipos','planes-trabajo','asistencia','planificacion','configuracion'],
+    diario:['inicio','agenda','reuniones','actuaciones','aportaciones','diario','aula','grupos-docentes','equipos','planes-trabajo','trabajo-autonomo','asistencia','planificacion','configuracion'],
     evaluacion:['instrumentos','cuaderno','alumnado','perfil','mapa','desarrollo','pdf']
   };
   const demo={
@@ -3954,6 +4089,710 @@
     if(sectionId==='planificacion')showByText('Crear situación');
   }
 
+  function configuracionTrabajoAutonomo(){
+    if(!data.trabajoAutonomo ||
+       typeof data.trabajoAutonomo!=='object' ||
+       Array.isArray(data.trabajoAutonomo)){
+      data.trabajoAutonomo={};
+    }
+
+    if(!data.trabajoAutonomo.semanas ||
+       typeof data.trabajoAutonomo.semanas!=='object' ||
+       Array.isArray(data.trabajoAutonomo.semanas)){
+      data.trabajoAutonomo.semanas={};
+    }
+
+    return data.trabajoAutonomo;
+  }
+
+  function inicioSemanaTrabajoAutonomo(fecha=new Date()){
+    const d=new Date(fecha.getFullYear(),fecha.getMonth(),fecha.getDate());
+    const dia=(d.getDay()+6)%7;
+    d.setDate(d.getDate()-dia);
+    const local=n=>String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${local(d.getMonth()+1)}-${local(d.getDate())}`;
+  }
+
+  function semanaTrabajoAutonomo(fecha=inicioSemanaTrabajoAutonomo()){
+    const config=configuracionTrabajoAutonomo();
+    if(!config.semanas[fecha]){
+      config.semanas[fecha]={
+        sesiones:{},
+        uniones:{},
+        duracionPlanificacion:30
+      };
+    }
+    return config.semanas[fecha];
+  }
+
+  let semanaAutonomoSeleccionada=null;
+
+  let consultaActividadesAutonomo=0;
+
+  async function guardarBloqueAutonomo(event){
+    event.preventDefault();
+
+    const formulario=document.querySelector('#autonomo-bloque-form');
+    const boton=document.querySelector('#autonomo-bloque-guardar');
+    const asignatura=document.querySelector('#autonomo-bloque-asignatura');
+    const titulo=document.querySelector('#autonomo-bloque-titulo');
+    const contenido=document.querySelector('#autonomo-bloque-contenido');
+    const selector=document.querySelector('#autonomo-bloque-seleccion');
+
+    if(!formulario||!boton||!asignatura||!titulo||!contenido)return;
+    if(boton.disabled||!formulario.reportValidity())return;
+
+    const semana=semanaAutonomoSeleccionada;
+    if(!semana){
+      toast('Selecciona primero una semana.');
+      return;
+    }
+
+    boton.disabled=true;
+    boton.textContent='Guardando bloque…';
+
+    try{
+      const respuesta=await nativeInvoke('autonomo_bloques_save',{
+        semanaInicio:semana,
+        asignatura:asignatura.value,
+        titulo:titulo.value.trim(),
+        contenidoGeneral:contenido.value
+      });
+
+      if(semana!==semanaAutonomoSeleccionada){
+        toast('Bloque guardado. Has cambiado de semana; vuelve a la anterior para verlo.');
+        return;
+      }
+
+      await cargarBloquesAutonomo();
+
+      if(selector&&respuesta.id){
+        selector.value=String(respuesta.id);
+      }
+
+      titulo.value='';
+      contenido.value='';
+      toast('Bloque guardado correctamente.');
+    }catch(error){
+      toast('No se pudo guardar el bloque: '+String(error));
+    }finally{
+      boton.disabled=false;
+      boton.textContent='Guardar bloque';
+    }
+  }
+
+  document.querySelector('#autonomo-bloque-form')
+    ?.addEventListener('submit',guardarBloqueAutonomo);
+
+  async function guardarActividadAutonomo(event){
+    event.preventDefault();
+
+    const formulario=document.querySelector('#autonomo-actividad-form');
+    const boton=document.querySelector('#autonomo-actividad-guardar');
+    const selector=document.querySelector('#autonomo-bloque-seleccion');
+    const asignatura=document.querySelector('#autonomo-actividad-asignatura');
+    const titulo=document.querySelector('#autonomo-actividad-titulo');
+    const instrucciones=document.querySelector('#autonomo-actividad-instrucciones');
+    const prioridad=document.querySelector('#autonomo-actividad-prioridad');
+    const minutos=document.querySelector('#autonomo-actividad-minutos');
+    const materiales=document.querySelector('#autonomo-actividad-materiales');
+
+    if(!formulario||!boton||!selector)return;
+    if(boton.disabled||!formulario.reportValidity())return;
+
+    const bloqueId=Number(selector.value);
+    if(!Number.isSafeInteger(bloqueId)||bloqueId<1){
+      toast('Selecciona primero un bloque de trabajo.');
+      return;
+    }
+
+    const semana=semanaAutonomoSeleccionada;
+    if(!semana){
+      toast('Selecciona primero una semana.');
+      return;
+    }
+
+    const opcion=selector.selectedOptions[0];
+    const asignaturaBloque=opcion?.dataset.asignatura;
+
+    if(!asignaturaBloque){
+      toast('No se pudo identificar la asignatura del bloque. Actualiza la semana.');
+      return;
+    }
+
+    if(asignatura.value!==asignaturaBloque){
+      toast('La asignatura del ejercicio debe coincidir con la del bloque.');
+      return;
+    }
+
+    boton.disabled=true;
+    boton.textContent='Guardando actividad…';
+
+    try{
+      await nativeInvoke('autonomo_actividades_save',{
+        bloqueId,
+        semanaInicio:semana,
+        asignatura:asignatura.value,
+        titulo:titulo.value.trim(),
+        instrucciones:instrucciones.value,
+        prioridad:prioridad.value,
+        minutosEstimados:Number(minutos.value),
+        materiales:materiales.value
+      });
+
+      titulo.value='';
+      instrucciones.value='';
+      materiales.value='';
+
+      if(semana===semanaAutonomoSeleccionada){
+        await cargarActividadesAutonomo();
+      }
+
+      toast('Actividad guardada correctamente.');
+    }catch(error){
+      toast('No se pudo guardar la actividad: '+String(error));
+    }finally{
+      boton.disabled=false;
+      boton.textContent='＋ Añadir actividad';
+    }
+  }
+
+  document.querySelector('#autonomo-actividad-form')
+    ?.addEventListener('submit',guardarActividadAutonomo);
+
+  let consultaBloquesAutonomo=0;
+
+  function seleccionarBloqueAutonomo(id){
+    const selector=document.querySelector('#autonomo-bloque-seleccion');
+    const asignatura=document.querySelector('#autonomo-actividad-asignatura');
+    if(!selector)return;
+
+    selector.value=String(id||'');
+
+    const opcion=selector.selectedOptions[0];
+    const materia=opcion?.dataset.asignatura;
+
+    if(asignatura&&materia){
+      asignatura.value=materia;
+    }
+
+    document.querySelectorAll('[data-autonomo-tarjeta]').forEach(tarjeta=>{
+      const activa=tarjeta.dataset.autonomoTarjeta===selector.value;
+      tarjeta.style.borderColor=activa?'var(--accent, #4f46e5)':'var(--border)';
+      tarjeta.style.borderWidth=activa?'2px':'1px';
+      tarjeta.style.background=activa?'var(--surface, transparent)':'';
+      tarjeta.setAttribute('aria-pressed',String(activa));
+    });
+  }
+
+  document.querySelector('#autonomo-bloque-seleccion')
+    ?.addEventListener('change',event=>{
+      seleccionarBloqueAutonomo(event.target.value);
+    });
+
+  let consultaVistaAutonomo=0;
+
+  async function cargarBloquesAutonomo(){
+    return cargarVistaBloquesAutonomo();
+  }
+
+  async function cargarActividadesAutonomo(){
+    return cargarVistaBloquesAutonomo();
+  }
+
+  async function cargarVistaBloquesAutonomo(){
+    const box=document.querySelector('#autonomo-bloques-lista');
+    const selector=document.querySelector('#autonomo-bloque-seleccion');
+    const listaAnterior=document.querySelector('#autonomo-actividades-lista');
+    if(!box||!selector)return;
+
+    const semana=semanaAutonomoSeleccionada;
+    const consulta=++consultaVistaAutonomo;
+    const seleccionAnterior=selector.value;
+
+    box.textContent='Consultando bloques y ejercicios…';
+    if(listaAnterior)listaAnterior.replaceChildren();
+
+    try{
+      const [respuestaBloques,respuestaActividades]=await Promise.all([
+        nativeInvoke('autonomo_bloques_list',{semanaInicio:semana}),
+        nativeInvoke('autonomo_actividades_list',{semanaInicio:semana})
+      ]);
+
+      if(consulta!==consultaVistaAutonomo ||
+         semana!==semanaAutonomoSeleccionada)return;
+
+      const bloques=respuestaBloques.bloques||[];
+      const actividades=respuestaActividades.actividades||[];
+
+      box.replaceChildren();
+      selector.replaceChildren();
+
+      const inicial=document.createElement('option');
+      inicial.value='';
+      inicial.textContent='Selecciona un bloque guardado';
+      selector.appendChild(inicial);
+
+      for(const bloque of bloques){
+        const opcion=document.createElement('option');
+        opcion.value=String(bloque.id);
+        opcion.dataset.asignatura=bloque.asignatura;
+        opcion.textContent=`${bloque.asignatura} · ${bloque.titulo}`;
+        selector.appendChild(opcion);
+      }
+
+      if(bloques.some(b=>String(b.id)===seleccionAnterior)){
+        selector.value=seleccionAnterior;
+      }
+
+      // Sincronizamos la asignatura y el resaltado al cargar.
+      const bloqueRestaurado=selector.value;
+
+      if(!bloques.length){
+        box.textContent='Todavía no hay bloques guardados para esta semana.';
+        return;
+      }
+
+      const prioridades={
+        imprescindible:'Imprescindible',
+        obligatoria:'Obligatoria',
+        opcional:'Opcional',
+        ampliacion:'Ampliación'
+      };
+
+      for(const bloque of bloques){
+        const ejercicios=actividades.filter(a=>
+          String(a.bloque_id)===String(bloque.id)
+        );
+
+        const total=ejercicios.reduce((s,a)=>
+          s+(Number(a.minutos_estimados)||0),0
+        );
+
+        const tarjeta=document.createElement('div');
+        tarjeta.style.cssText=
+          'border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0';
+        tarjeta.dataset.autonomoTarjeta=String(bloque.id);
+        tarjeta.setAttribute('role','button');
+        tarjeta.setAttribute('tabindex','0');
+        tarjeta.setAttribute('aria-label','Seleccionar bloque '+bloque.titulo);
+        tarjeta.addEventListener('click',()=>{
+          seleccionarBloqueAutonomo(bloque.id);
+        });
+        tarjeta.addEventListener('keydown',event=>{
+          if(event.key==='Enter'||event.key===' '){
+            event.preventDefault();
+            seleccionarBloqueAutonomo(bloque.id);
+          }
+        });
+
+        const encabezado=document.createElement('div');
+        encabezado.style.cssText='display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap';
+
+        const textos=document.createElement('div');
+
+        const titulo=document.createElement('strong');
+        titulo.textContent=`${bloque.asignatura} · ${bloque.titulo}`;
+
+        const resumen=document.createElement('p');
+        resumen.className='small';
+        resumen.style.margin='5px 0';
+        resumen.textContent=
+          `${ejercicios.length} ${ejercicios.length===1?'ejercicio':'ejercicios'} · ${total} min estimados`;
+
+        textos.append(titulo,resumen);
+        encabezado.appendChild(textos);
+        tarjeta.appendChild(encabezado);
+
+        if(bloque.contenido_general){
+          const desplegable=document.createElement('details');
+          desplegable.style.cssText='margin:12px 0';
+
+          const resumenTexto=document.createElement('summary');
+          resumenTexto.textContent='Ver trabajo completo';
+          resumenTexto.style.cssText='cursor:pointer;font-weight:600';
+
+          const contenido=document.createElement('div');
+          contenido.style.cssText=
+            'white-space:pre-wrap;padding:12px;margin-top:10px;border:1px solid var(--border);border-radius:8px;user-select:text';
+          contenido.textContent=bloque.contenido_general;
+
+          // Evita que seleccionar texto active la tarjeta del bloque.
+          desplegable.addEventListener('click',event=>{
+            event.stopPropagation();
+          });
+          desplegable.addEventListener('keydown',event=>{
+            event.stopPropagation();
+          });
+
+          const crearEjercicio=document.createElement('button');
+          crearEjercicio.type='button';
+          crearEjercicio.textContent='＋ Crear ejercicio con la selección';
+          crearEjercicio.style.cssText='margin-top:10px';
+
+          crearEjercicio.addEventListener('click',event=>{
+            event.stopPropagation();
+
+            const seleccion=window.getSelection();
+            const fragmento=seleccion?.toString().trim()||'';
+
+            if(!fragmento){
+              toast('Selecciona primero un fragmento del texto.');
+              return;
+            }
+
+            // La selección debe pertenecer al contenido de este bloque.
+            if(!seleccion ||
+               !contenido.contains(seleccion.anchorNode) ||
+               !contenido.contains(seleccion.focusNode)){
+              toast('Selecciona texto dentro de este bloque.');
+              return;
+            }
+
+            const instrucciones=document.querySelector(
+              '#autonomo-actividad-instrucciones'
+            );
+            const titulo=document.querySelector(
+              '#autonomo-actividad-titulo'
+            );
+
+            if(!instrucciones||!titulo)return;
+
+            // Evitamos sobrescribir un ejercicio que ya se esté redactando.
+            if(instrucciones.value.trim() &&
+               instrucciones.value.trim()!==fragmento){
+              toast('Hay instrucciones sin guardar. Revísalas antes de sustituirlas.');
+              instrucciones.focus();
+              return;
+            }
+
+            seleccionarBloqueAutonomo(bloque.id);
+            instrucciones.value=fragmento;
+
+            if(!titulo.value.trim()){
+              titulo.value=fragmento
+                .split('\\n')
+                .map(linea=>linea.trim())
+                .find(Boolean)
+                ?.slice(0,120)||'Nuevo ejercicio';
+            }
+
+            document.querySelector('#autonomo-actividad-form')
+              ?.scrollIntoView({behavior:'smooth',block:'center'});
+
+            toast('Texto incorporado al ejercicio. Revisa y guarda.');
+          });
+
+          desplegable.append(resumenTexto,contenido,crearEjercicio);
+          tarjeta.appendChild(desplegable);
+        }
+
+        if(!ejercicios.length){
+          const vacio=document.createElement('p');
+          vacio.className='small';
+          vacio.textContent='Este bloque todavía no tiene ejercicios.';
+          tarjeta.appendChild(vacio);
+        }
+
+        for(const actividad of ejercicios){
+          const fila=document.createElement('div');
+          fila.style.cssText=
+            'padding:12px 0;border-top:1px solid var(--border)';
+
+          const nombre=document.createElement('strong');
+          nombre.textContent=actividad.titulo;
+
+          const detalle=document.createElement('p');
+          detalle.className='small';
+          detalle.style.margin='5px 0';
+          detalle.textContent=
+            `${prioridades[actividad.prioridad]||actividad.prioridad} · ${actividad.minutos_estimados} min`;
+
+          fila.append(nombre,detalle);
+
+          if(actividad.instrucciones){
+            const instrucciones=document.createElement('p');
+            instrucciones.style.margin='6px 0 0';
+            instrucciones.style.whiteSpace='pre-wrap';
+            instrucciones.textContent=actividad.instrucciones;
+            fila.appendChild(instrucciones);
+          }
+
+          tarjeta.appendChild(fila);
+        }
+
+        box.appendChild(tarjeta);
+      }
+
+      seleccionarBloqueAutonomo(bloqueRestaurado);
+
+      const sinBloque=actividades.filter(a=>
+        !bloques.some(b=>String(b.id)===String(a.bloque_id))
+      );
+
+      if(sinBloque.length){
+        const aviso=document.createElement('p');
+        aviso.className='small';
+        aviso.textContent=
+          `${sinBloque.length} actividad(es) antiguas sin bloque asociado.`;
+        box.appendChild(aviso);
+      }
+
+    }catch(error){
+      if(consulta!==consultaVistaAutonomo ||
+         semana!==semanaAutonomoSeleccionada)return;
+      box.textContent='No se pudieron consultar los bloques: '+String(error);
+    }
+  }
+
+
+  function cargarHorarioAutonomo(){
+    const box=document.querySelector('#autonomo-horario');
+    if(!box)return;
+    if(!semanaAutonomoSeleccionada)semanaAutonomoSeleccionada=inicioSemanaTrabajoAutonomo();
+
+    const semana=semanaTrabajoAutonomo(semanaAutonomoSeleccionada);
+    cargarBloquesAutonomo();
+    cargarActividadesAutonomo();
+    const rows=data.settings.timetable||[];
+    const dias=['Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+    const configuracion=configuracionTrabajoAutonomo();
+    const materiasDisponibles=[...new Set(
+      rows.flatMap(row=>row.days||[])
+        .map(x=>String(x||'').trim())
+        .filter(x=>x&&x!=='-'&&!/^(recreo|libre)$/i.test(x))
+    )].sort((a,b)=>a.localeCompare(b,'es'));
+
+    if(!Array.isArray(configuracion.materias)){
+      configuracion.materias=materiasDisponibles.filter(m=>
+        /^(matem[aá]ticas|lengua(?: castellana)?)(?:\s|$)/i.test(m)
+      );
+    }
+
+    const materiaSeleccionada=m=>
+      configuracion.materias.includes(String(m||'').trim());
+    const fechaDiaAutonomo=di=>{
+      const [y,m,d]=semanaAutonomoSeleccionada.split('-').map(Number);
+      const fecha=new Date(y,m-1,d+di);
+      return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
+    };
+
+    const bloqueoAutonomo=(ri,di)=>{
+      const fecha=fechaDiaAutonomo(di);
+      const escolar=dateTypeInfo(fecha);
+
+      if(escolar&&escolar.type!=='working'){
+        return escolar.label||'Día no lectivo';
+      }
+
+      const eventos=(data.countdownEvents||[]).filter(ev=>
+        ev.activo!==false&&ev.fecha===fecha
+      );
+
+      const completo=eventos.find(ev=>ev.afectacion==='completa');
+      if(completo)return completo.titulo||'Acontecimiento de jornada completa';
+
+      const id=`${rows[ri].id||ri}|${di}`;
+      const parcial=eventos.find(ev=>
+        ev.afectacion==='parcial'&&
+        Array.isArray(ev.sesionesAfectadas)&&
+        ev.sesionesAfectadas.includes(id)
+      );
+
+      return parcial?(parcial.titulo||'Actividad programada'):null;
+    };
+
+    const fechasSemana=dias.map((_,di)=>fechaDiaAutonomo(di));
+    const formatoFecha=iso=>{
+      const [y,m,d]=iso.split('-').map(Number);
+      return new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'short'})
+        .format(new Date(y,m-1,d));
+    };
+    const fechaFinal=fechasSemana[4];
+    const tituloSemana=`Semana del ${formatoFecha(fechasSemana[0])} al ${formatoFecha(fechaFinal)}`;
+
+    const disponible=m=>{
+      const v=String(m||'').trim();
+      return !!v&&v!=='-'&&!/^(recreo|libre)$/i.test(v);
+    };
+    const horas=texto=>{
+      const m=String(texto||'').match(/(\d{2}):(\d{2})\s*[-–]\s*(\d{2}):(\d{2})/);
+      if(!m)return null;
+      const a=Number(m[1])*60+Number(m[2]);
+      const b=Number(m[3])*60+Number(m[4]);
+      return b>a?{inicio:a,fin:b}:null;
+    };
+    const clave=(ri,di)=>`${rows[ri].id||ri}|${di}`;
+    const pareja=(ri,di)=>{
+      if(ri+1>=rows.length)return false;
+      const actual=String(rows[ri].days?.[di]||'').trim();
+      const siguiente=String(rows[ri+1].days?.[di]||'').trim();
+      const h1=horas(rows[ri].time),h2=horas(rows[ri+1].time);
+      return disponible(actual)&&materiaSeleccionada(actual)&&actual===siguiente&&!!h1&&!!h2&&
+        h1.fin===h2.inicio&&!bloqueoAutonomo(ri,di)&&!bloqueoAutonomo(ri+1,di);
+    };
+    const unionId=(ri,di)=>`${clave(ri,di)}+${clave(ri+1,di)}`;
+    const unida=(ri,di)=>pareja(ri,di)&&semana.uniones[unionId(ri,di)]===true;
+
+    const controles=(ri,di,unir=false)=>{
+      const row=rows[ri],materia=row.days?.[di]||'';
+      const bloqueo=bloqueoAutonomo(ri,di);
+      if(bloqueo)return `<div style="opacity:.7">
+        <strong>${esc(materia||'—')}</strong>
+        <div class="small" style="margin-top:6px">🔒 ${esc(bloqueo)}</div>
+      </div>`;
+      if(!disponible(materia))return esc(materia||'—');
+      if(!materiaSeleccionada(materia))
+        return `<strong>${esc(materia)}</strong>
+          <div class="small">Fuera de Trabajo autónomo</div>`;
+      const id=unir?unionId(ri,di):clave(ri,di);
+      const h=horas(row.time);
+      const h2=unir?horas(rows[ri+1].time):null;
+      const max=h?(unir&&h2?h2.fin:h.fin)-h.inicio:0;
+      const config=semana.sesiones[id]||{};
+      const tipo=['dirigida','autonoma','parcial'].includes(config.tipo)?config.tipo:'dirigida';
+      const minutos=Math.min(max,Math.max(1,Number(config.minutos)||Math.floor(max/2)||1));
+      return `<strong>${esc(materia)}</strong>
+        ${unir?`<div class="small">Bloque unido · ${max} minutos</div>`:''}
+        <select data-autonomo-tipo="${esc(id)}" style="width:100%;margin-top:8px">
+          <option value="dirigida" ${tipo==='dirigida'?'selected':''}>Dirigida</option>
+          <option value="autonoma" ${tipo==='autonoma'?'selected':''}>Autónoma</option>
+          <option value="parcial" ${tipo==='parcial'?'selected':''}>Parcial</option>
+        </select>
+        ${tipo==='parcial'&&max>0?`
+          <label class="small">Minutos autónomos
+            <input type="number" min="1" max="${max}" value="${minutos}"
+              data-autonomo-minutos="${esc(id)}"
+              style="width:100%;margin-top:5px">
+          </label>`:''}`;
+    };
+
+    const visible=rows.map((row,ri)=>({row,ri}))
+      .filter(({row})=>(row.days||[]).some(x=>String(x||'').trim()&&String(x).trim()!=='-'));
+
+    box.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+        <button type="button" data-autonomo-navegar="-7" title="Semana anterior">← Anterior</button>
+        <strong>${esc(tituloSemana)}</strong>
+        <button type="button" data-autonomo-navegar="7" title="Semana siguiente">Siguiente →</button>
+        <button type="button" data-autonomo-hoy="1">Esta semana</button>
+        <label for="autonomo-semana" class="small">Elegir fecha</label>
+        <input id="autonomo-semana" type="date" value="${esc(semanaAutonomoSeleccionada)}"
+          style="max-width:190px">
+        <span class="small">Cada semana conserva su propia configuración</span>
+      </div>
+      <div style="margin-bottom:18px;padding:14px;border:1px solid var(--border,#ddd);border-radius:12px">
+        <strong>Asignaturas de Trabajo autónomo</strong>
+        <p class="small">Marca las materias que quieres que organice el alumnado.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          ${materiasDisponibles.map(m=>`
+            <label style="display:inline-flex;flex-direction:row;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border,#ddd);border-radius:9px">
+              <input type="checkbox" style="width:18px;height:18px;flex:0 0 18px;margin:0"
+                data-autonomo-materia="${esc(m)}"
+                ${materiaSeleccionada(m)?'checked':''}>
+              <span>${esc(m)}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th>Hora</th>${dias.map((d,di)=>`<th>${d}<div class="small">${formatoFecha(fechasSemana[di])}</div></th>`).join('')}</tr></thead>
+          <tbody>
+            ${visible.map(({row,ri})=>`
+              <tr>
+                <td><strong>${esc(row.time||'')}</strong></td>
+                ${dias.map((_,di)=>{
+                  const anterior=ri>0&&unida(ri-1,di);
+                  if(anterior)return `<td style="min-width:170px;vertical-align:top">
+                    <span class="small">↳ Continúa el bloque anterior</span>
+                  </td>`;
+                  const unir=unida(ri,di);
+                  return `<td style="min-width:170px;vertical-align:top">
+                    ${controles(ri,di,unir)}
+                    ${pareja(ri,di)?`
+                      <button type="button" data-autonomo-union="${esc(unionId(ri,di))}"
+                        style="margin-top:8px;font-size:12px">
+                        ${unir?'Separar sesiones':'Unir con la siguiente'}
+                      </button>`:''}
+                </td>`;}).join('')}
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p class="small" style="margin-top:12px">
+        Las sesiones unidas comparten tipo y duración. El horario original no cambia.
+      </p>`;
+
+    box.querySelectorAll('[data-autonomo-materia]').forEach(input=>{
+      input.onchange=()=>{
+        const seleccion=new Set(configuracion.materias);
+        const materia=input.dataset.autonomoMateria;
+        if(input.checked)seleccion.add(materia);
+        else seleccion.delete(materia);
+        configuracion.materias=Array.from(seleccion);
+        persistState();
+        cargarHorarioAutonomo();
+      };
+    });
+
+    box.querySelectorAll('[data-autonomo-navegar]').forEach(btn=>{
+      btn.onclick=()=>{
+        const [y,m,d]=semanaAutonomoSeleccionada.split('-').map(Number);
+        const fecha=new Date(y,m-1,d+Number(btn.dataset.autonomoNavegar));
+        semanaAutonomoSeleccionada=inicioSemanaTrabajoAutonomo(fecha);
+        cargarHorarioAutonomo();
+      };
+    });
+
+    box.querySelector('[data-autonomo-hoy]').onclick=()=>{
+      semanaAutonomoSeleccionada=inicioSemanaTrabajoAutonomo();
+      cargarHorarioAutonomo();
+    };
+
+    box.querySelector('#autonomo-semana').onchange=e=>{
+      const v=e.target.value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;
+      const [y,m,d]=v.split('-').map(Number);
+      const fecha=new Date(y,m-1,d);
+      if(fecha.getFullYear()!==y||fecha.getMonth()!==m-1||fecha.getDate()!==d)return;
+      semanaAutonomoSeleccionada=inicioSemanaTrabajoAutonomo(fecha);
+      cargarHorarioAutonomo();
+    };
+    box.querySelectorAll('[data-autonomo-union]').forEach(btn=>{
+      btn.onclick=()=>{
+        const id=btn.dataset.autonomoUnion;
+        semana.uniones[id]=semana.uniones[id]!==true;
+        persistState();
+        cargarHorarioAutonomo();
+      };
+    });
+    box.querySelectorAll('[data-autonomo-tipo]').forEach(sel=>{
+      sel.onchange=()=>{
+        const id=sel.dataset.autonomoTipo;
+        semana.sesiones[id]={...semana.sesiones[id],tipo:sel.value};
+        persistState();
+        cargarHorarioAutonomo();
+      };
+    });
+    box.querySelectorAll('[data-autonomo-minutos]').forEach(inp=>{
+      inp.onchange=()=>{
+        const id=inp.dataset.autonomoMinutos;
+        const max=Number(inp.max),minutos=Number(inp.value);
+        if(!Number.isInteger(minutos)||minutos<1||minutos>max){
+          toast('Introduce una duración válida.');
+          cargarHorarioAutonomo();
+          return;
+        }
+        semana.sesiones[id]={...semana.sesiones[id],tipo:'parcial',minutos};
+        persistState();
+        toast('Duración guardada');
+      };
+    });
+  }
+
   function openSection(id){
 
     if(!document.querySelector('#'+id)) return;
@@ -3969,6 +4808,7 @@
     document.querySelector('#page-subtitle').textContent=pageInfo[id][1];
 
     updateTopbarActions(id);
+    if(id==='trabajo-autonomo')cargarHorarioAutonomo();
 
     window.scrollTo({top:0,behavior:'smooth'});
 
@@ -4465,7 +5305,9 @@
 
       const estadoLabel={
         pendiente:'○ Pendiente',
-        trabajando:'▶ Trabajando',
+        trabajando:a.sesion_activa===true
+          ? '▶ Trabajando'
+          : '◷ En progreso · Sesión finalizada',
         terminado:'✓ Terminado'
       }[estado]||estado;
 
@@ -4480,6 +5322,29 @@
         con_ayuda:'🟡 Con ayuda',
         reforzar:'🔴 Necesita reforzar'
       }[a.valoracion_docente]||'';
+
+      const reflexionesHtml=(a.reflexiones||[]).map(r=>{
+        const valoracion={
+          solo:'😊 Ha trabajado solo',
+          ayuda:'🤝 Ha necesitado ayuda',
+          revisar:'🙋 Necesita revisión'
+        }[r.autoevaluacion]||'';
+        return `
+          <div style="padding:10px 12px;margin-top:8px;
+            border:1px solid var(--border);border-radius:10px">
+            <div class="small"><strong>${esc(r.fecha||'')}</strong>
+              ${valoracion?' · '+esc(valoracion):''}</div>
+            <div class="small" style="margin-top:8px">
+              <strong>¿Qué he conseguido?</strong>
+              <div style="white-space:pre-wrap;margin-top:4px">${esc(r.logros||'Sin respuesta')}</div>
+            </div>
+            <div class="small" style="margin-top:8px">
+              <strong>¿Qué necesito mejorar?</strong>
+              <div style="white-space:pre-wrap;margin-top:4px">${esc(r.necesidades||'Sin respuesta')}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       const alumnoComment=(a.comentario_alumno||'').trim();
       const teacherComment=(a.comentario_docente||'').trim();
@@ -4499,6 +5364,14 @@
 
           ${autoLabel?`<div class="small" style="margin-top:8px">${esc(autoLabel)}</div>`:''}
           ${alumnoComment?`<div class="small" style="margin-top:5px">💬 “${esc(alumnoComment)}”</div>`:''}
+          ${reflexionesHtml?`
+            <details style="margin-top:10px">
+              <summary style="cursor:pointer;font-weight:600">
+                🌿 Reflexiones del alumno (${(a.reflexiones||[]).length})
+              </summary>
+              ${reflexionesHtml}
+            </details>
+          `:''}
 
           <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--border)">
             <div class="small"><strong>Valoración docente · privada</strong></div>
@@ -5351,9 +6224,64 @@
     const sid=(data.settings.notebookStudentId&&data.students.some(s=>s.id===data.settings.notebookStudentId))?data.settings.notebookStudentId:(data.selectedStudentId||data.students[0]?.id);
     data.settings.notebookStudentId=sid||'';
     const st=data.students.find(s=>s.id===sid);if(!st){box.innerHTML='<div class="card notebook-empty">Añade alumnado para empezar a evaluar.</div>';return}
+    const webUserId=Number(st.webUserId||0);
+    const reflexiones=webUserId
+      ? (workPlansCache||[]).flatMap(plan=>
+          (plan.assignments||[])
+            .filter(a=>Number(a.user_id)===webUserId)
+            .flatMap(a=>(a.reflexiones||[]).map(r=>({
+              ...r,
+              planTitulo:plan.titulo||'Plan de trabajo'
+            })))
+        ).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')))
+      : [];
+
+    const reflexionesHtml=reflexiones.map(r=>{
+      const valoracion={
+        solo:'😊 Ha trabajado solo',
+        ayuda:'🤝 Ha necesitado ayuda',
+        revisar:'🙋 Necesita revisión'
+      }[r.autoevaluacion]||'';
+
+      return `
+        <div style="border:1px solid var(--border);
+          border-radius:12px;padding:12px;margin-top:10px">
+          <div><strong>${esc(r.planTitulo)}</strong></div>
+          <div class="small" style="margin-top:4px">
+            ${esc(r.fecha||'')}
+            ${valoracion?' · '+esc(valoracion):''}
+          </div>
+          <div style="margin-top:10px">
+            <strong>¿Qué he conseguido?</strong>
+            <div style="white-space:pre-wrap;margin-top:4px">
+              ${esc(r.logros||'Sin respuesta')}
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <strong>¿Qué necesito mejorar?</strong>
+            <div style="white-space:pre-wrap;margin-top:4px">
+              ${esc(r.necesidades||'Sin respuesta')}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const reflexionesPanel=reflexionesHtml
+      ? `<div class="card" style="margin-top:16px">
+          <h3>🌿 Reflexiones de mis planes de trabajo</h3>
+          <p class="small">Respuestas escritas por el alumno, ordenadas por fecha.</p>
+          ${reflexionesHtml}
+        </div>`
+      : '';
+
     const shown=cols.length?cols:data.evidenceColumns;
     const ct=gradeCountsForStudent(st.id,shown);
     box.innerHTML=`<div class="focus-layout"><div class="card focus-sidebar"><label>Alumno/a<select id="notebook-student-select">${data.students.map(s=>`<option value="${esc(s.id)}" ${s.id===st.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></label><div style="margin-top:14px"><strong>${esc(st.name)}</strong><div class="small">${esc(st.status||'')}</div></div><div class="focus-summary"><div><strong>${ct.INS}</strong><span>INS</span></div><div><strong>${ct.SUF}</strong><span>SUF</span></div><div><strong>${ct.BI}</strong><span>BI</span></div><div><strong>${ct.NOT}</strong><span>NOT</span></div><div><strong>${ct.SOBRE}</strong><span>SOBRE</span></div><div><strong>${ct.empty}</strong><span>—</span></div></div><button class="secondary" id="notebook-open-profile" style="width:100%;margin-top:12px">Abrir expediente</button></div><div class="card"><div class="notebook-title-row"><div><h3>Evidencias de ${esc(st.name)}</h3><p>Selecciona directamente el nivel. No hace falta recorrer la escala.</p></div></div><div class="evidence-card-grid">${shown.map(c=>`<div class="evidence-focus-card"><h4>${esc(c.label)}</h4><div class="meta">${esc(c.criterion||'Sin criterio')}${c.specificCompetence?' · '+esc(c.specificCompetence):''}${c.competency?' · '+esc(c.competency):''}${c.unitTitle?`<span class="notebook-source">${esc(c.unitTitle)} → ${esc(c.productName||'Producto')}</span>`:''}</div><div class="grade-choice-row">${notebookGradeChoices(st.id,c.id)}</div></div>`).join('')}</div></div></div>`;
+    if(reflexionesPanel){
+      box.insertAdjacentHTML('beforeend',reflexionesPanel);
+    }
+
     document.querySelector('#notebook-student-select').onchange=e=>{data.settings.notebookStudentId=e.target.value;data.selectedStudentId=e.target.value;persistState();renderNotebook()};
     document.querySelector('#notebook-open-profile').onclick=()=>{data.selectedStudentId=st.id;localStorage.setItem(STORAGE_KEY,JSON.stringify(data));openSection('alumnado');renderStudents()};
   }
@@ -5962,10 +6890,79 @@
           </select>
         </label>
 
+        <label class="full-span">Afectación a las clases
+          <select id="countdown-impact">
+            <option value="ninguna" ${(ev.afectacion||'ninguna')==='ninguna'?'selected':''}>No afecta a las clases</option>
+            <option value="completa" ${ev.afectacion==='completa'?'selected':''}>No hay clase durante toda la jornada</option>
+            <option value="parcial" ${ev.afectacion==='parcial'?'selected':''}>Afecta solo a determinadas sesiones</option>
+          </select>
+        </label>
+        <div id="countdown-affected-sessions" class="full-span" style="display:none"></div>
         <label class="full-span">Descripción
           <textarea id="countdown-description" placeholder="Opcional">${esc(ev.descripcion||'')}</textarea>
         </label>
       </div>`;
+
+
+    const sesionesSeleccionadas=new Set(
+      Array.isArray(ev.sesionesAfectadas)?ev.sesionesAfectadas.map(String):[]
+    );
+    let fechaSesionesCountdown=ev.fecha||'';
+
+    function mostrarSesionesCountdown(){
+      const box=document.querySelector('#countdown-affected-sessions');
+      const impacto=document.querySelector('#countdown-impact')?.value;
+      const fecha=document.querySelector('#countdown-date')?.value;
+      if(!box)return;
+
+      box.style.display=impacto==='parcial'?'block':'none';
+      if(impacto!=='parcial')return;
+
+      if(!fecha){
+        box.innerHTML='<div class="small">Selecciona primero una fecha.</div>';
+        return;
+      }
+
+      if(fecha!==fechaSesionesCountdown){
+        sesionesSeleccionadas.clear();
+        fechaSesionesCountdown=fecha;
+      }
+
+      const [y,m,d]=fecha.split('-').map(Number);
+      const dia=(new Date(y,m-1,d).getDay()+6)%7;
+
+      if(dia>4){
+        box.innerHTML='<div class="small">La fecha corresponde a un fin de semana.</div>';
+        return;
+      }
+
+      const filas=Array.isArray(data.settings?.timetable)
+        ?data.settings.timetable:[];
+
+      const opciones=filas.map((fila,i)=>{
+        const materia=String(fila.days?.[dia]||'').trim();
+        const hora=String(fila.time||'').trim();
+        if(!materia||materia==='-'||!hora||/^recreo$/i.test(materia))return null;
+        return {clave:String(fila.id||i)+'|'+dia,hora,materia};
+      }).filter(Boolean);
+
+      box.innerHTML=opciones.length
+        ?'<strong>Sesiones afectadas</strong>'+
+          opciones.map(o=>`
+            <label style="display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;margin:6px 0;padding:10px 12px;border:1px solid var(--border, #e1e5eb);border-radius:10px;text-align:left">
+              <input type="checkbox" style="width:18px;height:18px;flex:0 0 18px;margin:0" data-countdown-session="${esc(o.clave)}" ${sesionesSeleccionadas.has(o.clave)?'checked':''}>
+              <span>${esc(o.hora)} · ${esc(o.materia)}</span>
+            </label>
+          `).join('')
+        :'<div class="small">No hay sesiones registradas para ese día.</div>';
+
+      box.querySelectorAll('[data-countdown-session]').forEach(input=>{
+        input.onchange=()=>{
+          if(input.checked)sesionesSeleccionadas.add(input.dataset.countdownSession);
+          else sesionesSeleccionadas.delete(input.dataset.countdownSession);
+        };
+      });
+    }
 
     modal(existing?'Editar acontecimiento':'Nuevo acontecimiento',html,()=>{
       const titulo=document.querySelector('#countdown-title').value.trim();
@@ -5989,6 +6986,9 @@
         fecha,
         icono:document.querySelector('#countdown-icon').value.trim()||'⭐',
         modo:document.querySelector('#countdown-mode').value,
+        afectacion:document.querySelector('#countdown-impact').value,
+        sesionesAfectadas:document.querySelector('#countdown-impact').value==='parcial'
+          ?Array.from(sesionesSeleccionadas):[],
         activo:true,
         remoteId:ev.remoteId||null,
         syncStatus:'pending',
@@ -6006,8 +7006,11 @@
 
       return true;
     });
-  }
 
+    document.querySelector('#countdown-impact').onchange=mostrarSesionesCountdown;
+    document.querySelector('#countdown-date').onchange=mostrarSesionesCountdown;
+    mostrarSesionesCountdown();
+  }
   async function deleteCountdownEvent(localId){
     const ev=(data.countdownEvents||[]).find(x=>x.id===localId);
     if(!ev)return false;
@@ -11625,7 +12628,7 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
   function workPlanAssignmentMatchesFilter(a){
     if(workPlansFilter==='trabajando'){
-      return a.estado==='trabajando';
+      return a.estado!=='terminado' && a.sesion_activa===true;
     }
 
     if(workPlansFilter==='atencion'){
@@ -11697,7 +12700,9 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
         const estadoLabel={
           pendiente:'Pendiente',
-          trabajando:'Trabajando',
+          trabajando:a.sesion_activa===true
+            ? 'Trabajando'
+            : 'En progreso · Sesión finalizada',
           terminado:'Finalizado'
         }[estado]||estado;
 
@@ -12279,6 +13284,12 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
       const currentStudent=student();
       if(currentStudent){
         renderStudentWorkPlans(currentStudent);
+      }
+
+      // Refrescar Evaluación cuando llegan nuevas reflexiones.
+      const notebookSection=document.querySelector('#notebook-student-focus');
+      if(notebookSection && !notebookSection.classList.contains('hidden')){
+        renderNotebook();
       }
     }catch(err){
       console.error('workplans_list failed',err);
