@@ -2758,6 +2758,11 @@
                           rows="4"
                           placeholder="Explica qué tienen que hacer, paso a paso..."></textarea>
               </label>
+              <div class="full-span" style="padding:14px;border:1px solid var(--border);border-radius:12px">
+                <strong>Destinatarios de la actividad</strong>
+                <p class="small">Selecciona quién recibirá este ejercicio. Solo aparecen alumnos vinculados a la web.</p>
+                <div id="autonomo-actividad-destinatarios"></div>
+              </div>
               <label>Tiempo estimado (minutos)
                 <input id="autonomo-actividad-minutos"
                        type="number" min="1" max="240" value="15" required>
@@ -2791,7 +2796,25 @@
       <div class="card" style="margin-top:18px">
         <h3>Planificación semanal</h3>
         <p class="small">Establece el tiempo de planificación y consulta el progreso del alumnado.</p>
-        <div id="autonomo-planificacion"></div>
+        <div id="autonomo-planificacion">
+          <div class="card" style="margin-top:16px">
+            <h4>Publicación del trabajo semanal</h4>
+            <p class="small">
+              Envía las actividades guardadas a sus destinatarios.
+              Las actividades ya publicadas no se duplicarán.
+            </p>
+            <button type="button" id="autonomo-iniciar-planificacion"
+              style="margin-left:8px">
+              ▶ Iniciar planificación
+            </button>
+            <button type="button" id="autonomo-preparar-semana" style="margin-right:8px">
+              📤 Preparar y publicar semana
+            </button>
+            <button class="primary" id="autonomo-publicar-semana" type="button" style="display:none">
+              📤 Publicar semana
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -4184,6 +4207,210 @@
   document.querySelector('#autonomo-bloque-form')
     ?.addEventListener('submit',guardarBloqueAutonomo);
 
+  function renderDestinatariosAutonomo(){
+    const contenedor=document.querySelector('#autonomo-actividad-destinatarios');
+    if(!contenedor)return;
+
+    const alumnos=(data.students||[]).filter(
+      st=>Number(st.webUserId)>0
+    );
+
+    if(!alumnos.length){
+      contenedor.innerHTML=`
+        <p class="small">No hay alumnado vinculado a recursosdocentes.info.
+        Utiliza «Gestionar vinculación» para asociar sus cuentas.</p>
+      `;
+      return;
+    }
+
+    const anteriores=new Map(
+      [...contenedor.querySelectorAll('input[data-autonomo-destinatario]')]
+        .map(input=>[String(input.value),input.checked])
+    );
+
+    contenedor.innerHTML=`
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="checkbox" id="autonomo-destinatarios-todos"
+          style="width:auto">
+        <strong>Seleccionar todos</strong>
+      </label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px">
+        ${alumnos.map(st=>`
+          <label style="display:flex;align-items:center;gap:8px;margin:0">
+            <input type="checkbox" data-autonomo-destinatario
+              value="${esc(st.id)}"
+              style="width:auto"
+              ${anteriores.get(String(st.id))===false?'':'checked'}>
+            ${esc(st.name)}
+          </label>
+        `).join('')}
+      </div>
+    `;
+
+    const checks=[...contenedor.querySelectorAll(
+      'input[data-autonomo-destinatario]'
+    )];
+    const todos=contenedor.querySelector('#autonomo-destinatarios-todos');
+
+    const actualizar=()=>{
+      todos.checked=checks.length>0&&checks.every(ch=>ch.checked);
+      todos.indeterminate=checks.some(ch=>ch.checked)&&!todos.checked;
+    };
+
+    todos.addEventListener('change',()=>{
+      checks.forEach(ch=>ch.checked=todos.checked);
+      actualizar();
+    });
+    checks.forEach(ch=>ch.addEventListener('change',actualizar));
+    actualizar();
+  }
+
+  renderDestinatariosAutonomo();
+
+  document.querySelector('#autonomo-iniciar-planificacion')
+    ?.addEventListener('click',async()=>{
+      const semana=semanaAutonomoSeleccionada;
+      if(!semana){
+        toast('Selecciona primero una semana.');
+        return;
+      }
+
+      if(!confirm(
+        '¿Iniciar AHORA los 30 minutos de planificación de la semana '+
+        semana+'? La cuenta atrás comenzará para el alumnado.'
+      ))return;
+
+      const boton=document.querySelector('#autonomo-iniciar-planificacion');
+      boton.disabled=true;
+      boton.textContent='Iniciando…';
+
+      try{
+        const resultado=await nativeInvoke(
+          'autonomo_iniciar_planificacion',
+          {semanaInicio:semana}
+        );
+
+        if(resultado.estado==='activa'){
+          const minutos=Math.ceil(
+            Number(resultado.segundos_restantes||0)/60
+          );
+          toast(resultado.iniciada_ahora
+            ? 'Planificación iniciada. Quedan '+minutos+' minutos.'
+            : 'La planificación ya estaba iniciada. Quedan '+
+              minutos+' minutos.');
+        }else if(resultado.estado==='finalizada'){
+          toast('La planificación de esta semana ya ha finalizado.');
+        }else{
+          toast('Estado de planificación: '+resultado.estado);
+        }
+
+        console.log('Inicio de planificación:',resultado);
+      }catch(error){
+        toast('No se pudo iniciar la planificación: '+String(error));
+      }finally{
+        boton.disabled=false;
+        boton.textContent='▶ Iniciar planificación';
+      }
+    });
+
+  document.querySelector('#autonomo-preparar-semana')
+    ?.addEventListener('click',async()=>{
+      const semana=semanaAutonomoSeleccionada;
+      if(!semana){
+        toast('Selecciona primero una semana.');
+        return;
+      }
+      if(typeof window.sincronizarSesionesAutonomo!=='function'){
+        toast('Abre primero el horario de Trabajo autónomo.');
+        return;
+      }
+      if(!confirm(
+        '¿Preparar y publicar la semana '+semana+
+        '? Se sincronizarán las sesiones, se asignarán las actividades '+
+        'y quedarán preparados los 30 minutos. El tiempo NO comenzará todavía.'
+      ))return;
+
+      const boton=document.querySelector('#autonomo-preparar-semana');
+      boton.disabled=true;
+      let etapa='sincronizar sesiones';
+
+      try{
+        boton.textContent='1/3 · Sincronizando sesiones…';
+        await window.sincronizarSesionesAutonomo({sinConfirmacion:true});
+
+        etapa='publicar actividades';
+        boton.textContent='2/3 · Publicando actividades…';
+        const publicacion=await nativeInvoke('autonomo_publicar_semana',{
+          semanaInicio:semana
+        });
+
+        etapa='preparar planificación';
+        boton.textContent='3/3 · Preparando planificación…';
+        const planificacion=await nativeInvoke('autonomo_preparar_semana',{
+          semanaInicio:semana
+        });
+
+        if(planificacion.estado!=='preparada'){
+          toast(
+            'Actividades publicadas, pero la planificación ya está '+
+            'en estado «'+planificacion.estado+'».'
+          );
+          return;
+        }
+
+        toast(
+          'Semana preparada. Actividades nuevas: '+
+          (publicacion.actividades_publicadas??0)+
+          '. Planificación: '+planificacion.duracion_minutos+
+          ' minutos, todavía sin iniciar.'
+        );
+      }catch(error){
+        toast(
+          'No se completó la preparación. Falló al '+etapa+
+          ': '+String(error)
+        );
+      }finally{
+        boton.disabled=false;
+        boton.textContent='📤 Preparar y publicar semana';
+      }
+    });
+
+  document.querySelector('#autonomo-publicar-semana')
+    ?.addEventListener('click',async()=>{
+      const semana=semanaAutonomoSeleccionada;
+      if(!semana){
+        toast('Selecciona primero una semana.');
+        return;
+      }
+      if(typeof nativeInvoke!=='function'){
+        toast('La publicación requiere MiCuadernoDigital de escritorio.');
+        return;
+      }
+      if(!confirm(
+        '¿Publicar las actividades de la semana '+semana+
+        '? Las actividades publicadas quedarán disponibles para sus destinatarios.'
+      ))return;
+
+      const boton=document.querySelector('#autonomo-publicar-semana');
+      boton.disabled=true;
+      boton.textContent='Publicando…';
+      try{
+        const resultado=await nativeInvoke('autonomo_publicar_semana',{
+          semanaInicio:semana
+        });
+        toast(
+          'Publicadas: '+resultado.actividades_publicadas+
+          ' · Ya publicadas: '+resultado.actividades_ya_publicadas+
+          ' · Asignaciones: '+resultado.asignaciones_creadas
+        );
+      }catch(error){
+        toast('No se pudo publicar: '+String(error));
+      }finally{
+        boton.disabled=false;
+        boton.textContent='📤 Publicar semana';
+      }
+    });
+
   async function guardarActividadAutonomo(event){
     event.preventDefault();
 
@@ -4225,11 +4452,29 @@
       return;
     }
 
+    const seleccionados=[...document.querySelectorAll(
+      '#autonomo-actividad-destinatarios input[data-autonomo-destinatario]:checked'
+    )];
+
+    const destinatarios=seleccionados.map(input=>{
+      const alumno=(data.students||[]).find(
+        st=>String(st.id)===String(input.value)
+      );
+      return Number(alumno?.webUserId)||0;
+    });
+
+    if(!destinatarios.length || destinatarios.some(id=>id<=0)
+       || new Set(destinatarios).size!==destinatarios.length){
+      toast('Selecciona al menos un alumno con una vinculación web válida.');
+      return;
+    }
+
     boton.disabled=true;
     boton.textContent='Guardando actividad…';
 
     try{
       await nativeInvoke('autonomo_actividades_save',{
+        destinatarios,
         bloqueId,
         semanaInicio:semana,
         asignatura:asignatura.value,
@@ -4724,7 +4969,117 @@
       </div>
       <p class="small" style="margin-top:12px">
         Las sesiones unidas comparten tipo y duración. El horario original no cambia.
-      </p>`;
+      </p>
+      <div class="actions" style="justify-content:flex-start;margin-top:14px">
+        <button class="primary" type="button" id="autonomo-sincronizar-sesiones" style="display:none">
+          🔄 Sincronizar sesiones con la web
+        </button>
+      </div>`;
+
+    window.sincronizarSesionesAutonomo=async({sinConfirmacion=false}={})=>{
+      const boton=box.querySelector('#autonomo-sincronizar-sesiones');
+      const sesiones=[];
+      const claves=new Set();
+
+      for(let di=0;di<5;di++){
+        for(let ri=0;ri<rows.length;ri++){
+          if(!rows[ri] || bloqueoAutonomo(ri,di))continue;
+
+          const materia=String(rows[ri].days?.[di]||'').trim();
+          if(!disponible(materia)||!materiaSeleccionada(materia))continue;
+
+          // Si esta franja continúa una unión, la procesó la anterior.
+          if(ri>0&&unida(ri-1,di))continue;
+
+          const unir=unida(ri,di);
+          const id=unir?unionId(ri,di):clave(ri,di);
+          const config=semana.sesiones[id]||{};
+          const tipo=['dirigida','autonoma','parcial'].includes(config.tipo)
+            ?config.tipo:'dirigida';
+
+          const indices=unir?[ri,ri+1]:[ri];
+          const tramos=indices.map(i=>horas(rows[i].time));
+          if(tramos.some(t=>!t)){
+            toast('Hay franjas horarias que no se pueden interpretar.');
+            return;
+          }
+
+          const duraciones=tramos.map(t=>t.fin-t.inicio);
+          const total=duraciones.reduce((a,b)=>a+b,0);
+          let disponibles=tipo==='parcial'
+            ?Number(config.minutos):total;
+
+          if(tipo==='parcial'&&(
+            !Number.isInteger(disponibles)||disponibles<1||disponibles>total
+          )){
+            toast('Revisa los minutos de una sesión parcial.');
+            return;
+          }
+
+          // Distribuir los minutos parciales sin superar cada franja.
+          const reparto=duraciones.map(()=>0);
+          if(tipo==='parcial'){
+            let restante=disponibles;
+            for(let i=0;i<duraciones.length;i++){
+              reparto[i]=Math.min(restante,duraciones[i]);
+              restante-=reparto[i];
+            }
+          }
+
+          for(let i=0;i<indices.length;i++){
+            const tramo=tramos[i];
+            const inicio=String(Math.floor(tramo.inicio/60)).padStart(2,'0')
+              +':'+String(tramo.inicio%60).padStart(2,'0');
+            const fecha=fechaDiaAutonomo(di);
+            const claveSesion=fecha+'|'+inicio;
+
+            if(claves.has(claveSesion)){
+              toast('Se ha detectado una sesión duplicada.');
+              return;
+            }
+            claves.add(claveSesion);
+
+            // Una franja sin minutos autónomos queda dirigida.
+            const tipoTramo=tipo==='parcial'&&reparto[i]===0
+              ?'dirigida':tipo;
+
+            sesiones.push({
+              fecha,
+              sesion_inicio:inicio,
+              tipo:tipoTramo,
+              minutos_disponibles:tipoTramo==='parcial'?reparto[i]:null
+            });
+          }
+        }
+      }
+
+      if(!sinConfirmacion && !confirm(
+        '¿Sincronizar '+sesiones.length+
+        ' sesiones de la semana '+semanaAutonomoSeleccionada+
+        '? Se sustituirá la configuración de esa semana en la web.'
+      ))return;
+
+      boton.disabled=true;
+      boton.textContent='Sincronizando…';
+      try{
+        const resultado=await nativeInvoke('autonomo_sesiones_sync',{
+          semanaInicio:semanaAutonomoSeleccionada,
+          sesiones
+        });
+        if(!sinConfirmacion)
+          toast('Sesiones sincronizadas: '+resultado.sesiones_sincronizadas);
+        return resultado;
+      }catch(error){
+        if(!sinConfirmacion)
+          toast('Error al sincronizar sesiones: '+String(error));
+        throw error;
+      }finally{
+        boton.disabled=false;
+        boton.textContent='🔄 Sincronizar sesiones con la web';
+      }
+    };
+    box.querySelector('#autonomo-sincronizar-sesiones').onclick=
+      ()=>window.sincronizarSesionesAutonomo();
 
     box.querySelectorAll('[data-autonomo-materia]').forEach(input=>{
       input.onchange=()=>{

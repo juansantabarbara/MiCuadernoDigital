@@ -692,6 +692,7 @@ async fn autonomo_actividades_list(semana_inicio: String) -> Result<Value, Strin
 
 #[tauri::command]
 async fn autonomo_actividades_save(
+    destinatarios: Vec<i64>,
     bloque_id: i64,
     semana_inicio: String,
     asignatura: String,
@@ -711,6 +712,7 @@ async fn autonomo_actividades_save(
         .post(format!("{}?action=autonomo_actividades_save", autonomo_api_url()))
         .bearer_auth(token)
         .json(&serde_json::json!({
+            "destinatarios": destinatarios,
             "bloque_id": bloque_id,
             "semana_inicio": semana_inicio,
             "asignatura": asignatura,
@@ -732,6 +734,146 @@ async fn autonomo_actividades_save(
         return Err(body.get("error")
             .and_then(Value::as_str)
             .unwrap_or("No se pudo guardar la actividad.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_iniciar_planificacion(
+    semana_inicio: String,
+) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=planning_start", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "semana_inicio": semana_inicio
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudo iniciar la planificación.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_preparar_semana(semana_inicio: String) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=autonomo_preparar_semana", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "semana_inicio": semana_inicio
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudo preparar la planificación.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_sesiones_sync(
+    semana_inicio: String,
+    sesiones: Vec<Value>,
+) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=autonomo_sesiones_sync", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "semana_inicio": semana_inicio,
+            "sesiones": sesiones
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudieron sincronizar las sesiones.")
+            .to_string());
+    }
+
+    Ok(body)
+}
+
+#[tauri::command]
+async fn autonomo_publicar_semana(semana_inicio: String) -> Result<Value, String> {
+    let token = countdown_keychain_get()?;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client
+        .post(format!("{}?action=autonomo_publicar_semana", autonomo_api_url()))
+        .bearer_auth(token)
+        .json(&serde_json::json!({
+            "semana_inicio": semana_inicio
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("No se pudo conectar con la API: {e}"))?;
+
+    let status = response.status();
+    let body: Value = response.json().await
+        .map_err(|e| format!("Respuesta no válida: {e}"))?;
+
+    if !status.is_success() || body.get("ok").and_then(Value::as_bool) != Some(true) {
+        return Err(body.get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("No se pudo publicar la semana.")
             .to_string());
     }
 
@@ -2308,6 +2450,10 @@ pub fn run() {
             autonomo_bloques_save,
             autonomo_actividades_list,
             autonomo_actividades_save,
+            autonomo_iniciar_planificacion,
+            autonomo_preparar_semana,
+            autonomo_sesiones_sync,
+            autonomo_publicar_semana,
             workplans_get_timetable,
             workplans_sync_timetable
         ])
