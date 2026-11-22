@@ -701,6 +701,9 @@ async fn autonomo_actividades_save(
     prioridad: String,
     minutos_estimados: i64,
     materiales: String,
+    nivel_nombre: Option<String>,
+    vista_ejercicios: Option<String>,
+    ejercicios: Option<Vec<Value>>,
 ) -> Result<Value, String> {
     let token = countdown_keychain_get()?;
     let client = reqwest::Client::builder()
@@ -720,7 +723,10 @@ async fn autonomo_actividades_save(
             "instrucciones": instrucciones,
             "prioridad": prioridad,
             "minutos_estimados": minutos_estimados,
-            "materiales": materiales
+            "materiales": materiales,
+            "nivel_nombre": nivel_nombre,
+            "vista_ejercicios": vista_ejercicios,
+            "ejercicios": ejercicios
         }))
         .send()
         .await

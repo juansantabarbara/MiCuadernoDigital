@@ -2732,6 +2732,30 @@
           </label>
           <h4>2. Ejercicios del bloque</h4>
           <p class="small">Cada ejercicio tendrá su propia prioridad y tiempo estimado.</p>
+          <section id="autonomo-editor-niveles" style="margin-bottom:20px;padding:18px;border:1px solid var(--border);border-radius:12px">
+            <h4 style="margin-top:0">Nuevo editor · Niveles personalizados</h4>
+            <p class="small">Prepara los ejercicios de un nivel antes de guardarlos y asignarlos.</p>
+            <div class="form-grid">
+              <label>Nombre del nivel
+                <input id="autonomo-nivel-nombre" maxlength="100" placeholder="Ej.: Nivel Miguel">
+              </label>
+              <label>Presentación al alumno
+                <select id="autonomo-nivel-vista">
+                  <option value="uno">Un ejercicio cada vez</option>
+                  <option value="todos">Todos los ejercicios</option>
+                </select>
+              </label>
+              <label class="full-span">Enunciado del ejercicio
+                <textarea id="autonomo-ejercicio-enunciado" rows="4" placeholder="Escribe o pega aquí un problema..."></textarea>
+              </label>
+            </div>
+            <div class="actions" style="justify-content:flex-start;margin-top:12px">
+              <button type="button" id="autonomo-ejercicio-anadir">＋ Añadir ejercicio</button>
+              <button type="button" id="autonomo-ejercicios-limpiar">Vaciar borrador</button>
+            </div>
+            <div id="autonomo-ejercicios-borrador" aria-live="polite" style="margin-top:14px"></div>
+            <p class="small">Borrador local: todavía no se publica ni se envía al servidor.</p>
+          </section>
           <form id="autonomo-actividad-form" style="margin-bottom:22px">
             <div class="form-grid">
               <label>Asignatura
@@ -4466,6 +4490,57 @@
     if(!destinatarios.length || destinatarios.some(id=>id<=0)
        || new Set(destinatarios).size!==destinatarios.length){
       toast('Selecciona al menos un alumno con una vinculación web válida.');
+      return;
+    }
+
+    const ejerciciosV2=window.autonomoEditorV2?.obtenerEjercicios()||[];
+    const nivelNombre=document.querySelector('#autonomo-nivel-nombre')?.value.trim()||'';
+    const vistaEjercicios=document.querySelector('#autonomo-nivel-vista')?.value||'uno';
+
+    if(ejerciciosV2.length){
+      if(!nivelNombre){
+        toast('Escribe el nombre del nivel antes de guardarlo.');
+        document.querySelector('#autonomo-nivel-nombre')?.focus();
+        return;
+      }
+      const datosNivelV2 = {
+        destinatarios,
+        bloqueId,
+        semanaInicio: semana,
+        asignatura: asignatura.value,
+        titulo: titulo.value.trim() || nivelNombre,
+        instrucciones: instrucciones.value,
+        prioridad: prioridad.value,
+        minutosEstimados: Number(minutos.value),
+        materiales: materiales.value,
+        nivelNombre,
+        vistaEjercicios,
+        ejercicios: ejerciciosV2
+      };
+
+      boton.disabled=true;
+      boton.textContent='Guardando nivel…';
+
+      try {
+        await nativeInvoke('autonomo_actividades_save', datosNivelV2);
+
+        document.querySelector('#autonomo-nivel-nombre').value='';
+        window.autonomoEditorV2.limpiarEjercicios();
+        titulo.value='';
+        instrucciones.value='';
+        materiales.value='';
+
+        if(semana===semanaAutonomoSeleccionada){
+          await cargarActividadesAutonomo();
+        }
+
+        toast('Nivel guardado correctamente con '+datosNivelV2.ejercicios.length+' ejercicios.');
+      }catch(error){
+        toast('No se pudo guardar el nivel: '+String(error));
+      }finally{
+        boton.disabled=false;
+        boton.textContent='＋ Añadir actividad';
+      }
       return;
     }
 
@@ -14454,5 +14529,61 @@ const units=todaysUnits(),tt=todaysTimetable(),rec=data.attendance[today()]||{},
 
 
 </script>
+
+<script>
+(() => {
+  const add = document.getElementById('autonomo-ejercicio-anadir');
+  const clear = document.getElementById('autonomo-ejercicios-limpiar');
+  const input = document.getElementById('autonomo-ejercicio-enunciado');
+  const output = document.getElementById('autonomo-ejercicios-borrador');
+  if (!add || !clear || !input || !output) return;
+  const ejercicios = [];
+  window.autonomoEditorV2 = {
+    obtenerEjercicios: () => ejercicios.map((enunciado, i) => ({
+      titulo: 'Ejercicio ' + (i + 1),
+      enunciado
+    })),
+    limpiarEjercicios: () => {
+      ejercicios.length = 0;
+      render();
+    }
+  };
+  const render = () => {
+    output.replaceChildren();
+    ejercicios.forEach((enunciado, i) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px;margin:8px 0;border:1px solid var(--border);border-radius:10px;white-space:pre-wrap';
+      const title = document.createElement('strong');
+      title.textContent = 'Ejercicio ' + (i + 1);
+      const body = document.createElement('p');
+      body.textContent = enunciado;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        ejercicios.splice(i, 1);
+        render();
+      });
+      item.append(title, body, remove);
+      output.append(item);
+    });
+  };
+  add.addEventListener('click', () => {
+    const value = input.value.trim();
+    if (!value) { input.focus(); return; }
+    ejercicios.push(value);
+    input.value = '';
+    render();
+    input.focus();
+  });
+  clear.addEventListener('click', () => {
+    if (!ejercicios.length || confirm('¿Vaciar los ejercicios del borrador?')) {
+      ejercicios.length = 0;
+      render();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
